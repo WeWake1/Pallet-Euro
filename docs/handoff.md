@@ -1,0 +1,181 @@
+# Handoff: Pallet Euro Packaging website
+
+Read this first in every Claude Code session, on either machine. It carries everything from the earlier sessions that is not obvious from the code: where the work stands, what the owner has decided, how they like to work, how to set up a new machine, and how the renders are made. Owner answers are logged in full in `docs/decisions.md`; every design round with screenshots is in `docs/prototypes/README.md`.
+
+**At the end of every session:** update "Status" below and add a line to "Session log" at the bottom. The owner commits and pushes themselves (decided 2026-11-23); commit or push only when they ask.
+
+---
+
+## 1. Status (last updated 2026-11-23)
+
+- **Stage:** prototyping the home page design. Round 5 was delivered on 2026-11-08: three new hero concepts and two Apple-style scroll stories (the Mark, the container). Live at `/prototype/` (switch heroes with `?variant=A|B|C` or the arrow keys).
+- **Waiting on the owner:** the round-5 questions (`docs/decisions.md`, "Open questions (round 5)") and the company facts from round 2. On 2026-11-23 the owner said they will answer later: do not push for answers; continue with whatever they ask for next.
+- **Fallback hero** if nothing in round 5 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
+- **Why the second machine:** the owner wants to do heavier Blender work on their Windows PC (AMD Radeon RX 9060 XT, 32 GB RAM). Section 3 explains the setup.
+- **Nothing is public yet.** Every page is `noindex`. The EPAL licence is applied for, not granted (see CLAUDE.md hard rules 1 and 2).
+- **Repo privacy (owner's decision, 2026-11-23):** the GitHub repo `WeWake1/Pallet-Euro` is **public** and stays public for now. Claude pointed out the cost: anyone can see the EPAL-oval renders, the older renders with Ambica's `IN-083 HT` mark, and the notes naming Ambica (this file included), which conflicts with hard rules 1 and 2. The owner chose to keep it public. Do not change the visibility unless they ask; mention it again only before anything goes live (domain, Search Console, directories).
+
+## 2. Run it
+
+```
+npm ci                  # once per machine (Node 24, see .nvmrc)
+npm run proto           # dev server on http://127.0.0.1:4322
+```
+
+Open `http://127.0.0.1:4322/prototype/` (round 5), `/prototype/round-4/`, `/round-3/`, `/round-2/`. `/` is a placeholder.
+Astro 7 may start the dev server in the background and return at once: `npx astro dev status`, `npx astro dev logs`, `npx astro dev stop`. On the Mac, port 4321 belongs to another project; that is why this one uses 4322.
+`npm run check` type-checks (0 errors expected; one deprecation hint in the round-2 archive is known).
+`vite.server.forwardConsole` is off in `astro.config.mjs` on purpose: with it on, Vite 7 crashed the dev server.
+
+## 3. Set up a new machine (Windows PC with the Radeon)
+
+1. **Git for Windows**, then `git clone https://github.com/WeWake1/Pallet-Euro.git`. Line endings are pinned by `.gitattributes`; leave them alone.
+2. **Node.js 24**, then `npm ci` and `npm run proto` (section 2).
+3. **Blender 5.1.x** (the Mac uses 5.1.2; keep both machines on the same version so renders match). Blender's Cycles supports the RX 9000 (RDNA 4) cards through **HIP** since Blender 4.4, with AMD's Adrenalin driver 24.6.1 or newer: install the latest Adrenalin driver. Check Edit > Preferences > System > Cycles Render Devices > HIP lists the RX 9060 XT.
+4. **Python 3** on PATH (only for `tools/render/run.py`; the scenes run on Blender's own Python).
+5. **cwebp** for the phone-size images: download libwebp from https://developers.google.com/speed/webp/download, unzip, add its `bin` folder to PATH (or set `CWEBP`).
+6. **Google Chrome** for the review scripts in `tools/shot/` (or set `CHROME` to `chrome.exe` / `msedge.exe`).
+7. **First render test:** `python tools/render/run.py mark --test --frames 0`. It should print `DEVICE HIP: AMD Radeon RX 9060 XT ...` and write `.render-test/mark/000.webp`. A `WARNING no GPU found` line means Blender fell back to the CPU: fix the driver first. Force a backend with `--device HIP` or the env var `PE_RENDER_DEVICE`.
+8. **Long renders:** stop the PC from sleeping while plugged in (Windows Settings > System > Power), or a queue pauses for hours. That happened twice on the Mac.
+9. **Claude Code:** open this folder. `CLAUDE.md` loads by itself and points here. The project skills in `.claude/skills/` (grilling, prototype, karpathy-guidelines) come with the repo. Claude's own memory from the Mac does not travel; its content is in section 5.
+10. **Keyword research (optional, later):** OpenSEO is a separate project, not in this repo (section 10).
+
+## 4. The project in one page
+
+- **Company:** Pallet Euro Packaging ("Pallet Euro" large, "packaging" small), a new Indian company focused on EPAL pallets. Goal: be the name every Indian buyer thinks of for EPAL pallets. **SEO is the top priority** on every decision.
+- **Range:** all 28 pallets, EPAL family first (EPAL 1/2/3, CP1–CP9), then pinewood, hardwood, GMA and the collar (plain names, no EPAL marks). Data: `src/data/range28.ts`, `src/data/products-ambica-source.json`, geometry `src/data/pallet-geometry.json`.
+- **Site plan (decided):** multi-page. Home; Products (one page per pallet); Certifications (one page per certificate, each with a Verify link); About; Contact/Quote; Guides (articles answering buyers' searches). Home page first, then the inner pages.
+- **Stack:** Astro 7 + TypeScript, React islands, Tailwind v4. Static build for Hostinger, one PHP file for the quote form. All text and links in the static HTML.
+- **Hard rules:** in `CLAUDE.md` (no Ambica connection, no EPAL oval in public before the licence, certificate rules, never invent facts, EPAL product names, renders are dev-only, phone performance).
+- **Look (decided):** light background (never dark), deep blue `#0B3A9E`, Urbanist everywhere, bold condensed capitals (Sofia Sans Condensed) only for big statement bands. Rich, premium motion; no video, ever.
+- **Kept from earlier rounds:** headline "Europe’s standard pallet, made in India."; product cards (`home/Range.astro`); "Certified at every step" (`home/CertifiedSteps.astro`); the deep-blue "Your next container, on EPAL pallets" quote band (now the end of the container scroll story).
+- **3D policy (decided):** everything visitors look at is a photoreal Blender render (stills or frame sequences). Live 3D only for "drag to rotate" on product pages, loaded on tap. "The Line" (all pallets on a conveyor) goes on the Products page. The Mark is a scroll story right after the hero; the container is a scroll story at the end.
+
+## 5. Working with the owner (carried over from Claude's memory on the Mac)
+
+- **Who:** the founder of Pallet Euro Packaging, with 20+ years in pallets. They also own Ambica Patterns India Pvt Ltd, a separate pallet company in Bengaluru (heat-treated pinewood pallets, ISPM-15 HT, not EPAL). Ambica must never be connected to Pallet Euro in public. Vision: India's largest EPAL manufacturer, the brand buyers think of first. They write long, emphatic briefs, want premium, unique output, and hate generic AI-looking sites. They rely on Claude Code for the web and Blender work.
+- **Ask at every decision.** Use numbered questions, each with a recommended answer, worded so "yes" accepts it (the `grilling` skill). For visual or motion choices, build a working demo with variants on one route (the `prototype` skill). If the brief contradicts itself, ask before building: guessing "dark" from a contradictory first brief cost a full redo. Do the fact-finding yourself, then batch real decisions into one short round. When they say "idk", decide or show options as variants. When they delegate, decide, say so in one line, and log it. Log every answer in `docs/decisions.md` the same day.
+- **Taste:** premium-corporate polish over clever metaphors. Reference sites they like most: Jay Wood, We Are Pallets, Golden Pallet (white, big confident headlines, one strong colour). They judge by polish and clarity, not novelty alone, but keep asking for "creative unique" heroes.
+- **What has landed so far:** photoreal + a real-looking space + Indian character + interactive light (round 4's "Indian light"). What failed: anything dark; live WebGL ("low quality, fake"); turntables ("good but generic"); playful type tricks; empty landscapes; short films that build up to the message (a hero should be one striking statement from its first frame; this reading is not confirmed by the owner).
+- **Never reuse** round 1's ideas: guilloche/passport/MRZ, rubber stamps, split-flap boards, stencil type, monospace "technical" styling, huge dimension numerals as the hero.
+- **Phones:** no scroll-driven or pinned motion (play once by itself instead), no Lenis, no dot-grid backgrounds, 3D off the first load, Lighthouse mobile 99–100.
+- **EPAL register (for checking the licence and competitors):** https://www.epal-pallets.org/eu-en/licensee-search. Results come from POSTing the page's main form (`module-map-main-form`, TYPO3 fields `tx_licenseesearch_pi1[...]` with the hidden `__referrer`/`__trustedProperties`) to `/eu-en/licensee-search/licenseesearch.json?...findByFilter...` with `tx_licenseesearch_pi1[search][countryCode]=IND`. Snapshot 2026-11-07: 23 active Indian licences (codes up to IND-039). Jay Wood Industry holds IND-007 and IND-016.
+
+## 6. Design rounds so far (details and screenshots: `docs/prototypes/README.md`)
+
+| Round | Date | What | Verdict |
+|---|---|---|---|
+| 1 | 7 Nov | Three dark directions | Rejected entirely; never reuse |
+| 2 | 7 Nov | Light: Studio, Assembly (live 3D), Certified | Kept the headline and three sections; all heroes rejected |
+| 3 | 7 Nov | The Line, Stack, Mark, Container (live three.js) | Mark → scroll story; Line → Products page; 3D looked fake |
+| 4 | 7 Nov | Photoreal: Indian light, On the headline, White desert | Indian light = fallback hero; others disliked |
+| 5 | 8 Nov | Two worlds, In its place, Look inside + Mark and container scroll stories | **Awaiting verdict** |
+
+Round 5 in one line each:
+- **A Two worlds** (`r5/HeroWorlds.astro`): the same EPAL 1 from the same camera in a European warehouse (cool light through a steel window) and the Indian jaali room. The cursor moves the seam; on phones it sweeps by itself.
+- **B In its place** (`r5/HeroAnamorph.astro`): an anamorphic installation. The pallet's 20 parts hang on wires at different depths and line up only from one spot. Cursor movement fans the layers apart; they settle when the cursor rests. This was the recommended pick.
+- **C Look inside** (`r5/HeroXray.astro`): a lens shows the pallet as a blue X-ray with all 78 nails and names the part under it (from an ID-map render).
+- **The Mark** (`r5/MarkFilm.astro`, 168 frames): a steel head brands the EPAL oval (glow, smoke, cooling) → IPPC HT mark → fly under the deck → whole pallet. Captions use only facts checked on EPAL's page (`docs/decisions.md`, after round 4).
+- **Container** (`r5/ContainerFilm.astro`, 150 frames): a deep-blue 20' container opens (right-hand door first), 11 EPAL pallets of cartons, the roof lifts for the 7 + 4 floor layout, ending on the blue quote card.
+
+## 7. Code map
+
+- `src/pages/prototype/index.astro`: round 5 (live). `round-2/3/4.astro`: frozen archives. `src/pages/index.astro`: placeholder.
+- `src/layouts/Proto.astro`: prototype layout (noindex, fonts, `?variant=` before first paint, `[data-reveal]` observer).
+- `src/components/proto/home/`: the live home sections shared by the current round (Header, HeroCopy, Range, CertifiedSteps, ContainerBand, Footer, `home.css` scoped under `.pe`, `when-shown.ts` to start a hero only when its variant is visible).
+- `src/components/proto/r5/`: round-5 heroes, `Film.astro` + `film.ts` (scroll film: pinned and scrubbed on screens over 900 px, play-once on phones, lazy frame loading, rests on whole frames), `seq.ts` (frame player: coarse-to-fine loading, cross-fade, cover crop around a focus point).
+- `src/components/proto/r4/`: round-4 heroes (still used by nothing live; the archive has its own frozen copy).
+- `src/components/proto/archive/r2|r3|r4/`: frozen copies of each round (do not edit).
+- `src/components/proto/Switcher.astro`: the floating variant switcher (prototype only). `Icon.astro`: Phosphor icons inlined at build time. `Logo.astro`.
+- `src/data/`: `certificates.ts` (placeholders in `{{braces}}` or with X; never publish), `range28.ts`, `pallet-geometry.json` (exact part coordinates in mm), `products-ambica-source.json` (catalogue data copied from the Ambica repo).
+- `src/lib/containers.ts`: container sizes and `floorFit()` (11 Euro pallets in a 20', standard single-tier layouts). `pallet-drawing.ts`: technical drawing helper.
+- `src/assets/dev-renders/`: catalogue renders copied from the Ambica repo (carry `IN-083 HT`, dev only).
+- `public/dev/`: dev-only renders and textures (`r4/`, `r5/` with `*-sm` phone versions, `stamps/`, `textures/`). Delete before launch.
+- `tools/render/`: `palletkit.py` (pallet builder for Blender: geometry, approved wood look, nails, marks from `brand.json`), `brand.json` (dev marks: EPAL oval + `IN-XXX HT` placeholder), `stamps/`, `textures/` (ambientCG Wood096 pine, Wood060 hardwood, CC0), `hero/` scenes, `run.py`, `make_small.py`.
+- `tools/shot/`: `sheet.mjs` (contact sheet), `shots.mjs` (page screenshots with errors and overflow), `browser.mjs` (finds Chrome on Mac or Windows).
+- `docs/`: `decisions.md`, `prototypes/` (history + screenshots per round), this file.
+
+## 8. Render pipeline
+
+**How it works:** each scene in `tools/render/hero/` imports `common.py`, which imports `palletkit.py`. That resets the Blender scene, builds the materials and gives helpers. Every scene builds the exact EPAL 1 with `C.build_pallet()` (deterministic: palletkit seeds its randomness from the recipe name, so the same pallet comes out in every scene), sets up its room, lights and camera, then renders frame by frame to WebP. Output paths are relative to the repo root.
+
+**Render with saved settings:** `python tools/render/run.py --list` shows every scene. Examples:
+- `python tools/render/run.py mark`: renders all frames, then makes the phone versions.
+- `python tools/render/run.py xray worlds`
+- `python tools/render/run.py mark --test --frames 0,26,72,114,167`: half size, 24 samples, written to `.render-test/` (ignored by git).
+- Then review with `node tools/shot/sheet.mjs public/dev/r5/mark sheet.png 3 1800 "^(000|040|080|120|167)\."`.
+
+| Scene | Script | Output | Settings |
+|---|---|---|---|
+| The Mark film | `mark.py` | `public/dev/r5/mark/000-167.webp` | 1600×900, 48 spp |
+| Container film | `container.py` | `public/dev/r5/container/000-149.webp` | 1600×900, 32 spp |
+| In its place (hero B) | `anamorph.py` | `public/dev/r5/anamorph/00-60.webp` (frame 30 = sweet spot) | 1920×1080, 40 spp |
+| Two worlds, Europe | `europe.py` | `public/dev/r5/worlds/europe.webp` | 2400×1350, 128 spp |
+| Two worlds, India | `jaali.py --frames 24` | `public/dev/r5/worlds/india.webp` | 2400×1350, 128 spp |
+| Look inside (hero C) | `xray.py --pass photo/xray/ids` | `public/dev/r5/xray/` | 2400×1350, 128 spp; ids.png: red = 10 × part number |
+| Round 4 (archive) | `jaali.py`, `rann.py`, `resting.py` | `public/dev/r4/` | commands in each script's docstring |
+
+Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm`, `container-sm`), hero frames at 960×540 (`anamorph-sm`), stills at 1200×675 (`*-sm.webp`). Pages pick them on screens up to 900 px wide.
+
+**Timings on the Mac (M4, 10-core GPU), rough:** Mark about 1 h in total (smoke frames about 45 s each, the rest about 15 s); container about 40 min; anamorph about 30 min; each 2400×1350 still 1–3 min. Measure the first frame on the Radeon and expect it to be faster.
+
+**Lessons:**
+- Always render one test frame at half size first (`--test`), look at it, then run the sequence.
+- One Blender process at a time: on the Mac, three in parallel were slower than two.
+- Volume smoke is slow: keep it to the frames that show it (`mark.py` fades it out by frame 56).
+- Exposure: AgX "Medium High Contrast". Pale wood turns pink if overexposed.
+- Seamless backgrounds use a world shader that shows a flat colour to camera rays, and a floor that fades into that colour with camera distance (no horizon line).
+- A generated image must be saved to a file and reloaded before Cycles sees it (the `_*.png` files in `hero/`, now ignored by git).
+- An anamorphic part must keep the depth order of the real pallet (deck closest, then stringer boards, blocks, bottom boards), or hidden parts show through.
+- The scroll player must rest on whole frames, or a half cross-fade leaves a double image when scrolling stops.
+
+**Render rules from the owner (do not break; copied from the earlier catalogue handoff on the Mac):**
+- Chamfers only where the official drawing has them; no generic bevels. Corner chamfer through every layer at that corner: EPAL 1 = 17 mm, EPAL 2/3 = 24 mm, CP = 20 mm, all at 45°.
+- Outer bottom boards of EPAL-type pallets: chamfered only between the blocks, on the outer top edge, about 11 mm deep with curved run-outs. The pinewood middle bottom board has no chamfer. GMA notches are rounded.
+- Approved look (5 Nov 2026): pale straight-grain spruce, 3 mm eased edges, small bright nails, a few knots on one deck board per pallet, CC0 textures Wood096 (pine) and Wood060 (hardwood). Wood095 was rejected. Never open the `.blend` files inside texture zips. If the look changes, test one pallet and get the owner's OK before re-rendering all 28.
+- **Where the marks go (EPAL's own sheets; EPAL-licensed pallets only):** EPAL 1/2/3: EPAL oval on the left and right corner blocks; IPPC mark (plus licence number, year and month) on the centre block. CP1–CP9: IPPC mark on the left-hand corner block, CP type and EPAL ID on the centre block, EPAL oval on the right-hand corner block. Pinewood, hardwood, GMA and collar are not EPAL: IPPC mark only. Never stamp the company name on the pallets.
+- **Open data issue:** for CP8/CP9 board counts, EPAL's sheets say 28 and 24 but the drawings give 21 and 18 (the renders follow the drawings). Settle it with the licence documents. Pinewood/hardwood/GMA/collar layouts were measured from a reference range; the owner's production drawings win.
+- **Content rules from that handoff:** specs may match Jay Wood's range, but all text must be original (never copy their text or images). Use real names (EPAL 1/2/3, CP1–CP9, "pallet collar"). Never reuse Ambica's page text or photos. EPAL load ratings only on licensed pallets.
+
+**Launch re-render (blocker):** once the EPAL licence and Pallet Euro's own HT code exist, set `tools/render/brand.json` (`ippc.code`, marks) and re-render everything: the r5 scenes via `run.py`, and the 28 catalogue products plus GLBs. The batch catalogue renderer (views, GLB export) is still only in the Ambica repo on the Mac (`tools/render/render_pallet.py`, `pallets.py`, `render_all.sh`); copy it in when that job starts.
+
+## 9. Open questions waiting on the owner
+
+- Round 5 (asked 2026-11-08): hero pick (B recommended), keep the Mark and container stories as built, reuse the other heroes (Two worlds on About, X-ray lens on product pages), build the production home page next, placeholders for company facts. Full text: `docs/decisions.md`.
+- Round 2 (still open): domain, own factory address/phones/email, which EPAL products the licence covers, status of the other certificates (numbers, issuers, validity, scans), trademark ® or ™, what "SOP" and "IIP" mean, whether to mention 20+ years of experience, real figures (capacity, area, HT chamber, people), launch timing.
+
+## 10. Not in this repo (on the Mac only)
+
+- **Ambica site repo** `/Users/wewake/VSC/APIPL/apiplSite`: the original 28-product render pipeline and assets. What this project uses is already copied in: `palletkit.py` (lines 1–741 of its `render_pallet.py`), textures, stamps, geometry, catalogue data, dev renders. Never edit that repo, and never let it show on this site.
+- **Earlier Pallet Euro attempt** `github.com/WeWake1/PalletEuro`: EPAL stamp setup, product copy, guides. Reuse data and copy only, not its design.
+- **OpenSEO** (`../open-seo` next to this folder on the Mac, cloned from `github.com/every-app/open-seo`) with the owner's DataForSEO key in `.env.local`. On the PC: clone it next to this repo, copy `.env.example` to `.env.local`, paste the key (never commit it), follow its README. DataForSEO gives $1 free credit; the minimum top-up is $50.
+- **Claude's memory files** on the Mac: their content is now in section 5.
+- **The chat transcripts** of the earlier sessions: not copied. This file, `docs/decisions.md` and `docs/prototypes/README.md` hold what matters from them.
+
+## 11. Next steps (when the owner is ready)
+
+1. Get the round-5 verdict; build the next hero round if nothing wins (keep what landed in mind, section 5).
+2. Build the production home page around the chosen hero:
+   - deferred frame loading and lighter (AVIF) frames on phones;
+   - Lighthouse mobile 99–100;
+   - SEO tags and schema without Ambica links;
+   - the `noindex` launch gate kept on.
+3. Keyword research with OpenSEO, then the inner pages (Products with the Line and the X-ray lens; Certifications; About; Contact/Quote with the PHP form; Guides).
+4. Launch blockers (`docs/decisions.md`): EPAL licence certificate; re-render all renders and GLBs with Pallet Euro's marks; real company details; delete the prototype (`src/pages/prototype/`, `src/components/proto/`, `src/layouts/Proto.astro`, `src/assets/dev-renders/`, `public/dev/`).
+
+## 12. Session log
+
+- **2026-11-06/07:** Kickoff. Brief, EPAL register research, skills installed (`.claude/skills/`), stack chosen, Astro scaffold, OpenSEO cloned. Round 1 (dark) was rejected; rounds 2 and 3 were built and judged.
+- **2026-11-07:** Round 4, the first photoreal Blender heroes (new `palletkit.py`, `tools/render/hero/`). Indian light became the fallback.
+- **2026-11-07/08:** Round 4 archived. Round 5 built: three heroes plus the Mark and container scroll films. About 3 h of GPU renders; the Mac slept twice mid-queue. Docs and decisions updated.
+- **2026-11-23:** Prepared the move to the Windows PC.
+  - Added this handoff file and pointed CLAUDE.md at it.
+  - `common.py` now picks the GPU automatically (Metal / OptiX / HIP / CUDA / oneAPI).
+  - Added `tools/render/run.py` (saved render settings) and `make_small.py` (phone versions).
+  - Moved the review scripts into `tools/shot/` (puppeteer-core as a dev dependency).
+  - Git: ignore Python caches and generated textures; `.gitattributes` for line endings; `.nvmrc`; `npm run proto`.
+  - Found the GitHub repo is public. The owner chose to keep it public, and to commit and push themselves (`docs/decisions.md` #29–#30).
+
+## 13. Updating this file
+
+At the end of each session: rewrite section 1 to match reality; add one line to section 12 (date, what changed, what is waiting); update sections 7–8 when code or render settings change; move answered questions out of section 9 (the full answers go in `docs/decisions.md`). Keep it short enough to read in five minutes.

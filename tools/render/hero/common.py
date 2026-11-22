@@ -1,9 +1,12 @@
-"""Shared setup for the PROTOTYPE hero scenes (round 4). Run inside Blender; see the scene scripts.
+"""Shared setup for the PROTOTYPE hero scenes and scroll films (rounds 4-5). Run inside Blender; see the
+scene scripts, or use tools/render/run.py, which knows every scene's settings.
 
 Imports palletkit (exact pallet geometry + approved wood look), then gives the scene scripts:
-Cycles on the Metal GPU, a camera helper, simple materials, and a frame loop that writes WebP files.
+Cycles on the GPU (Metal on a Mac; OptiX/HIP/CUDA/oneAPI elsewhere, e.g. HIP on an AMD Radeon), a camera
+helper, simple materials, and a frame loop that writes WebP files.
 Flags (after `--`): --recipe epal1 --recipes src/data/pallet-geometry.json --out DIR
                     [--size 1920x1080] [--samples 128] [--frames 0-47|0,12] [--quality 80] [--test]
+                    [--device auto|METAL|HIP|OPTIX|CUDA|ONEAPI|CPU]   (or env PE_RENDER_DEVICE)
 """
 import argparse
 import math
@@ -24,6 +27,8 @@ ap.add_argument("--samples", type=int, default=128)
 ap.add_argument("--frames", default="", help="frames to render, e.g. 0-47 or 0,24,47 (default: all)")
 ap.add_argument("--quality", type=int, default=82)
 ap.add_argument("--test", action="store_true", help="quarter size, few samples")
+ap.add_argument("--device", default=os.environ.get("PE_RENDER_DEVICE", "auto"),
+                help="Cycles device: auto (Metal on a Mac, else OptiX, HIP, CUDA, oneAPI), one of those, or CPU")
 args, _ = ap.parse_known_args(argv)
 
 scene = pk.scene
@@ -31,15 +36,35 @@ W, H = (int(v) for v in args.size.split("x"))
 os.makedirs(args.out, exist_ok=True)
 
 
+GPU_ORDER = ["METAL"] if sys.platform == "darwin" else ["OPTIX", "HIP", "CUDA", "ONEAPI"]
+
+
+def pick_device():
+    """First GPU backend that has a device. On the owner's Windows PC (Radeon RX 9060 XT) that is HIP."""
+    prefs = bpy.context.preferences.addons["cycles"].preferences
+    wanted = GPU_ORDER if args.device.lower() == "auto" else [args.device.upper()]
+    for kind in wanted:
+        if kind == "CPU":
+            break
+        try:
+            prefs.compute_device_type = kind
+        except TypeError:          # this Blender build has no such backend
+            continue
+        prefs.refresh_devices()
+        gpus = [d for d in prefs.devices if d.type == kind]
+        if gpus:
+            for d in prefs.devices:
+                d.use = d.type == kind     # GPU only: adding the CPU slows the GPU render down
+            print(f"DEVICE {kind}: " + ", ".join(d.name for d in gpus), flush=True)
+            return "GPU"
+    print("WARNING no GPU found for Cycles; rendering on the CPU (much slower)", flush=True)
+    return "CPU"
+
+
 def setup_cycles(view="AgX", look="", exposure=0.0, transparent=False):
     scene.render.engine = "CYCLES"
-    prefs = bpy.context.preferences.addons["cycles"].preferences
-    prefs.compute_device_type = "METAL"
-    prefs.refresh_devices()
-    for d in prefs.devices:
-        d.use = d.type == "METAL"  # GPU only; adding the CPU slows Metal down
     cy = scene.cycles
-    cy.device = "GPU"
+    cy.device = pick_device()
     cy.samples = 24 if args.test else args.samples
     cy.use_denoising = True
     cy.max_bounces = 8

@@ -5,3 +5,11 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+
+# Python caches and textures the render scripts generate themselves
+__pycache__/
+*.pyc
+tools/render/hero/_*.png
+# quick test renders (tools/render/run.py --test) and review screenshots
+.render-test/
+Thumbs.db

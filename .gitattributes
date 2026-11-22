@@ -1,0 +1,9 @@
+# Same line endings on the Mac and the Windows PC (scripts break with CRLF).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.glb binary
+*.blend binary
+*.woff2 binary

@@ -2,6 +2,16 @@
 
 Owner answers, newest first. Never re-ask anything answered here.
 
+## 2026-11-23 (moving to the Windows PC)
+
+| # | Question | Answer |
+|---|---|---|
+| 29 | The GitHub repo `WeWake1/Pallet-Euro` is public (EPAL-oval renders, `IN-083` renders and notes naming Ambica are visible). Make it private? | **Keep it public** (owner's choice, after the warning). Do not change visibility unless asked. |
+| 30 | Commit and push the handoff work? | **No: the owner commits and pushes themselves.** |
+| 31 | Round-5 questions | Owner will answer later; do not push for answers. |
+
+The owner now also works on a Windows PC (AMD Radeon RX 9060 XT, 32 GB RAM) for heavier Blender renders. `docs/handoff.md` carries the context between machines.
+
 ## 2026-11-07 (after round 4)
 
 | # | Question | Answer |
