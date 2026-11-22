@@ -1,0 +1,73 @@
+---
+// PROTOTYPE round 4 · C "Rann": a photoreal Blender render of one EPAL 1 alone on a white salt desert
+// (after the Great Rann of Kutch) under a physical sky. The camera sways slowly around the pallet:
+// 72 frames that form a seamless loop. The headline sits in the sky. Pause button for moving content.
+import HeroCopy from '../home/HeroCopy.astro';
+import Icon from '../Icon.astro';
+const DIR = '/dev/r4/rann';
+const COUNT = 72;
+const START = 0;
+const FOCUS = { x: 0.66, y: 0.62 };
+---
+<section class="photo-hero rann-hero" style={`--pic-bg:#dfe4ea`} aria-label="Pallet Euro Packaging">
+  <div class="pic" data-pic data-dir={DIR} data-count={COUNT} data-start={START} data-fx={FOCUS.x} data-fy={FOCUS.y}>
+    <img src={`${DIR}/00.webp`} width="1920" height="1080" fetchpriority="high" decoding="async"
+      style={`object-position:${FOCUS.x * 100}% ${FOCUS.y * 100}%`}
+      alt="One EPAL 1 Euro pallet standing alone on a white salt desert under a pale morning sky" />
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <button class="hint ctrl" type="button" data-toggle aria-pressed="false">
+    <span class="i-pause"><Icon name="pause" size={18} /></span><span class="i-play"><Icon name="play" size={18} /></span>
+    <span data-label>Pause</span>
+  </button>
+</section>
+
+<style>
+  .rann-hero { align-items: flex-start; }
+  .rann-hero .copy-wrap { padding-top: clamp(24px, 8vh, 96px); }
+  @media (max-width: 900px) {
+    .rann-hero { align-items: stretch; }          /* the picture needs the full width on phones */
+    .rann-hero .copy-wrap { padding-top: 0; }
+  }
+  .ctrl { pointer-events: auto; cursor: pointer; border: 0; font: inherit; }
+  .ctrl:hover { color: var(--blue); }
+  .ctrl .i-play { display: none; }
+  .ctrl[aria-pressed='true'] .i-play { display: inline-flex; }
+  .ctrl[aria-pressed='true'] .i-pause { display: none; }
+  .ctrl span { display: inline-flex; }
+</style>
+
+<script>
+  import { createSeq, frames } from './seq';
+  import { whenShown } from '../home/when-shown';
+
+  const hero = document.querySelector<HTMLElement>('.rann-hero');
+  const pic = hero?.querySelector<HTMLElement>('[data-pic]');
+  const toggle = hero?.querySelector<HTMLButtonElement>('[data-toggle]');
+  if (hero && pic && toggle) {
+    let paused = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const label = toggle.querySelector<HTMLElement>('[data-label]')!;
+    const sync = () => { toggle.setAttribute('aria-pressed', String(paused)); label.textContent = paused ? 'Play' : 'Pause'; };
+    sync();
+    whenShown('C', pic, () => {
+      const d = pic.dataset;
+      const count = Number(d.count);
+      const seq = createSeq(pic.querySelector('canvas')!, frames(d.dir!, count), { x: Number(d.fx), y: Number(d.fy) }, 0, true);
+      const PERIOD = 9.5;                       // seconds for one full sway, there and back
+      let phase = 0, last = performance.now(), visible = true;
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(hero);
+      toggle.addEventListener('click', () => { paused = !paused; sync(); });
+      const loop = (now: number) => {
+        requestAnimationFrame(loop);
+        const dt = Math.min((now - last) / 1000, 0.1);
+        last = now;
+        if (paused || !visible || document.hidden || pic.offsetParent === null) return;
+        phase = (phase + dt / PERIOD) % 1;
+        seq.show(phase * count);
+      };
+      requestAnimationFrame(loop);
+      return {};
+    });
+  }
+</script>

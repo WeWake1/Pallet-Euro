@@ -1,0 +1,89 @@
+---
+// PROTOTYPE round 5 · B "In its place": an anamorphic installation in a white gallery (tools/render/hero/
+// anamorph.py). The EPAL 1's boards and blocks hang on fine wires at very different depths and only line up
+// into the exact pallet from one spot. On load it comes apart and settles; moving the cursor pushes the
+// camera off the spot (the layers fan out) and it settles back when the cursor rests. Phones: it parts and
+// settles by itself every few seconds.
+import HeroCopy from '../home/HeroCopy.astro';
+import Icon from '../Icon.astro';
+const DIR = '/dev/r5/anamorph';
+const COUNT = 61;
+const SWEET = 30;
+const FOCUS = { x: 0.5, y: 0.5 };   // screens narrower than 16:9 crop both sides evenly: clear of the headline, a sliver off the far end
+---
+<section class="photo-hero anamorph-hero" style="--pic-bg:#e9e7e3" aria-label="Pallet Euro Packaging">
+  <div class="pic" data-pic data-dir={DIR} data-count={COUNT} data-sweet={SWEET} data-fx={FOCUS.x} data-fy={FOCUS.y}>
+    <img src={`${DIR}/${SWEET}.webp`} srcset={`${DIR}-sm/${SWEET}.webp 960w, ${DIR}/${SWEET}.webp 1920w`} sizes="100vw"
+      width="1920" height="1080" fetchpriority="high" decoding="async"
+      style={`object-position:${FOCUS.x * 100}% ${FOCUS.y * 100}%`}
+      alt="An EPAL 1 Euro pallet seemingly floating in a white gallery: its boards and blocks hang on fine wires and line up from one viewpoint" />
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <p class="hint" aria-hidden="true">
+    <Icon name="cursor" size={20} />
+    <span class="fine">Move your cursor: it only lines up from here</span>
+    <span class="coarse">Every part in its place, from one spot only</span>
+  </p>
+</section>
+
+<style>
+  .anamorph-hero :global(.lede) { max-width: 25em; }
+  @media (max-width: 900px) { .anamorph-hero .pic img { object-position: 68% 50% !important; } }   /* phones: centre the pallet */
+</style>
+
+<script>
+  import { createSeq, frames } from './seq';
+  import { whenShown } from '../home/when-shown';
+
+  const hero = document.querySelector<HTMLElement>('.anamorph-hero');
+  const pic = hero?.querySelector<HTMLElement>('[data-pic]');
+  if (hero && pic) {
+    whenShown('B', pic, () => {
+      const d = pic.dataset;
+      const count = Number(d.count), sweet = Number(d.sweet);
+      const dir = innerWidth <= 900 ? `${d.dir}-sm` : d.dir!;     // phones: 960 px frames
+      const fx = innerWidth <= 900 ? 0.68 : Number(d.fx);          // phones: centre the pallet in the 5:4 picture
+      const seq = createSeq(pic.querySelector('canvas')!, frames(dir, count), { x: fx, y: Number(d.fy) }, sweet);
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const fine = matchMedia('(pointer: fine)').matches;
+      if (reduce) return {};
+      let cur = sweet, visible = true, x = 0.5, anchor = 0.5, introT0 = -1, lastMove = -1e9;
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(hero);
+      if (fine) {
+        hero.addEventListener('pointermove', (e) => {
+          const r = hero.getBoundingClientRect();
+          x = (e.clientX - r.left) / r.width;
+          lastMove = performance.now();
+        });
+      }
+      const replay = () => { introT0 = performance.now(); };
+      seq.done.then(() => { introT0 = performance.now() + 300; });
+      let last = performance.now();
+      const loop = (now: number) => {
+        requestAnimationFrame(loop);
+        const dt = Math.min(now - last, 64);
+        last = now;
+        if (!visible || document.hidden || pic.offsetParent === null) return;
+        let offset = 0;
+        // intro (and on phones every 7 s): it parts and settles back
+        if (introT0 > 0 && now > introT0) {
+          const u = (now - introT0) / 2600;
+          if (u < 1) offset += -17 * Math.sin(Math.PI * u) ** 1.4;
+        }
+        if (!fine && introT0 > 0 && now - introT0 > 7000) introT0 = now;
+        if (fine) {
+          // the camera follows the cursor's movement, not its position: when the cursor rests, it settles
+          anchor += (x - anchor) * (1 - Math.exp(-dt / 650));
+          offset += Math.max(-30, Math.min(30, (x - anchor) * 95));
+          if (now - lastMove > 1800) anchor += (x - anchor) * 0.04;
+        }
+        const target = Math.max(0, Math.min(count - 1, sweet + offset));
+        const next = cur + (target - cur) * (1 - Math.exp(-dt / 70));
+        if (Math.abs(next - cur) > 0.002) { cur = next; seq.show(cur); }
+      };
+      requestAnimationFrame(loop);
+      return { replay };
+    });
+  }
+</script>

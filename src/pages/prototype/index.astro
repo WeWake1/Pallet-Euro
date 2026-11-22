@@ -1,0 +1,42 @@
+---
+// PROTOTYPE (throwaway) · round 5: three new photoreal hero concepts on the home page, followed by the two
+// Apple-style scroll stories the owner asked for (decisions #23, #24): "The Mark" right after the hero and
+// "Your next container" at the end, around the kept sections (product cards, "Certified at every step").
+// Switch heroes with ?variant=A|B|C or the arrow keys. Earlier rounds: /prototype/round-2/ .. /round-4/
+// (round 4's A, "Indian light", is the owner's fallback hero).
+import Proto from '../../layouts/Proto.astro';
+import Switcher from '../../components/proto/Switcher.astro';
+import '../../components/proto/home/home.css';
+import Header from '../../components/proto/home/Header.astro';
+import Range from '../../components/proto/home/Range.astro';
+import CertifiedSteps from '../../components/proto/home/CertifiedSteps.astro';
+import Footer from '../../components/proto/home/Footer.astro';
+import HeroWorlds from '../../components/proto/r5/HeroWorlds.astro';
+import HeroAnamorph from '../../components/proto/r5/HeroAnamorph.astro';
+import HeroXray from '../../components/proto/r5/HeroXray.astro';
+import MarkFilm from '../../components/proto/r5/MarkFilm.astro';
+import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
+---
+<Proto title="Round 5 · hero concepts and scroll stories · Pallet Euro (prototype)">
+  <div class="pe">
+    <Header />
+    <main>
+      <div class="variant" data-variant="A"><HeroWorlds /></div>
+      <div class="variant" data-variant="B"><HeroAnamorph /></div>
+      <div class="variant" data-variant="C"><HeroXray /></div>
+      <MarkFilm />
+      <Range />
+      <CertifiedSteps />
+      <ContainerFilm />
+    </main>
+    <Footer />
+  </div>
+  <Switcher round="Round 5" variants={[{ key: 'A', name: 'Two worlds' }, { key: 'B', name: 'In its place' }, { key: 'C', name: 'Look inside' }]} />
+</Proto>
+
+<style is:global>
+  /* Photo heroes: on computers the header floats transparent over the picture until the page scrolls. */
+  @media (min-width: 901px) {
+    html:not(.scrolled) .pe .head { background: transparent; backdrop-filter: none; }
+  }
+</style>

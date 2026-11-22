@@ -1,0 +1,52 @@
+---
+// PROTOTYPE layout: loads the candidate typefaces so the three directions can be compared on one page.
+import '../styles/global.css';
+import '@fontsource-variable/urbanist';
+import '@fontsource-variable/albert-sans';
+import '@fontsource-variable/sofia-sans';
+import '@fontsource-variable/sofia-sans-condensed';
+
+interface Props { title?: string }
+const { title = 'Pallet Euro · design directions (prototype)' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="data:," />
+    <title>{title}</title>
+    <script is:inline>
+      (function () {
+        var k = (new URLSearchParams(location.search).get('variant') || 'A').toUpperCase();
+        if (!/^[A-F]$/.test(k)) k = 'A';
+        document.documentElement.dataset.variant = k;
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+    <script>
+      // Reveal [data-reveal] elements once, when they enter the viewport.
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add('is-in');
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { rootMargin: '0px 0px -10% 0px' },
+      );
+      const watch = () => document.querySelectorAll('[data-reveal]:not(.is-in)').forEach((el) => io.observe(el));
+      watch();
+      window.addEventListener('variant:shown', watch);
+      // Sticky headers turn solid once the page scrolls.
+      const onScroll = () => document.documentElement.classList.toggle('scrolled', window.scrollY > 12);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    </script>
+  </body>
+</html>

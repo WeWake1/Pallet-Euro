@@ -1,0 +1,35 @@
+---
+// PROTOTYPE round 3 · Hero B, "The Stack": EPAL pallets drop into tall stacks beside the headline.
+import HeroCopy from '../HeroCopy.astro';
+import geometry from '../../../../../data/pallet-geometry.json';
+const recipe = (geometry as Record<string, unknown>).epal1;
+---
+<section class="hero3d stack-hero">
+  <div class="stage" data-stage data-recipe={JSON.stringify(recipe)} aria-hidden="true">
+    <div class="tag" data-tag><i></i><span><b>EPAL 1</b> 1200 × 800 × 144 mm</span></div>
+    <div class="tag" data-tag><i></i><span>Stacking load up to <b>5,500 kg</b></span></div>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <button class="replay" type="button" data-replay>Stack again</button>
+</section>
+
+<style>
+  .tag { position: absolute; left: 0; top: 0; z-index: 2; opacity: 0; pointer-events: none; will-change: transform; }
+  .tag i { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 4px rgba(11, 58, 158, 0.15); }
+  .tag span { position: absolute; left: 14px; top: 0; transform: translateY(-50%); white-space: nowrap; padding: 8px 14px; border-radius: 999px; background: #fff; box-shadow: 0 10px 26px -14px rgba(11, 19, 36, 0.4), inset 0 0 0 1px var(--line); font-size: 14px; font-weight: 600; color: var(--ink-2); }
+  .tag.up span { left: auto; right: 14px; }
+  .tag b { color: var(--ink); font-weight: 750; }
+  @media (max-width: 640px) { .tag span { font-size: 12px; padding: 6px 10px; } }
+</style>
+
+<script>
+  import { whenShown } from '../when-shown';
+  import { mountStack } from '../three/stack';
+  import type { Recipe } from '../three/pallet';
+
+  const stage = document.querySelector<HTMLElement>('.stack-hero [data-stage]');
+  if (stage) {
+    const get = whenShown('B', stage, () => mountStack(stage, JSON.parse(stage.dataset.recipe!) as Recipe, [...stage.querySelectorAll<HTMLElement>('[data-tag]')]));
+    document.querySelector('.stack-hero [data-replay]')?.addEventListener('click', () => get()?.replay?.());
+  }
+</script>

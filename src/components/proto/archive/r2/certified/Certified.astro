@@ -1,0 +1,381 @@
+---
+// PROTOTYPE · Direction C, "Certified": bold and corporate, certificates first.
+// Deep-blue block with a condensed headline; the certificates are the hero visual, a stack of
+// documents that cycles (click, arrows or auto), each with its Verify link.
+import { Image } from 'astro:assets';
+import Logo from '../../../Logo.astro';
+import Icon from '../../../Icon.astro';
+import { CERTS, RANGE } from '../../../../../data/certificates';
+import cut from '../../../../../assets/dev-renders/epal1-1.webp';
+import e1 from '../../../../../assets/dev-renders/white/epal1-1.webp';
+import e2 from '../../../../../assets/dev-renders/white/epal2-1.webp';
+import e3 from '../../../../../assets/dev-renders/white/epal3-1.webp';
+import cp1 from '../../../../../assets/dev-renders/white/cp1-1.webp';
+import cp3 from '../../../../../assets/dev-renders/white/cp3-1.webp';
+import cp6 from '../../../../../assets/dev-renders/white/cp6-1.webp';
+import cp7 from '../../../../../assets/dev-renders/white/cp7-1.webp';
+import collar from '../../../../../assets/dev-renders/white/collar-1.webp';
+import gma from '../../../../../assets/dev-renders/white/gma-1.webp';
+import hw01 from '../../../../../assets/dev-renders/white/hw01-1.webp';
+import pw02 from '../../../../../assets/dev-renders/white/pw02-1.webp';
+
+const r = Object.fromEntries(RANGE.map((p) => [p.id, p]));
+const families = [
+  { id: 'epal', label: 'EPAL pallets', items: [{ p: r.epal1, img: e1 }, { p: r.epal2, img: e2 }, { p: r.epal3, img: e3 }] },
+  { id: 'cp', label: 'CP pallets', items: [{ p: r.cp1, img: cp1 }, { p: r.cp3, img: cp3 }, { p: r.cp6, img: cp6 }, { p: r.cp7, img: cp7 }] },
+  { id: 'other', label: 'Other pallets', items: [{ p: r.collar, img: collar }, { p: r.gma, img: gma }, { p: r.hw01, img: hw01 }, { p: r.pw02, img: pw02 }] },
+];
+const fmt = (n?: number) => (n ? n.toLocaleString('en-IN') + ' kg' : '—');
+const epal = CERTS[0];
+---
+<div class="cer">
+  <div class="utility">
+    <span>EPAL licence <mark>{epal.number}</mark><i></i>ISPM-15 <mark>{CERTS[1].number}</mark></span>
+    <span class="top-r"><Icon name="globe-hemisphere-west" size={16} />Made in India, shipped worldwide</span>
+  </div>
+  <header class="head">
+    <Logo />
+    <nav class="nav" aria-label="Main">
+      <a href="#c-range">Products</a><a href="#c-certs">Certifications</a><a href="#">About</a><a href="#">Contact</a>
+    </nav>
+    <a class="btn blue sm" href="#">Request a quotation</a>
+  </header>
+
+  <section class="hero">
+    <div class="block">
+      <h1><span>Licensed by EPAL.</span><span class="soft">Check it yourself.</span></h1>
+      <p>Pallet Euro holds the EPAL licence and every certificate an exporter asks for: ISPM-15, ISO 9001, FSC, PEFC and more. Each one links to the register that issued it.</p>
+      <div class="actions">
+        <a class="btn white" href="#">Request a quotation</a>
+        <a class="btn outline" href="#c-certs">All certificates</a>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="stack" data-stack aria-label="Certificates">
+        {CERTS.map((c, i) => (
+          <article class:list={['doc', { epal: c.id === 'epal' }]} style={`--tilt:${i % 2 ? 1.4 : -1.4}deg`} aria-label={c.name}>
+            <div class="d-top">
+              {c.id === 'epal' ? <img src="/dev/stamps/epal.png" alt="" width="84" height="42" /> : <Icon name={c.icon} size={34} />}
+              <span class="d-count">{String(i + 1).padStart(2, '0')} / {String(CERTS.length).padStart(2, '0')}</span>
+            </div>
+            <h3>{c.name}</h3>
+            <p class="d-iss">{c.issuer}</p>
+            <dl>
+              <div><dt>{c.id === 'epal' ? 'Licence no.' : 'Number'}</dt><dd><mark>{c.number}</mark></dd></div>
+              <div><dt>Status</dt><dd>{c.valid}</dd></div>
+            </dl>
+            {c.verifyUrl ? (
+              <a class="d-verify" href={c.verifyUrl} rel="noopener">Verify on {c.verifyLabel} <Icon name="arrow-up-right" size={16} /></a>
+            ) : (
+              <span class="d-verify muted">Available on request</span>
+            )}
+          </article>
+        ))}
+      </div>
+      <div class="ctrl">
+        <button type="button" data-prev aria-label="Previous certificate"><Icon name="caret-left" size={20} /></button>
+        <span data-count>01 / {String(CERTS.length).padStart(2, '0')}</span>
+        <button type="button" data-next aria-label="Next certificate"><Icon name="caret-right" size={20} /></button>
+      </div>
+      <Image class="pallet" src={cut} alt="EPAL 1 Euro pallet" widths={[600, 900, 1200]} sizes="(max-width: 1100px) 80vw, 560px" loading="eager" />
+    </div>
+  </section>
+
+  <section class="range" id="c-range">
+    <div class="r-head" data-reveal>
+      <h2>Our pallets</h2>
+      <div class="tabs" role="tablist" aria-label="Pallet families">
+        {families.map((f, i) => (
+          <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-fam={f.id}>{f.label}</button>
+        ))}
+      </div>
+    </div>
+    {families.map((f, fi) => (
+      <div class="family" data-family={f.id} hidden={fi !== 0} role="tabpanel">
+        <div class="chips">
+          {f.items.map(({ p }, i) => (
+            <button type="button" class:list={['chip', { on: i === 0 }]} data-show={p.id}>{p.code}</button>
+          ))}
+        </div>
+        {f.items.map(({ p, img }, i) => (
+          <article class="product" data-product={p.id} hidden={i !== 0}>
+            <Image src={img} alt={`${p.code} ${p.name.toLowerCase()}, ${p.L} × ${p.W} × ${p.H} mm`} widths={[640, 960, 1280]} sizes="(max-width: 1100px) 92vw, 720px" />
+            <div class="p-info">
+              <span class="p-code">{p.code}</span>
+              <h3>{p.name}</h3>
+              <dl>
+                <div><dt>Size</dt><dd>{p.L} × {p.W} × {p.H} mm</dd></div>
+                {'swl' in p && <div><dt>Safe working load</dt><dd>{fmt(p.swl)}</dd></div>}
+                {'stack' in p && <div><dt>Stacking load</dt><dd>{fmt(p.stack)}</dd></div>}
+                {'boards' in p && <div><dt>Boards · blocks</dt><dd>{p.boards} · {p.blocks}</dd></div>}
+                {'nails' in p && <div><dt>Nails</dt><dd>{p.nails}</dd></div>}
+              </dl>
+              <div class="actions">
+                <a class="btn blue" href="#">Request a quotation</a>
+                <a class="more" href="#">Full specification <Icon name="arrow-right" size={18} /></a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    ))}
+  </section>
+
+  <section class="all" id="c-certs">
+    <h2 data-reveal>Eight certificates.<br />All of them verifiable.</h2>
+    <ul>
+      {CERTS.map((c, i) => (
+        <li data-reveal style={`transition-delay:${(i % 4) * 70}ms`}>
+          <Icon name={c.icon} size={32} />
+          <b>{c.short}</b>
+          <span>{c.name}</span>
+          <mark>{c.number}</mark>
+          {c.verifyUrl ? <a href={c.verifyUrl} rel="noopener">Verify <Icon name="arrow-up-right" size={15} /></a> : <em>On request</em>}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="band">
+    <h2 data-reveal>Your next container,<br />on EPAL pallets.</h2>
+    <div class="actions" data-reveal>
+      <a class="btn white" href="#">Request a quotation</a>
+      <a class="btn outline" href="#"><Icon name="whatsapp-logo" size={18} />WhatsApp</a>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <Logo />
+    <nav aria-label="Footer"><a href="#">Products</a><a href="#">Certifications</a><a href="#">About</a><a href="#">Contact</a><a href="#">Privacy</a></nav>
+    <p>© 2026 Pallet Euro Packaging. EPAL® is a registered trademark of the European Pallet Association e.V.</p>
+  </footer>
+</div>
+
+<style>
+  .cer {
+    --mist: #f3f5f9;
+    --ink: #0b1324;
+    --ink-2: #3c4658;
+    --ink-3: #7a8396;
+    --line: #e2e7ef;
+    --blue: #0b3a9e;
+    --blue-deep: #072a75;
+    --blue-soft: #edf2fc;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --cond: 'Sofia Sans Condensed Variable', 'Arial Narrow', sans-serif;
+    font-family: 'Sofia Sans Variable', system-ui, sans-serif;
+    color: var(--ink);
+    background: #fff;
+    overflow-x: clip;
+  }
+  .cer mark { background: none; color: inherit; border-bottom: 1px dashed currentColor; }
+  .cer :global(svg) { flex: none; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; white-space: nowrap; height: 54px; padding: 0 28px; border-radius: 999px; font-family: var(--cond); font-size: 18px; font-weight: 750; letter-spacing: 0.02em; text-decoration: none; transition: background 0.3s, transform 0.3s var(--ease), box-shadow 0.3s, color 0.3s; }
+  .btn.sm { height: 46px; padding: 0 22px; font-size: 17px; }
+  .blue { background: var(--blue); color: #fff; }
+  .blue:hover { background: var(--blue-deep); transform: translateY(-1px); }
+  .white { background: #fff; color: var(--blue); }
+  .white:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.5); }
+  .outline { color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.5); }
+  .outline:hover { box-shadow: inset 0 0 0 1.5px #fff; }
+  .more { display: inline-flex; align-items: center; gap: 8px; font-weight: 650; color: var(--ink); text-decoration: none; }
+  .more :global(svg) { transition: transform 0.35s var(--ease); }
+  .more:hover :global(svg) { transform: translateX(4px); }
+
+  .utility { display: flex; justify-content: space-between; gap: 24px; padding: 10px 56px; background: var(--blue-deep); color: rgba(255, 255, 255, 0.82); font-size: 14px; font-weight: 500; }
+  .utility i { display: inline-block; width: 1px; height: 12px; margin: 0 14px; background: rgba(255, 255, 255, 0.3); vertical-align: -1px; }
+  .top-r { display: inline-flex; align-items: center; gap: 8px; }
+  .head { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 48px; padding: 16px 56px; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(14px); transition: box-shadow 0.3s; }
+  :global(html.scrolled) .head { box-shadow: 0 1px 0 var(--line); }
+  .nav { display: flex; gap: 34px; margin-left: auto; }
+  .nav a { font-family: var(--cond); font-size: 19px; font-weight: 650; letter-spacing: 0.02em; color: var(--ink-2); text-decoration: none; transition: color 0.25s; }
+  .nav a:hover { color: var(--blue); }
+
+  /* hero */
+  .hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); min-height: calc(100vh - 118px); }
+  .block { display: flex; flex-direction: column; justify-content: center; padding: 64px 56px 140px; background: var(--blue); color: #fff; }
+  h1 { font-family: var(--cond); font-weight: 850; text-transform: uppercase; font-size: clamp(52px, 6.4vw, 104px); line-height: 0.9; letter-spacing: -0.005em; }
+  h1 span { display: block; animation: slideUp 1s var(--ease) both; }
+  h1 span + span { animation-delay: 0.12s; }
+  .soft { color: #9fb8f5; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } }
+  .block p { margin-top: 28px; max-width: 30em; font-size: 19px; line-height: 1.6; color: rgba(255, 255, 255, 0.82); animation: slideUp 1s 0.3s var(--ease) both; }
+  .block .actions { animation: slideUp 1s 0.42s var(--ease) both; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 36px; }
+
+  .stage { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 64px 56px 150px; background: var(--mist); }
+  .stack { position: relative; width: min(500px, 100%); aspect-ratio: 1.42 / 1; }
+  .doc {
+    --pos: 0;
+    position: absolute; inset: 0; display: flex; flex-direction: column; gap: 6px; padding: 28px 30px 26px;
+    background: #fff; border: 1px solid var(--line); border-radius: 22px;
+    box-shadow: 0 30px 60px -36px rgba(11, 19, 36, 0.35);
+    transform: translateY(calc(var(--pos) * -18px)) scale(calc(1 - var(--pos) * 0.05)) rotate(calc(var(--pos) * var(--tilt)));
+    opacity: calc(1 - var(--pos) * 0.22);
+    transition: transform 0.6s var(--ease), opacity 0.6s var(--ease);
+    animation: dealIn 0.9s var(--ease) both;
+    animation-delay: calc(0.35s + var(--pos) * 0.08s);
+  }
+  @keyframes dealIn { from { opacity: 0; transform: translateY(60px) rotate(6deg); } }
+  .doc.gone { opacity: 0; }
+  .doc.leaving { transform: translateX(118%) rotate(9deg); opacity: 0; transition: transform 0.45s cubic-bezier(0.55, 0, 0.75, 0.2), opacity 0.45s; }
+  .doc.is-front { cursor: pointer; }
+  .d-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: var(--blue); }
+  .d-top img { width: 84px; height: auto; }
+  .d-count { font-family: var(--cond); font-size: 16px; font-weight: 700; color: var(--ink-3); letter-spacing: 0.06em; }
+  .doc h3 { font-family: var(--cond); font-size: 32px; font-weight: 800; line-height: 1; letter-spacing: -0.005em; }
+  .d-iss { font-size: 15px; color: var(--ink-3); }
+  .doc dl { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); }
+  .doc dt { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+  .doc dd { margin-top: 3px; font-size: 17px; font-weight: 700; }
+  .d-verify { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; font-weight: 700; font-size: 15px; color: var(--blue); text-decoration: none; }
+  .d-verify:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .d-verify.muted { color: var(--ink-3); }
+  .doc.epal { background: linear-gradient(var(--blue) 0 92px, #fff 92px); }
+  .doc.epal .d-top { color: #fff; }
+  .doc.epal .d-top img { filter: invert(1) brightness(2); }
+  .doc.epal .d-count { color: rgba(255, 255, 255, 0.7); }
+  .doc.epal h3 { margin-top: 10px; }
+  .ctrl { display: flex; align-items: center; gap: 14px; font-family: var(--cond); font-size: 18px; font-weight: 700; color: var(--ink-2); position: relative; z-index: 2; }
+  .ctrl button { width: 46px; height: 46px; border-radius: 999px; display: grid; place-items: center; background: #fff; color: var(--ink); box-shadow: 0 0 0 1px var(--line); cursor: pointer; transition: box-shadow 0.25s, color 0.25s; }
+  .ctrl button:hover { box-shadow: 0 0 0 1.5px var(--blue); color: var(--blue); }
+  .stage :global(.pallet) { position: absolute; left: -16%; bottom: -46px; width: min(56%, 620px); height: auto; z-index: 3; pointer-events: none; filter: drop-shadow(0 30px 30px rgba(11, 19, 36, 0.25)); animation: palletIn 1.3s 0.2s var(--ease) both; }
+  @keyframes palletIn { from { opacity: 0; transform: translateX(-40px); } }
+
+  /* product explorer */
+  .range { padding: 150px 56px 120px; }
+  .r-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; }
+  h2 { font-family: var(--cond); font-weight: 850; text-transform: uppercase; font-size: clamp(42px, 4.8vw, 76px); line-height: 0.92; }
+  .tabs { display: flex; gap: 6px; padding: 6px; border-radius: 999px; background: var(--mist); }
+  .tabs button { height: 44px; padding: 0 20px; border-radius: 999px; font-family: var(--cond); font-size: 18px; font-weight: 700; color: var(--ink-2); cursor: pointer; transition: background 0.25s, color 0.25s; }
+  .tabs button[aria-selected='true'] { background: var(--blue); color: #fff; }
+  .family { border: 1px solid var(--line); border-radius: 30px; padding: 26px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { height: 40px; padding: 0 18px; border-radius: 999px; font-family: var(--cond); font-size: 17px; font-weight: 700; color: var(--ink-2); box-shadow: inset 0 0 0 1.5px var(--line); cursor: pointer; transition: box-shadow 0.25s, color 0.25s; }
+  .chip:hover { color: var(--blue); }
+  .chip.on { color: var(--blue); box-shadow: inset 0 0 0 1.5px var(--blue); background: var(--blue-soft); }
+  .product { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: center; }
+  .product:not([hidden]) { animation: swap 0.6s var(--ease) both; }
+  @keyframes swap { from { opacity: 0; transform: translateY(14px); } }
+  .product :global(img) { width: 100%; height: auto; }
+  .p-code { font-family: var(--cond); font-weight: 800; font-size: 18px; letter-spacing: 0.1em; color: var(--blue); text-transform: uppercase; }
+  .p-info h3 { font-family: var(--cond); font-weight: 850; font-size: clamp(40px, 4vw, 64px); line-height: 0.95; text-transform: uppercase; margin-top: 6px; }
+  .p-info dl { margin-top: 26px; border-top: 1px solid var(--line); }
+  .p-info dl div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .p-info dt { color: var(--ink-3); font-size: 16px; }
+  .p-info dd { font-weight: 700; font-size: 17px; }
+
+  /* all certificates */
+  .all { padding: 120px 56px; background: var(--mist); }
+  .all h2 { margin-bottom: 48px; }
+  .all ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .all li { display: flex; flex-direction: column; gap: 4px; padding: 26px; border-radius: 22px; background: #fff; border: 1px solid var(--line); transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease), opacity 0.9s var(--ease); }
+  .all li:hover { transform: translateY(-4px); box-shadow: 0 24px 44px -28px rgba(11, 19, 36, 0.3); }
+  .all li > :global(svg) { color: var(--blue); margin-bottom: 14px; }
+  .all b { font-family: var(--cond); font-size: 28px; font-weight: 850; text-transform: uppercase; line-height: 1; }
+  .all li span { font-size: 15px; color: var(--ink-3); }
+  .all li mark { margin-top: 10px; align-self: flex-start; font-weight: 700; font-size: 16px; }
+  .all li a { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-weight: 700; color: var(--blue); text-decoration: none; }
+  .all li em { margin-top: 14px; font-style: normal; color: var(--ink-3); }
+
+  .band { display: flex; justify-content: space-between; align-items: center; gap: 32px; flex-wrap: wrap; padding: 100px 56px; background: var(--blue); color: #fff; }
+  .band .actions { margin-top: 0; }
+  .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding: 40px 56px 96px; }
+  .foot nav { display: flex; flex-wrap: wrap; gap: 28px; }
+  .foot nav a { color: var(--ink-2); text-decoration: none; font-weight: 600; }
+  .foot p { width: 100%; font-size: 13px; color: var(--ink-3); }
+
+  @media (max-width: 1100px) {
+    .utility { padding: 8px 24px; }
+    .top-r { display: none; }
+    .head { padding: 12px 24px; }
+    .nav { display: none; }
+    .head .btn { margin-left: auto; }
+    .hero { grid-template-columns: minmax(0, 1fr); min-height: auto; }
+    .block { padding: 56px 24px 64px; }
+    .stage { padding: 56px 24px 180px; }
+    .stage :global(.pallet) { left: 50%; bottom: -30px; width: min(80%, 480px); transform: translateX(-50%); animation: none; }
+    .range, .all { padding: 96px 24px; }
+    .product { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .all ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .band { padding: 72px 24px; }
+    .foot { padding: 32px 24px 96px; }
+  }
+  @media (max-width: 640px) {
+    .utility span:first-child { font-size: 12.5px; }
+    .head .btn { height: 40px; padding: 0 14px; font-size: 15px; }
+    h1 { font-size: 50px; }
+    .doc { padding: 20px 20px 18px; border-radius: 18px; }
+    .doc h3 { font-size: 24px; }
+    .doc dd { font-size: 15px; }
+    .doc.epal { background: linear-gradient(var(--blue) 0 74px, #fff 74px); }
+    .d-top img { width: 64px; }
+    .stack { aspect-ratio: 1.12 / 1; }
+    .family { padding: 16px; border-radius: 22px; }
+    .tabs { width: 100%; overflow-x: auto; }
+    .tabs button { padding: 0 14px; font-size: 16px; white-space: nowrap; }
+    .all ul { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+
+<script>
+  // Certificate stack: the top document flies off and goes to the back; auto-advances until hovered.
+  document.querySelectorAll<HTMLElement>('.cer [data-stack]').forEach((stack) => {
+    const docs = [...stack.querySelectorAll<HTMLElement>('.doc')];
+    const count = stack.parentElement!.querySelector<HTMLElement>('[data-count]')!;
+    const total = String(docs.length).padStart(2, '0');
+    let order = docs.map((_, i) => i);
+    let busy = false;
+    let timer = 0;
+    const layout = () => {
+      order.forEach((di, pos) => {
+        const d = docs[di];
+        d.style.setProperty('--pos', String(Math.min(pos, 4)));
+        d.style.zIndex = String(docs.length - pos);
+        d.classList.toggle('is-front', pos === 0);
+        d.classList.toggle('gone', pos > 3);
+        d.inert = pos !== 0;
+      });
+      count.textContent = `${String(order[0] + 1).padStart(2, '0')} / ${total}`;
+    };
+    const next = () => {
+      if (busy) return;
+      busy = true;
+      const top = docs[order[0]];
+      top.classList.add('leaving');
+      window.setTimeout(() => {
+        top.classList.remove('leaving');
+        order = [...order.slice(1), order[0]];
+        layout();
+        busy = false;
+      }, 450);
+    };
+    const prev = () => { if (busy) return; order = [order[order.length - 1], ...order.slice(0, -1)]; layout(); };
+    const auto = () => { window.clearInterval(timer); if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) timer = window.setInterval(next, 3800); };
+    stack.addEventListener('click', (e) => { if (!(e.target as Element).closest('a')) { next(); auto(); } });
+    stack.parentElement!.querySelector('[data-next]')!.addEventListener('click', () => { next(); auto(); });
+    stack.parentElement!.querySelector('[data-prev]')!.addEventListener('click', () => { prev(); auto(); });
+    stack.addEventListener('mouseenter', () => window.clearInterval(timer));
+    stack.addEventListener('mouseleave', auto);
+    layout();
+    auto();
+  });
+
+  // Product explorer: family tabs and product chips.
+  const root = document.querySelector<HTMLElement>('.cer .range');
+  root?.querySelectorAll<HTMLButtonElement>('[data-fam]').forEach((tab) =>
+    tab.addEventListener('click', () => {
+      root.querySelectorAll('[data-fam]').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+      root.querySelectorAll<HTMLElement>('[data-family]').forEach((f) => (f.hidden = f.dataset.family !== tab.dataset.fam));
+    }),
+  );
+  root?.querySelectorAll<HTMLElement>('[data-family]').forEach((fam) =>
+    fam.querySelectorAll<HTMLButtonElement>('[data-show]').forEach((chip) =>
+      chip.addEventListener('click', () => {
+        fam.querySelectorAll('.chip').forEach((c) => c.classList.toggle('on', c === chip));
+        fam.querySelectorAll<HTMLElement>('[data-product]').forEach((p) => (p.hidden = p.dataset.product !== chip.dataset.show));
+      }),
+    ),
+  );
+</script>

@@ -1,0 +1,80 @@
+/* PROTOTYPE home page (round 4 on): shared tokens and buttons, namespaced under .pe. */
+.pe {
+  --white: #ffffff;
+  --mist: #f4f6fa;
+  --ink: #0b1324;
+  --ink-2: #3c4658;
+  --ink-3: #7a8396;
+  --line: #e3e8ef;
+  --blue: #0b3a9e;
+  --blue-deep: #072a75;
+  --blue-soft: #edf2fc;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --pad: 56px;
+  font-family: 'Urbanist Variable', system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--white);
+  overflow-x: clip;
+}
+.pe mark { background: none; color: inherit; border-bottom: 1px dashed currentColor; white-space: nowrap; }
+.pe svg { flex: none; }
+
+.pe .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
+  height: 52px; padding: 0 26px; border-radius: 999px; font: inherit; font-size: 16px; font-weight: 650;
+  text-decoration: none; cursor: pointer;
+  transition: background 0.3s, color 0.3s, transform 0.3s var(--ease), box-shadow 0.3s;
+}
+.pe .btn.sm { height: 44px; padding: 0 20px; font-size: 15px; }
+.pe .btn.primary { background: var(--blue); color: #fff; box-shadow: 0 10px 24px -12px rgba(11, 58, 158, 0.6); }
+.pe .btn.primary:hover { background: var(--blue-deep); transform: translateY(-1px); }
+.pe .btn.white { background: #fff; color: var(--blue); }
+.pe .btn.white:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.45); }
+.pe .btn.ghost { color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.5); }
+.pe .btn.ghost:hover { box-shadow: inset 0 0 0 1.5px #fff; }
+.pe .btn.outline { color: var(--ink); background: #fff; box-shadow: inset 0 0 0 1.5px var(--line); }
+.pe .btn.outline:hover { color: var(--blue); box-shadow: inset 0 0 0 1.5px var(--blue); }
+.pe .more { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 650; font-size: 16px; text-decoration: none; white-space: nowrap; }
+.pe .more svg { transition: transform 0.35s var(--ease); }
+.pe .more:hover svg { transform: translateX(4px); }
+.pe .h2 { font-size: clamp(34px, 3.8vw, 56px); line-height: 1.06; font-weight: 600; letter-spacing: -0.03em; }
+
+/* 3D hero shell: full-bleed canvas behind, copy on the left (stacked on small screens). */
+.pe .hero3d { position: relative; min-height: calc(100vh - 80px); display: flex; align-items: center; padding: 0 var(--pad); }
+.pe .hero3d .stage { position: absolute; inset: 0; }
+.pe .hero3d .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pe .hero3d .copy-wrap { position: relative; z-index: 2; padding: 32px 0 64px; pointer-events: none; }
+.pe .hero3d .copy-wrap a { pointer-events: auto; }
+.pe .replay { position: absolute; right: var(--pad); bottom: 28px; z-index: 3; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 14px; font-weight: 650; color: var(--ink-2); background: rgba(255, 255, 255, 0.85); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; transition: color 0.25s, box-shadow 0.25s; }
+.pe .replay:hover { color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); }
+
+@media (max-width: 1100px) {
+  .pe { --pad: 24px; }
+  .pe .hero3d { flex-direction: column; align-items: stretch; min-height: auto; padding-top: 28px; }
+  .pe .hero3d .copy-wrap { padding: 0; }
+  .pe .hero3d .stage { position: relative; inset: auto; order: 2; height: min(86vw, 560px); margin: 8px calc(-1 * var(--pad)) 0; }
+  .pe .replay { bottom: 12px; }
+}
+@media (max-width: 640px) { .pe .btn.sm { height: 40px; padding: 0 16px; font-size: 14px; } }
+
+/* Full-bleed photo hero (round 4): a pre-rendered picture fills the screen under a transparent header,
+   the copy sits on the calm part of the picture. Phones: copy first, then the picture at 4:5. */
+.pe { --head-h: 80px; }
+.pe .photo-hero { position: relative; display: flex; align-items: center; height: 100svh; min-height: 660px; max-height: 1080px; margin-top: calc(-1 * var(--head-h)); padding: var(--head-h) var(--pad) 0; overflow: hidden; }
+.pe .photo-hero .pic { position: absolute; inset: 0; background: var(--pic-bg, #ece8e1); }
+.pe .photo-hero .pic img,
+.pe .photo-hero .pic canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pe .photo-hero .pic canvas { opacity: 0; transition: opacity 0.6s; }
+.pe .photo-hero .pic canvas.ready { opacity: 1; }
+.pe .photo-hero .copy-wrap { position: relative; z-index: 2; padding-bottom: 40px; }
+.pe .hint { position: absolute; right: var(--pad); bottom: 28px; z-index: 3; display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px 0 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.78); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(11, 19, 36, 0.08); font-size: 14px; font-weight: 600; color: var(--ink-2); pointer-events: none; }
+.pe .hint svg { color: #c27a1e; }
+@media (pointer: coarse) { .pe .hint .fine { display: none; } }
+@media (pointer: fine) { .pe .hint .coarse { display: none; } }
+@media (max-width: 900px) {
+  .pe .photo-hero { flex-direction: column; align-items: stretch; height: auto; min-height: 0; max-height: none; margin-top: 0; padding: 28px var(--pad) 0; }
+  .pe .photo-hero .copy-wrap { padding-bottom: 0; }
+  .pe .photo-hero { padding-top: 0; }
+  .pe .photo-hero .pic { position: relative; inset: auto; order: -1; aspect-ratio: 5 / 4; margin: 0 calc(-1 * var(--pad)) 28px; }   /* product first on phones */
+  .pe .hint { top: 12px; bottom: auto; right: 12px; }   /* top corner of the picture, clear of the pallet */
+}

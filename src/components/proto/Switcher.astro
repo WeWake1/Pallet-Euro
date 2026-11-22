@@ -1,0 +1,55 @@
+---
+// PROTOTYPE: floating bar to flip between design variants (?variant=A|B|C|D, or the arrow keys).
+// Not part of any design.
+interface Props { variants: { key: string; name: string }[]; round?: string }
+const { variants, round = '' } = Astro.props;
+---
+<div id="proto-switcher" role="toolbar" aria-label="Design variant switcher">
+  {round && <span class="round">{round}</span>}
+  <button type="button" data-dir="-1" aria-label="Previous variant">←</button>
+  <span id="proto-label">{variants[0].key} · {variants[0].name}</span>
+  <button type="button" data-dir="1" aria-label="Next variant">→</button>
+</div>
+
+<script is:inline define:vars={{ variants }}>
+  const keys = variants.map((v) => v.key);
+  const current = () => {
+    const k = (new URLSearchParams(location.search).get('variant') || keys[0]).toUpperCase();
+    return keys.includes(k) ? k : keys[0];
+  };
+  const show = (k) => {
+    document.documentElement.dataset.variant = k;
+    const v = variants.find((x) => x.key === k);
+    document.getElementById('proto-label').textContent = k + ' · ' + v.name;
+    document.title = v.name + ' · Pallet Euro (prototype)';
+    window.dispatchEvent(new CustomEvent('variant:shown', { detail: k }));
+  };
+  const go = (dir) => {
+    const i = keys.indexOf(current());
+    const k = keys[(i + dir + keys.length) % keys.length];
+    const u = new URL(location.href);
+    u.searchParams.set('variant', k);
+    history.replaceState(null, '', u);
+    show(k);
+    window.scrollTo(0, 0);
+  };
+  document.querySelectorAll('#proto-switcher button').forEach((b) => b.addEventListener('click', () => go(Number(b.dataset.dir))));
+  addEventListener('keydown', (e) => {
+    if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
+    if (e.key === 'ArrowRight') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
+  });
+  show(current());
+</script>
+
+<style>
+  #proto-switcher {
+    position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 9999;
+    display: flex; align-items: center; gap: 6px; padding: 5px;
+    background: #111; color: #fff; border-radius: 999px; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+    font: 600 12px/1 ui-sans-serif, system-ui, sans-serif; white-space: nowrap;
+  }
+  #proto-switcher button { width: 30px; height: 30px; border-radius: 999px; background: #fff; color: #111; font: inherit; font-size: 15px; cursor: pointer; }
+  #proto-label { padding: 0 8px; min-width: 8.5em; text-align: center; letter-spacing: 0.02em; }
+  .round { padding: 0 4px 0 10px; opacity: 0.55; }
+</style>

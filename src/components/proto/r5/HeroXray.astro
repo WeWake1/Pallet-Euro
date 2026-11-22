@@ -1,0 +1,176 @@
+---
+// PROTOTYPE round 5 · C "Look inside": a photoreal EPAL 1 in low morning sun (tools/render/hero/xray.py). A round
+// lens follows the cursor and shows the same pallet as an X-ray in the brand blue: every board edge and all
+// 78 nails, driven through the boards into the blocks. The lens names the part under it (sizes from
+// src/data/pallet-geometry.json). Phones: the lens drifts over the pallet; touch to move it.
+import HeroCopy from '../home/HeroCopy.astro';
+import Icon from '../Icon.astro';
+import geometry from '../../../data/pallet-geometry.json';
+
+type Part = { name: string; role: string; x: number[]; y: number[]; z: number[] };
+const parts = (geometry as unknown as Record<string, { parts: Part[] }>).epal1.parts;
+const title = (p: Part) => {
+  const w = Math.min(p.x[1] - p.x[0], p.y[1] - p.y[0]);
+  const edge = Math.abs(p.y[0]) >= 299 || Math.abs(p.x[0]) >= 454;
+  if (p.role === 'top') return p.name === 'top3' ? 'Centre deck board' : edge && w > 120 ? 'Outer deck board' : 'Deck board';
+  if (p.role === 'cross') return 'Stringer board';
+  if (p.role === 'bottom') return p.name === 'bottom2' ? 'Centre bottom board' : 'Outer bottom board';
+  const cornerX = Math.abs(p.x[0]) >= 454, cornerY = Math.abs(p.y[0]) >= 299;
+  return cornerX && cornerY ? 'Corner block' : p.name === 'block5' ? 'Centre block' : 'Middle block';
+};
+const size = (p: Part) => [p.x[1] - p.x[0], p.y[1] - p.y[0], p.z[1] - p.z[0]].sort((a, b) => b - a).map((v) => Math.round(v)).join(' × ') + ' mm';
+const labels = parts.map((p) => ({ t: title(p), s: size(p) }));   // index i = ids.png red / 10 - 1
+const DIR = '/dev/r5/xray';
+const FOCUS = { x: 0.66, y: 0.56 };
+---
+<section class="photo-hero xray-hero" style="--pic-bg:#e4e7ec" aria-label="Pallet Euro Packaging">
+  <div class="pic" data-pic data-dir={DIR} data-fx={FOCUS.x} data-fy={FOCUS.y} data-labels={JSON.stringify(labels)}>
+    <img src={`${DIR}/photo.webp`} srcset={`${DIR}/photo-sm.webp 1200w, ${DIR}/photo.webp 2400w`} sizes="100vw"
+      width="2400" height="1350" fetchpriority="high" decoding="async"
+      style={`object-position:${FOCUS.x * 100}% ${FOCUS.y * 100}%`}
+      alt="An EPAL 1 Euro pallet in low morning sun; a lens shows it as an X-ray with all 78 nails" />
+    <canvas aria-hidden="true"></canvas>
+    <p class="lens-label" aria-hidden="true"><b>11 boards · 9 blocks · 78 nails</b><span>Move the lens over the pallet</span></p>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <p class="hint" aria-hidden="true">
+    <Icon name="magnifying-glass" size={20} />
+    <span class="fine">Move your cursor to look inside</span>
+    <span class="coarse">Touch the pallet to look inside</span>
+  </p>
+</section>
+
+<style>
+  .xray-hero :global(.lede) { max-width: 25em; }
+  .lens-label { position: absolute; left: 0; top: 0; z-index: 2; display: flex; flex-direction: column; gap: 2px; padding: 9px 14px 10px; border-radius: 14px; background: #fff; color: var(--ink); box-shadow: 0 14px 30px -16px rgba(11, 19, 36, 0.45); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.3s; will-change: transform; }
+  .lens-label b { font-size: 14px; font-weight: 700; }
+  .lens-label span { font-size: 13px; color: var(--ink-3); }
+  .lens-label:global(.on) { opacity: 1; }
+  @media (max-width: 900px) { .lens-label b { font-size: 12px; } .lens-label span { font-size: 11px; } }
+</style>
+
+<script>
+  import { whenShown } from '../home/when-shown';
+
+  const hero = document.querySelector<HTMLElement>('.xray-hero');
+  const pic = hero?.querySelector<HTMLElement>('[data-pic]');
+  if (hero && pic) {
+    whenShown('C', pic, () => {
+      const canvas = pic.querySelector('canvas')!;
+      const ctx = canvas.getContext('2d', { alpha: false })!;
+      const label = pic.querySelector<HTMLElement>('.lens-label')!;
+      const d = pic.dataset;
+      const labels = JSON.parse(d.labels!) as { t: string; s: string }[];
+      const fx = Number(d.fx), fy = Number(d.fy);
+      const small = innerWidth <= 900;
+      const fine = matchMedia('(pointer: fine)').matches;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let photo: HTMLImageElement | null = null, xray: HTMLImageElement | null = null;
+      let ids: Uint8ClampedArray | null = null, idsW = 0, idsH = 0;
+      // lens centre in CSS px of the picture; target follows the cursor
+      let lx = -200, ly = 0, tx = 0, ty = 0, part = -1, visible = true, lastInput = -1e9;
+      let src = { sx: 0, sy: 0, sw: 1, sh: 1, iw: 1, ih: 1 };
+      const load = (u: string) => new Promise<HTMLImageElement>((res, rej) => {
+        const i = new Image(); i.decoding = 'async'; i.src = u; i.decode().then(() => res(i), rej);
+      });
+      const radius = () => Math.min(Math.max(pic.clientWidth * (small ? 0.2 : 0.11), 80), 210);
+      const draw = () => {
+        if (!photo || !xray) return;
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+        if (!w || !h) return;
+        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+        const iw = photo.naturalWidth, ih = photo.naturalHeight, s = Math.max(w / iw, h / ih);
+        const sw = w / s, sh = h / s;
+        const sx = Math.min(Math.max(fx * iw - sw / 2, 0), iw - sw), sy = Math.min(Math.max(fy * ih - sh / 2, 0), ih - sh);
+        src = { sx, sy, sw, sh, iw, ih };
+        ctx.drawImage(photo, sx, sy, sw, sh, 0, 0, w, h);
+        const R = radius() * dpr, cx = lx * dpr, cy = ly * dpr;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(xray, sx, sy, sw, sh, 0, 0, w, h);
+        ctx.restore();
+        ctx.lineWidth = 2 * dpr;
+        ctx.strokeStyle = 'rgba(255,255,255,0.95)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.lineWidth = 1 * dpr;
+        ctx.strokeStyle = 'rgba(11,58,158,0.35)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, R + 2.5 * dpr, 0, Math.PI * 2);
+        ctx.stroke();
+      };
+      const lookup = () => {
+        if (!ids) return -1;
+        const u = (src.sx + (lx / pic.clientWidth) * src.sw) / src.iw;
+        const v = (src.sy + (ly / pic.clientHeight) * src.sh) / src.ih;
+        const px = Math.min(Math.max(Math.round(u * idsW), 0), idsW - 1), py = Math.min(Math.max(Math.round(v * idsH), 0), idsH - 1);
+        const r = ids[(py * idsW + px) * 4];
+        return r >= 5 ? Math.round(r / 10) - 1 : -1;
+      };
+      const place = () => {
+        const R = radius();
+        const maxX = pic.clientWidth - label.offsetWidth - 12, maxY = pic.clientHeight - label.offsetHeight - 12;
+        const ax = Math.min(lx + R * 0.62, maxX), ay = Math.min(ly + R * 0.78, maxY);
+        label.style.transform = `translate(${Math.round(ax)}px, ${Math.round(ay)}px)`;
+        const p = lookup();
+        if (p !== part) {
+          part = p;
+          const b = label.querySelector('b')!, sp = label.querySelector('span')!;
+          if (p >= 0 && labels[p]) { b.textContent = labels[p].t; sp.textContent = labels[p].s; }
+          else { b.textContent = '11 boards · 9 blocks · 78 nails'; sp.textContent = fine ? 'Move the lens over the pallet' : 'Touch the pallet'; }
+        }
+      };
+      new ResizeObserver(draw).observe(canvas);
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(hero);
+      const home = () => ({ x: pic.clientWidth * (small ? 0.5 : 0.7), y: pic.clientHeight * (small ? 0.52 : 0.58) });
+      Promise.all([load(`${d.dir}/photo${small ? '-sm' : ''}.webp`), load(`${d.dir}/xray${small ? '-sm' : ''}.webp`), load(`${d.dir}/ids.png`)]).then(([a, b, c]) => {
+        photo = a; xray = b;
+        const off = document.createElement('canvas');
+        off.width = idsW = c.naturalWidth; off.height = idsH = c.naturalHeight;
+        const octx = off.getContext('2d', { willReadFrequently: true })!;
+        octx.drawImage(c, 0, 0);
+        ids = octx.getImageData(0, 0, idsW, idsH).data;
+        const h0 = home();
+        lx = reduce ? h0.x : -radius() * 1.2; ly = h0.y; tx = h0.x; ty = h0.y;
+        draw(); place();
+        canvas.classList.add('ready');
+        label.classList.add('on');
+        requestAnimationFrame(loop);
+      }).catch(() => pic.classList.add('no-pic'));
+      const toLocal = (e: PointerEvent) => { const r = pic.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+      if (fine) {
+        hero.addEventListener('pointermove', (e) => {
+          const p = toLocal(e);
+          if (p.y < 0 || p.y > pic.clientHeight) return;
+          tx = Math.max(p.x, pic.clientWidth * 0.42); ty = p.y; lastInput = performance.now();   // keeps off the headline
+        });
+      } else {
+        pic.addEventListener('pointerdown', (e) => { const p = toLocal(e); tx = p.x; ty = p.y; lastInput = performance.now(); });
+        pic.addEventListener('pointermove', (e) => { if (e.pressure > 0) { const p = toLocal(e); tx = p.x; ty = p.y; lastInput = performance.now(); } });
+        pic.style.touchAction = 'pan-y';
+      }
+      const t0 = performance.now();
+      let last = t0;
+      const loop = (now: number) => {
+        requestAnimationFrame(loop);
+        const dt = Math.min(now - last, 64);
+        last = now;
+        if (!visible || document.hidden || pic.offsetParent === null || reduce) return;
+        if (now - lastInput > (fine ? 6000 : 4000)) {
+          // idle: the lens wanders slowly over the pallet
+          const h0 = home(), t = (now - t0) / 1000;
+          tx = h0.x + pic.clientWidth * (small ? 0.2 : 0.13) * Math.sin(t * 0.55);
+          ty = h0.y + pic.clientHeight * (small ? 0.12 : 0.1) * Math.sin(t * 0.83 + 1.2);
+        }
+        const k = 1 - Math.exp(-dt / (now - lastInput > 6000 ? 260 : 75));
+        const nx = lx + (tx - lx) * k, ny = ly + (ty - ly) * k;
+        if (Math.abs(nx - lx) + Math.abs(ny - ly) > 0.05) { lx = nx; ly = ny; draw(); place(); }
+      };
+      return {};
+    });
+  }
+</script>

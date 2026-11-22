@@ -1,0 +1,31 @@
+---
+// PROTOTYPE round 3 · Hero C, "The Mark": it opens on the corner block, the EPAL mark burns in,
+// then the camera pulls back to the whole pallet and the headline arrives.
+import HeroCopy from '../HeroCopy.astro';
+import geometry from '../../../../../data/pallet-geometry.json';
+const recipe = (geometry as Record<string, unknown>).epal1;
+---
+<section class="hero3d mark-hero">
+  <div class="stage" data-stage data-recipe={JSON.stringify(recipe)} aria-hidden="true"></div>
+  <p class="caption" data-caption aria-hidden="true">Every pallet we make carries the EPAL mark.</p>
+  <div class="copy-wrap"><HeroCopy style="--hc-delay: 3.1s" /></div>
+  <button class="replay" type="button" data-replay>Watch again</button>
+</section>
+
+<style>
+  .caption { position: absolute; left: 50%; bottom: 14%; z-index: 3; transform: translateX(-50%); padding: 12px 22px; border-radius: 999px; background: rgba(255, 255, 255, 0.9); box-shadow: 0 14px 36px -18px rgba(11, 19, 36, 0.45); font-size: 18px; font-weight: 650; white-space: nowrap; opacity: 0; pointer-events: none; }
+  @media (max-width: 1100px) { .caption { bottom: auto; top: calc(100% - min(86vw, 560px) + 24px); font-size: 14px; } }
+</style>
+
+<script>
+  import { whenShown } from '../when-shown';
+  import { mountMark } from '../three/mark';
+  import type { Recipe } from '../three/pallet';
+
+  const stage = document.querySelector<HTMLElement>('.mark-hero [data-stage]');
+  if (stage) {
+    const caption = document.querySelector<HTMLElement>('.mark-hero [data-caption]') ?? undefined;
+    const get = whenShown('C', stage, () => mountMark(stage, JSON.parse(stage.dataset.recipe!) as Recipe, caption));
+    document.querySelector('.mark-hero [data-replay]')?.addEventListener('click', () => get()?.replay?.());
+  }
+</script>

@@ -1,0 +1,123 @@
+---
+// PROTOTYPE round 5 · A "Two worlds": the same EPAL 1, from the same camera, rendered twice: in a north-
+// European warehouse (white brick, cool light through a steel factory window; tools/render/hero/europe.py) and
+// in the Indian room with the jaali (jaali.py, the round-4 hero the owner kept as the fallback). The cursor
+// moves the seam between them: Europe's standard, made in India. Phones: the seam sweeps by itself, drag to move.
+import HeroCopy from '../home/HeroCopy.astro';
+import Icon from '../Icon.astro';
+const DIR = '/dev/r5/worlds';
+const FOCUS = { x: 0.66, y: 0.6 };
+---
+<section class="photo-hero worlds-hero" style="--pic-bg:#e6e4df" aria-label="Pallet Euro Packaging">
+  <div class="pic" data-pic data-dir={DIR} data-fx={FOCUS.x} data-fy={FOCUS.y}>
+    <img src={`${DIR}/europe.webp`} srcset={`${DIR}/europe-sm.webp 1200w, ${DIR}/europe.webp 2400w`} sizes="100vw"
+      width="2400" height="1350" fetchpriority="high" decoding="async"
+      style={`object-position:${FOCUS.x * 100}% ${FOCUS.y * 100}%`}
+      alt="The same EPAL 1 Euro pallet in a European warehouse and in an Indian room lit through a jaali" />
+    <canvas aria-hidden="true"></canvas>
+    <span class="tag eu" aria-hidden="true">Europe’s standard</span>
+    <span class="tag in" aria-hidden="true">Made in India</span>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <p class="hint" aria-hidden="true">
+    <Icon name="arrows-left-right" size={20} />
+    <span class="fine">Move your cursor between the two worlds</span>
+    <span class="coarse">Drag between the two worlds</span>
+  </p>
+</section>
+
+<style>
+  .worlds-hero :global(.lede) { max-width: 25em; }
+  .worlds-hero .pic { --seam: 1; }
+  .tag { position: absolute; bottom: 86px; z-index: 2; padding: 7px 13px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; background: rgba(255, 255, 255, 0.88); color: var(--ink); pointer-events: none; transition: opacity 0.3s; }
+  .tag.eu { right: calc((1 - var(--seam)) * 100% + 14px); opacity: clamp(0, calc((var(--seam) - 0.3) * 12), 1); }
+  .tag.in { left: calc(var(--seam) * 100% + 14px); opacity: clamp(0, calc((0.7 - var(--seam)) * 12), 1); color: #7a4a12; }
+  @media (max-width: 900px) { .tag { bottom: 12px; font-size: 11px; padding: 5px 10px; } }
+</style>
+
+<script>
+  import { whenShown } from '../home/when-shown';
+
+  const hero = document.querySelector<HTMLElement>('.worlds-hero');
+  const pic = hero?.querySelector<HTMLElement>('[data-pic]');
+  if (hero && pic) {
+    whenShown('A', pic, () => {
+      const canvas = pic.querySelector('canvas')!;
+      const ctx = canvas.getContext('2d', { alpha: false })!;
+      const d = pic.dataset;
+      const small = innerWidth <= 900;
+      const fx = Number(d.fx), fy = Number(d.fy);
+      const REST = 0.58;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const fine = matchMedia('(pointer: fine)').matches;
+      let seam = 1, target = 1, eu: HTMLImageElement | null = null, ind: HTMLImageElement | null = null;
+      let lastInput = -1e9, introAt = 0, dragging = false, visible = true;
+      const load = (name: string) => new Promise<HTMLImageElement>((res, rej) => {
+        const i = new Image();
+        i.decoding = 'async';
+        i.src = `${d.dir}/${name}${small ? '-sm' : ''}.webp`;
+        i.decode().then(() => res(i), rej);
+      });
+      const draw = () => {
+        if (!eu || !ind) return;
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+        if (!w || !h) return;
+        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+        const iw = eu.naturalWidth, ih = eu.naturalHeight, s = Math.max(w / iw, h / ih);
+        const sw = w / s, sh = h / s;
+        const sx = Math.min(Math.max(fx * iw - sw / 2, 0), iw - sw), sy = Math.min(Math.max(fy * ih - sh / 2, 0), ih - sh);
+        ctx.drawImage(eu, sx, sy, sw, sh, 0, 0, w, h);
+        const x = Math.round(seam * w);
+        if (x < w) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(x, 0, w - x, h);
+          ctx.clip();
+          ctx.drawImage(ind, sx, sy, sw, sh, 0, 0, w, h);
+          ctx.restore();
+          ctx.fillStyle = 'rgba(255,255,255,0.8)';
+          ctx.fillRect(x - dpr, 0, 2 * dpr, h);
+        }
+        pic.style.setProperty('--seam', seam.toFixed(4));
+      };
+      new ResizeObserver(draw).observe(canvas);
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(hero);
+      Promise.all([load('europe'), load('india')]).then(([a, b]) => {
+        eu = a; ind = b;
+        draw();
+        canvas.classList.add('ready');
+        if (reduce) { seam = target = REST; draw(); return; }
+        introAt = performance.now() + 500;
+        requestAnimationFrame(loop);
+      }).catch(() => pic.classList.add('no-pic'));
+      const toSeam = (clientX: number) => {
+        const r = pic.getBoundingClientRect();
+        return Math.min(Math.max((clientX - r.left) / r.width, 0.03), 0.97);
+      };
+      if (fine) {
+        hero.addEventListener('pointermove', (e) => { target = toSeam(e.clientX); lastInput = performance.now(); });
+      } else {
+        pic.addEventListener('pointerdown', (e) => { dragging = true; target = toSeam(e.clientX); lastInput = performance.now(); });
+        pic.addEventListener('pointermove', (e) => { if (dragging) { target = toSeam(e.clientX); lastInput = performance.now(); } });
+        addEventListener('pointerup', () => { dragging = false; });
+        pic.style.touchAction = 'pan-y';
+      }
+      const t0 = performance.now();
+      let last = t0;
+      const loop = (now: number) => {
+        requestAnimationFrame(loop);
+        const dt = Math.min(now - last, 64);
+        last = now;
+        if (!visible || document.hidden || pic.offsetParent === null) return;
+        if (now < introAt) return;
+        const idle = now - lastInput > (fine ? 3500 : 5000);
+        if (idle) target = fine ? REST : REST + 0.24 * Math.sin(((now - t0) / 1000) * ((2 * Math.PI) / 11));
+        const k = 1 - Math.exp(-dt / (idle ? 420 : 110));
+        const next = seam + (target - seam) * k;
+        if (Math.abs(next - seam) > 0.0002) { seam = next; draw(); }
+      };
+      return {};
+    });
+  }
+</script>

@@ -1,0 +1,36 @@
+---
+// PROTOTYPE round 5 · "The Mark" as a scroll story right after the hero (owner, decisions #23): one continuous
+// photoreal shot (tools/render/hero/mark.py). The EPAL mark is branded into the corner block, the camera tracks
+// to the IPPC HT mark on the middle block, flies through the fork opening under the deck and pulls back to
+// the whole pallet. Facts checked on EPAL's EPAL 1 page, 7 Nov 2026 (decisions.md, after round 4).
+import Film from './Film.astro';
+import Icon from '../Icon.astro';
+import { CERTS } from '../../../data/certificates';
+const epal = CERTS[0];
+---
+<Film id="the-mark" label="The EPAL mark" dir="/dev/r5/mark" count={168} phoneDir="/dev/r5/mark-sm" phoneCount={84}
+  scroll={540} duration={9500} bg="#dedcd8" focus={{ x: 0.58, y: 0.5 }}
+  alt="The EPAL mark branded into the corner block of an EPAL 1 Euro pallet, then the whole pallet">
+  <div class="beat at-left card" data-in="0" data-out="0.22">
+    <h2>The mark that makes it EPAL.</h2>
+    <p>Every EPAL Euro pallet carries “EPAL in oval” on its left and right corner blocks, branded into the wood.</p>
+  </div>
+  <div class="beat at-left card" data-in="0.27" data-out="0.47">
+    <h3>Heat treated, and marked so.</h3>
+    <p>The middle blocks carry the IPPC mark with HT: heat treated to ISPM 15, as every new EPAL Euro pallet has been since 2010. Beside it: the producer’s EPAL licence number, the year and the month.</p>
+  </div>
+  <div class="beat at-top-left card" data-in="0.56" data-out="0.76">
+    <h3>78 nails, each where EPAL puts it.</h3>
+    <p>11 boards and 9 blocks, joined by 78 nails whose positions EPAL stipulates.</p>
+  </div>
+  <div class="beat at-top-left card last" data-in="0.87" data-out="1">
+    <h3>1200 × 800 × 144 mm. Safe working load 1,500 kg.</h3>
+    <p>Read the marks on any EPAL pallet, then look up the licence number on EPAL’s public register.</p>
+    <a class="more" href={epal.verifyUrl} rel="noopener">EPAL licensee register <Icon name="arrow-up-right" size={18} /></a>
+  </div>
+</Film>
+
+<style>
+  .last { max-width: 25rem !important; }
+  .last h3 { font-size: clamp(26px, 2.4vw, 36px) !important; }
+</style>

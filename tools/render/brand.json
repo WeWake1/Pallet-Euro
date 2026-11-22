@@ -1,0 +1,11 @@
+{
+  "name": "palleteuro-dev",
+  "_note": "DEV ONLY. EPAL licence applied for, not granted: no render with the EPAL oval may be published until the certificate exists. IPPC code XXX is a placeholder for Pallet Euro's own HT registration.",
+  "ippc": {"country": "IN", "code": "XXX", "treatment": "HT"},
+  "epal": true,
+  "marks": {
+    "epal1": {"L": "epal", "C": "ippc", "R": "epal"},
+    "default": {"L": "ippc"}
+  },
+  "glb": false
+}

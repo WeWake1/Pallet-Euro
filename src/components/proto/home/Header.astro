@@ -1,0 +1,24 @@
+---
+// Home page header (from round 2, direction A). Over a full-bleed photo hero it starts transparent.
+import Logo from '../Logo.astro';
+---
+<header class="head">
+  <Logo />
+  <nav class="nav" aria-label="Main">
+    <a href="#range">Products</a><a href="#certified">Certifications</a><a href="#">About</a><a href="#">Contact</a>
+  </nav>
+  <a class="btn primary sm" href="#quote">Request a quote</a>
+</header>
+
+<style>
+  .head { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 48px; padding: 18px var(--pad); background: rgba(255, 255, 255, 0.86); backdrop-filter: saturate(1.4) blur(14px); transition: box-shadow 0.3s; }
+  :global(html.scrolled) .head { box-shadow: 0 1px 0 var(--line); }
+  .nav { display: flex; gap: 36px; margin-left: auto; }
+  .nav a { color: var(--ink-2); font-size: 16px; font-weight: 550; text-decoration: none; transition: color 0.25s; }
+  .nav a:hover { color: var(--blue); }
+  @media (max-width: 1100px) {
+    .head { padding: 14px var(--pad); }
+    .nav { display: none; }
+    .head :global(.btn) { margin-left: auto; }
+  }
+</style>

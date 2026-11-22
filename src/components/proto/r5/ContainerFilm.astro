@@ -1,0 +1,43 @@
+---
+// PROTOTYPE round 5 · "Your next container, on EPAL pallets" as the closing scroll story (owner, decisions #24):
+// a photoreal 20' box (tools/render/hero/container.py) opens its doors on 11 EPAL pallets of cartons, then the
+// roof lifts away to show the standard floor layout. Ends on the deep-blue quote card (the band the owner kept).
+// 11 per 20' is floorFit() in src/lib/containers.ts (the standard tables).
+import Film from './Film.astro';
+import Icon from '../Icon.astro';
+import { CONTAINERS, floorFit } from '../../../lib/containers';
+const twenty = CONTAINERS.find((c) => c.id === '20')!;
+const fit = floorFit(twenty, 1200, 800);
+---
+<Film id="quote" label="Your next container, on EPAL pallets" dir="/dev/r5/container" count={150} phoneDir="/dev/r5/container-sm" phoneCount={75}
+  scroll={480} duration={9000} bg="#dddcd9" focus={{ x: 0.56, y: 0.5 }}
+  alt="A deep-blue 20-foot container with its doors open, loaded with EPAL pallets of cartons">
+  <div class="beat at-left" data-in="0" data-out="0.24">
+    <h2 class="statement">Your next container, on EPAL pallets.</h2>
+  </div>
+  <div class="beat at-bottom-left card" data-in="0.40" data-out="0.64">
+    <h3>{fit.count} EPAL pallets fill a 20-foot floor.</h3>
+    <p>One row of seven turned across, one row of four lengthwise: the standard single-tier layout for 1200 × 800 pallets.</p>
+  </div>
+  <div class="beat at-left quote" data-in="0.82" data-out="1">
+    <h3>Request a quotation</h3>
+    <p>Tell us which pallets, how many, and when your container ships.</p>
+    <div class="actions">
+      <a class="btn white" href="#">Request a quotation</a>
+      <a class="btn ghost" href="#"><Icon name="whatsapp-logo" size={18} />WhatsApp</a>
+    </div>
+  </div>
+</Film>
+
+<style>
+  .statement { max-width: 4.6em; font-family: 'Sofia Sans Condensed Variable', 'Arial Narrow', sans-serif; font-weight: 850; text-transform: uppercase; letter-spacing: -0.005em; line-height: 0.9; color: var(--blue); font-size: clamp(44px, 4.6vw, 76px) !important; }
+  .quote { padding: 34px 34px 36px; border-radius: 28px; background: var(--blue); box-shadow: 0 30px 70px -34px rgba(7, 42, 117, 0.75); }
+  .quote h3 { color: #fff; font-family: 'Sofia Sans Condensed Variable', 'Arial Narrow', sans-serif; font-weight: 850; text-transform: uppercase; letter-spacing: 0; font-size: clamp(34px, 3.4vw, 52px) !important; line-height: 0.95; }
+  .quote p { color: rgba(255, 255, 255, 0.84) !important; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+  .actions :global(.btn) { font-family: 'Sofia Sans Condensed Variable', 'Arial Narrow', sans-serif; font-size: 18px; font-weight: 750; letter-spacing: 0.02em; height: 54px; padding: 0 26px; }
+  @media (max-width: 900px) {
+    .statement { font-size: 44px !important; }
+    .quote { padding: 26px 22px 28px; border-radius: 22px; }
+  }
+</style>

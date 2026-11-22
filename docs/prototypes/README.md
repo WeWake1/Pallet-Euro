@@ -1,0 +1,79 @@
+# Prototype history
+
+Every design round, what it tried, and the owner's verdict. Screenshots are 1440 px desktop and 390 px phone.
+
+## Round 1 · dark (7 Nov 2026) · rejected entirely
+
+Folder: `round-1-dark/`. Code deleted.
+
+| | Direction | Idea |
+|---|---|---|
+| A | The Register | Passport-style record card, guilloche linework, rubber stamps, certificate ledger |
+| B | The Object | Huge "1200 × 800 × 144" numerals, pallet on black with callouts, technical drawing |
+| C | The Port | Split-flap "how many fit" board, stencil type, "cleared for Europe" board |
+
+Verdict: "I hate everything." The owner wanted a **light** background (the brief was misread as dark), and disliked every UI element.
+
+## Round 2 · light (7 Nov 2026)
+
+Folder: `round-2-light/`. Still viewable at `/prototype/round-2/` (code in `src/components/proto/archive/r2/`).
+
+| | Direction | Idea |
+|---|---|---|
+| A | Studio | "Europe’s standard pallet, made in India." EPAL 1 render on white, cross-fading through five studio angles |
+| B | Assembly | "Built to the EPAL standard." Live 3D EPAL 1 that builds itself, gets its marks, shows dimensions, can be pulled apart |
+| C | Certified | "Licensed by EPAL. Check it yourself." Deep-blue block, cycling stack of certificate documents |
+
+Verdict:
+- **Keep:** the headline "Europe’s standard pallet, made in India." (A); the product cards after the hero (A); "Certified at every step" (B); "Your next container, on EPAL pallets" as the quote band (C).
+- **Reject:** all three hero concepts. The five-angle turntable is "good but generic".
+
+## Round 3 · hero concepts (7 Nov 2026)
+
+Folder: `round-3-heroes/`. Still viewable at `/prototype/round-3/` (code in `src/components/proto/archive/r3/`). Every variant keeps the chosen headline and is followed by the kept sections (product cards, "Certified at every step", "Your next container" band). One typeface (Urbanist) except the band, which keeps its condensed caps.
+
+| | Hero | Idea | Motion |
+|---|---|---|---|
+| A | The Line | All 28 pallets roll along a conveyor through a quality-check gate; a readout names each one as it passes | Continuous; hover stops it |
+| B | The Stack | Tall stacks of EPAL 1 pallets drop into place one by one, with spec tags (scale) | 2.5 s build, then a slow sway |
+| C | The Mark | Opens on a close-up of the corner block; the EPAL mark brands in hot orange and cools; the camera pulls back to the pallet | 4 s film, then a slow drift |
+| D | The Container | A deep-blue 20' container opens its doors on a load of EPAL pallets (real floor-fit layout) | 3.5 s, doors and camera |
+
+B, C and D are live 3D built from `pallet-geometry.json`; A uses the studio renders.
+
+Verdict:
+- **Not heroes, but keep the ideas:** C (The Mark) as an Apple-style scroll section after the hero; A (The Line) on a products or certifications page.
+- **Disliked:** B (The Stack) and D (The Container). The container idea may move into the "Your next container" band.
+- **Quality:** the live 3D (wood, container) looked "low quality, fake, non-realistic". Hence round 4: photoreal Blender renders only.
+
+## Round 4 · photoreal heroes (7 Nov 2026)
+
+Folder: `round-4-heroes/`. Still viewable at `/prototype/round-4/` (code in `src/components/proto/archive/r4/`). No live 3D: every picture is path-traced in Blender (Cycles) from the exact pallet geometry and the approved wood look, then played back as image frames. Scenes: `tools/render/hero/` (`jaali.py`, `resting.py`, `rann.py`), shared builder `tools/render/palletkit.py`. Frames in `public/dev/r4/` (dev only: EPAL oval and the `IN-XXX` placeholder).
+
+| | Hero | Idea | Motion |
+|---|---|---|---|
+| A | Indian light | An EPAL 1 in a pale stone room; morning sun through a jaali (Indian stone lattice) throws its star pattern over the wall, floor and pallet. Europe's standard pallet, Indian light | Desktop: the cursor moves the sun (48 frames, 1.3 MB). Touch: slow drift |
+| B | On the headline | The headline very large on white; the pallet is set down on the word "pallet," with its real contact shadow; the word gives a little under the weight | 1.7 s set-down, hover lifts it; "Set it down again" |
+| C | White desert | One EPAL 1 alone on a white salt desert (after the Great Rann of Kutch) under a physical sky; headline in the sky | Seamless 9.5 s camera sway (72 frames, 3.2 MB); Pause button |
+
+Phones: the picture comes first (5:4), then the headline. Header floats transparent over A and C on computers.
+
+Verdict:
+- **A (Indian light) is "still good enough"**: the fallback hero if no later concept wins.
+- **Disliked:** B (On the headline) and C (White desert).
+- Everything else asked after round 4 was answered yes (decisions #22–#27), and the owner asked to see the Mark and the container as Apple-style scroll stories.
+
+## Round 5 · hero concepts and two scroll stories (8 Nov 2026, awaiting the owner’s verdict)
+
+Folder: `round-5-heroes/`. Live at `/prototype/` (`?variant=A|B|C`). All photoreal Blender renders (`tools/render/hero/`), frames in `public/dev/r5/` (dev only: EPAL oval and the `IN-XXX` placeholder).
+
+| | Hero | Idea | Motion |
+|---|---|---|---|
+| A | Two worlds | The same EPAL 1 from the same camera in two rooms: a north-European warehouse (white brick, cool light through a steel factory window, `europe.py`) and the Indian jaali room from round 4 (`jaali.py`). The seam between them follows the cursor: Europe's standard, made in India | Cursor moves the seam; phones: it sweeps by itself, drag to move |
+| B | In its place | An anamorphic installation in a white gallery: the pallet's 20 wooden parts hang on fine wires at very different depths and line up into the exact pallet from one spot only (`anamorph.py`) | 61 orbit frames; on load it parts and settles; cursor movement fans the layers out, they settle when it rests; phones: every 7 s |
+| C | Look inside | An EPAL 1 in low morning sun; a lens follows the cursor and shows it as an X-ray in the brand blue, with all 78 nails, and names the part under it (`xray.py`: photo, X-ray and an ID map) | Lens follows the cursor; phones: it wanders, touch to move |
+
+Scroll stories under every hero (owner's request after round 4), pinned and scrubbed on computers, played once by themselves on phones (rule 7):
+- **The Mark** (right after the hero, `mark.py`, 168 frames): a steel head brands "EPAL in oval" into the corner block (glow, smoke, cooling), the camera tracks to the IPPC HT mark, flies through the fork opening under the deck, and pulls back to the whole pallet. Captions use only facts checked on EPAL's page (decisions, after round 4).
+- **Your next container** (the closing band, `container.py`, 150 frames): a weathered deep-blue 20' box opens its doors (right-hand door first, as on a real box) on 11 EPAL pallets of cartons; the camera rises, the roof lifts away and shows the standard 7 + 4 floor layout; it ends on the deep-blue quote card.
+

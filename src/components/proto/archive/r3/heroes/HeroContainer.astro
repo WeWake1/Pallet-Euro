@@ -1,0 +1,24 @@
+---
+// PROTOTYPE round 3 · Hero D, "The Container": a deep-blue container opens its doors on a load
+// of EPAL pallets, next to the headline.
+import HeroCopy from '../HeroCopy.astro';
+import geometry from '../../../../../data/pallet-geometry.json';
+const recipe = (geometry as Record<string, unknown>).epal1;
+---
+<section class="hero3d container-hero">
+  <div class="stage" data-stage data-recipe={JSON.stringify(recipe)} aria-hidden="true"></div>
+  <div class="copy-wrap"><HeroCopy style="--hc-delay: 1.3s" /></div>
+  <button class="replay" type="button" data-replay>Open again</button>
+</section>
+
+<script>
+  import { whenShown } from '../when-shown';
+  import { mountContainer } from '../three/container';
+  import type { Recipe } from '../three/pallet';
+
+  const stage = document.querySelector<HTMLElement>('.container-hero [data-stage]');
+  if (stage) {
+    const get = whenShown('D', stage, () => mountContainer(stage, JSON.parse(stage.dataset.recipe!) as Recipe));
+    document.querySelector('.container-hero [data-replay]')?.addEventListener('click', () => get()?.replay?.());
+  }
+</script>

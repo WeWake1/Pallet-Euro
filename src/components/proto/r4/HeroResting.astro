@@ -1,0 +1,163 @@
+---
+// PROTOTYPE round 4 · B "Resting": the headline set very large on white, and a photoreal EPAL 1
+// (Blender, catalogue studio light) is set down on top of it, on the word "pallet,", with its real
+// contact shadow. The letters give a little under the weight. Hover lifts it a touch.
+import Icon from '../Icon.astro';
+import { CERTS } from '../../../data/certificates';
+const epal = CERTS[0];
+const DIR = '/dev/r4/resting';
+---
+<section class="rest-hero" aria-label="Pallet Euro Packaging">
+  <div class="hwrap">
+    <h1 class="rest-h1">
+      <span class="ln l1"><span class="in">Europe’s standard <span class="seat">pallet,</span></span></span>
+      <span class="ln l2"><span class="in blue">made in India.</span></span>
+    </h1>
+    <span class="pal" aria-hidden="true">
+      <img class="shadow" src={`${DIR}/shadow.webp`} width="2400" height="760" alt="" decoding="async" />
+      <img class="pallet" src={`${DIR}/pallet.webp`} width="2400" height="760" alt="" decoding="async" fetchpriority="high" />
+    </span>
+  </div>
+  <div class="foot">
+    <p class="lede">EPAL Euro pallets and CP pallets, built under licence from the European Pallet Association and heat treated to ISPM-15 for export.</p>
+    <div class="side">
+      <div class="actions">
+        <a class="btn primary" href="#quote">Request a quote</a>
+        <a class="more" href="#range">Explore the range <Icon name="arrow-right" size={18} /></a>
+      </div>
+      <a class="licence" href={epal.verifyUrl} rel="noopener">
+        <img src="/dev/stamps/epal.png" alt="" width="56" height="28" />
+        <span><b>Licensed EPAL producer</b><em>Licence <mark>{epal.number}</mark> · verify <Icon name="arrow-up-right" size={13} /></em></span>
+      </a>
+    </div>
+  </div>
+  <button class="replay" type="button" data-replay><Icon name="arrow-counter-clockwise" size={16} /> Set it down again</button>
+</section>
+
+<style>
+  .rest-hero { --fs: clamp(46px, 7.1vw, 122px); position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: calc(100svh - var(--head-h)); max-height: 1000px; padding: 0 var(--pad) 56px; }
+  .hwrap { position: relative; }
+  .rest-h1 { position: relative; z-index: 1; font-size: var(--fs); line-height: 0.98; font-weight: 600; letter-spacing: -0.045em; }
+  .ln { display: block; overflow: hidden; padding: 0.06em 0 0.08em; margin-bottom: -0.1em; }
+  .in { display: inline-block; animation: up 1.1s var(--ease) both; }
+  .l2 .in { animation-delay: 0.12s; }
+  .seat { display: inline-block; transform-origin: 50% 100%; }
+  .blue { color: var(--blue); }
+  .pal { position: absolute; left: 0; top: 0; z-index: 2; width: var(--pw, 560px); aspect-ratio: 2400 / 760; opacity: 0; pointer-events: none; }
+  .pal.placed { opacity: 1; }
+  /* clip-path: Chrome otherwise paints a faint 1-3 px line just outside these transparent images */
+  .pal img { position: absolute; inset: 0; width: 100%; height: 100%; clip-path: inset(0); }
+  .pal .shadow { opacity: 0.9; transform-origin: 50% 79.7%; }   /* black + alpha already: plain compositing */
+  .pal .pallet { transition: transform 0.6s var(--ease); }
+  .pal .shadow { transition: opacity 0.6s var(--ease), transform 0.6s var(--ease); }
+  .pal.landed { pointer-events: auto; }
+  .pal.landed:hover .pallet { transform: translateY(-1.4%); }
+  .pal.landed:hover .shadow { opacity: 0.6; transform: scale(1.04); }
+  .foot { display: grid; grid-template-columns: minmax(0, 34em) auto; justify-content: space-between; align-items: end; gap: 40px; margin-top: 40px; animation: rise 1s var(--ease) 0.35s both; }
+  .lede { font-size: 19px; line-height: 1.6; font-weight: 450; color: var(--ink-2); text-wrap: pretty; }
+  .side { display: flex; flex-direction: column; align-items: flex-end; gap: 22px; }
+  .actions { display: flex; align-items: center; gap: 26px; }
+  .licence { display: inline-flex; align-items: center; gap: 12px; padding: 10px 16px 10px 12px; border: 1px solid var(--line); border-radius: 16px; color: var(--ink); text-decoration: none; transition: border-color 0.3s, background 0.3s; }
+  .licence:hover { border-color: var(--blue); background: var(--blue-soft); }
+  .licence img { width: 56px; height: auto; }
+  .licence span { display: flex; flex-direction: column; gap: 2px; }
+  .licence b { font-size: 14px; font-weight: 700; }
+  .licence em { display: inline-flex; align-items: center; gap: 4px; font-style: normal; font-size: 13px; color: var(--ink-3); }
+  .replay { top: calc(var(--head-h) * 0.25); bottom: auto; }
+  @keyframes up { from { transform: translateY(105%); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+  @media (max-width: 900px) {
+    .rest-hero { min-height: 0; justify-content: flex-start; padding-top: 34vw; padding-bottom: 40px; }
+    .foot { grid-template-columns: 1fr; gap: 26px; margin-top: 26px; }
+    .side { align-items: flex-start; }
+    .lede { font-size: 17px; }
+    .replay { top: 12px; right: 16px; }
+  }
+</style>
+
+<script>
+  import { whenShown } from '../home/when-shown';
+
+  const hero = document.querySelector<HTMLElement>('.rest-hero');
+  const pal = hero?.querySelector<HTMLElement>('.pal');
+  const seat = hero?.querySelector<HTMLElement>('.seat');
+  if (hero && pal && seat) {
+    const PALLET_BOTTOM = 0.7968;              // where the pallet's front bottom edge sits in the render (frame.json)
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const h1 = hero.querySelector<HTMLElement>('.rest-h1')!;
+    const wrap = hero.querySelector<HTMLElement>('.hwrap')!;
+    let squash = true;                          // the word under the pallet gives a little (desktop only)
+
+    // Put the pallet's bottom edge exactly on the cap line of the word "pallet," (wherever it wraps to),
+    // centred over the word, from the real metrics of the loaded font.
+    const place = () => {
+      if (hero.offsetParent === null) return;          // hidden variant: nothing to measure
+      const fs = parseFloat(getComputedStyle(h1).fontSize);
+      const lh = parseFloat(getComputedStyle(h1).lineHeight);
+      const ctx = document.createElement('canvas').getContext('2d')!;
+      ctx.font = `600 ${fs}px "Urbanist Variable"`;
+      const m = ctx.measureText('H');
+      const cap = m.actualBoundingBoxAscent, asc = m.fontBoundingBoxAscent, desc = m.fontBoundingBoxDescent;
+      // Layout offsets ignore transforms, so this is right even while the lines are still rising in.
+      const inner = h1.querySelector<HTMLElement>('.l1 .in')!;
+      const capTop = h1.offsetTop + inner.offsetTop + (lh - (asc + desc)) / 2 + asc - cap;
+      const onFirst = seat.offsetTop - inner.offsetTop < lh * 0.5;   // on phones "pallet," wraps to the next line
+      squash = onFirst;
+      let centre: number;
+      if (onFirst) centre = h1.offsetLeft + seat.offsetLeft + seat.offsetWidth / 2;   // offsets are relative to the h1
+      else {
+        // right end of the first visual line (horizontal positions are not affected by the rise)
+        const range = document.createRange();
+        range.selectNodeContents(inner);
+        const rects = [...range.getClientRects()].filter((q) => q.width > 1);
+        const top0 = Math.min(...rects.map((q) => q.top));
+        const right = Math.max(...rects.filter((q) => Math.abs(q.top - top0) < 4).map((q) => q.right));
+        centre = right - wrap.getBoundingClientRect().left - seat.offsetWidth * 0.2;
+      }
+      const pw = Math.min(Math.max(seat.offsetWidth * 1.9, 300), hero.clientWidth * 0.62);
+      const ph = pw * (760 / 2400);
+      pal.style.setProperty('--pw', `${pw}px`);
+      const left = Math.min(Math.max(centre - pw / 2, 0), wrap.clientWidth - pw);
+      // whole pixels: a fractional position makes Chrome draw a faint line along the image's edges
+      pal.style.transform = `translate(${Math.round(left)}px, ${Math.round(capTop - ph * PALLET_BOTTOM + fs * 0.01)}px)`;
+      pal.classList.add('placed');
+    };
+
+    let anims: Animation[] = [];
+    const setDown = () => {
+      anims.forEach((a) => a.cancel());
+      pal.classList.remove('landed');
+      const pallet = pal.querySelector('.pallet')!, shadow = pal.querySelector('.shadow')!;
+      if (reduce) { pal.classList.add('landed'); return; }
+      const T = 1700, D = 650;
+      anims = [
+        pallet.animate([
+          { transform: 'translateY(-130%)', opacity: 0, offset: 0 },
+          { opacity: 1, offset: 0.18 },
+          { transform: 'translateY(0.9%)', offset: 0.86, easing: 'cubic-bezier(.3,.6,.4,1)' },
+          { transform: 'translateY(0)', opacity: 1 },
+        ], { duration: T, delay: D, easing: 'cubic-bezier(.5,0,.2,1)', fill: 'backwards' }),
+        // a shadow darkens and tightens as the load nears the ground: mostly in the last part of the descent
+        shadow.animate([
+          { opacity: 0, transform: 'scale(1.08, 1.04)' },
+          { opacity: 0.12, transform: 'scale(1.06, 1.03)', offset: 0.5 },
+          { opacity: 0.9, transform: 'scale(1)' },
+        ], { duration: T * 0.86, delay: D, easing: 'cubic-bezier(.5,0,.6,1)', fill: 'backwards' }),
+      ];
+      if (squash) anims.push(seat.animate([
+        { transform: 'scaleY(1)' }, { transform: 'scaleY(0.955)', offset: 0.35 }, { transform: 'scaleY(1)' },
+      ], { duration: 420, delay: D + T * 0.86, easing: 'cubic-bezier(.3,.7,.4,1)' }));
+      anims[0].finished.then(() => pal.classList.add('landed')).catch(() => {});
+    };
+
+    whenShown('B', hero, () => {
+      // measure only with the real font: the fallback is wider and would seat the pallet in the wrong place
+      const loaded = document.readyState === 'complete' ? Promise.resolve() : new Promise((r) => addEventListener('load', r, { once: true }));
+      Promise.all([loaded, document.fonts.ready]).then(() => { place(); setDown(); });
+      document.fonts.addEventListener('loadingdone', place);
+      new ResizeObserver(() => place()).observe(h1);
+      return { replay: setDown };
+    });
+    hero.querySelector('[data-replay]')?.addEventListener('click', setDown);
+  }
+</script>

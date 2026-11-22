@@ -1,0 +1,71 @@
+---
+// PROTOTYPE round 4 · A "Jaali": a photoreal Blender render of an EPAL 1 on a pale stone floor, morning
+// sun through a jaali (Indian stone lattice) throwing its star pattern over the wall, floor and pallet.
+// Europe's standard pallet, Indian light. Desktop: the cursor moves the sun (48 pre-rendered frames).
+// Touch: the light drifts slowly by itself. Reduced motion: one still frame.
+import HeroCopy from '../HeroCopy.astro';
+import Icon from '../../../Icon.astro';
+const DIR = '/dev/r4/jaali';
+const COUNT = 48;
+const START = 24;
+const FOCUS = { x: 0.66, y: 0.6 };
+---
+<section class="photo-hero jaali-hero" style={`--pic-bg:#e9e5de`} aria-label="Pallet Euro Packaging">
+  <div class="pic" data-pic data-dir={DIR} data-count={COUNT} data-start={START} data-fx={FOCUS.x} data-fy={FOCUS.y}>
+    <img src={`${DIR}/${START}.webp`} width="1920" height="1080" fetchpriority="high" decoding="async"
+      style={`object-position:${FOCUS.x * 100}% ${FOCUS.y * 100}%`}
+      alt="An EPAL 1 Euro pallet on a pale stone floor in morning sunlight falling through a jaali screen" />
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <p class="hint" aria-hidden="true">
+    <Icon name="sun" size={20} />
+    <span class="fine">Move your cursor to move the sun</span>
+    <span class="coarse">Morning light through a jaali</span>
+  </p>
+</section>
+
+<style>
+  .jaali-hero :global(.lede) { max-width: 25em; }   /* ends before the pallet */
+</style>
+
+<script>
+  import { createSeq, frames } from './seq';
+  import { whenShown } from '../when-shown';
+
+  const hero = document.querySelector<HTMLElement>('.jaali-hero');
+  const pic = hero?.querySelector<HTMLElement>('[data-pic]');
+  if (hero && pic) {
+    whenShown('A', pic, () => {
+      const d = pic.dataset;
+      const count = Number(d.count), start = Number(d.start);
+      const seq = createSeq(pic.querySelector('canvas')!, frames(d.dir!, count), { x: Number(d.fx), y: Number(d.fy) }, start);
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const fine = matchMedia('(pointer: fine)').matches;
+      if (reduce) return {};
+      let target = start, cur = start, lastMove = -1e9, visible = true;
+      const t0 = performance.now();
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(hero);
+      if (fine) {
+        hero.addEventListener('pointermove', (e) => {
+          const r = hero.getBoundingClientRect();
+          target = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1) * (count - 1);
+          lastMove = performance.now();
+        });
+      }
+      const loop = (now: number) => {
+        requestAnimationFrame(loop);
+        if (!visible || document.hidden || pic.offsetParent === null) return;
+        if (now - lastMove > 2600) {
+          // idle: the sun drifts across and back over about half a minute
+          const k = Math.sin(((now - t0) / 1000) * ((2 * Math.PI) / 28));
+          target = (count - 1) * (0.5 + 0.42 * k);
+        }
+        const next = cur + (target - cur) * (now - lastMove > 2600 ? 0.03 : 0.07);
+        if (Math.abs(next - cur) > 0.0015) { cur = next; seq.show(cur); }
+      };
+      requestAnimationFrame(loop);
+      return {};
+    });
+  }
+</script>

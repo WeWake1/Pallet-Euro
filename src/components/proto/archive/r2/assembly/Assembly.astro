@@ -1,0 +1,340 @@
+---
+// PROTOTYPE · Direction B, "Assembly": a live 3D EPAL 1 builds itself in the hero, board by board,
+// is branded with its marks, shows its dimensions and then turns (drag to rotate).
+import { Image } from 'astro:assets';
+import Logo from '../../../Logo.astro';
+import Icon from '../../../Icon.astro';
+import geometry from '../../../../../data/pallet-geometry.json';
+import { CERTS, RANGE } from '../../../../../data/certificates';
+import poster from '../../../../../assets/dev-renders/white/epal1-1.webp';
+import e1 from '../../../../../assets/dev-renders/white/epal1-1.webp';
+import e2 from '../../../../../assets/dev-renders/white/epal2-1.webp';
+import e3 from '../../../../../assets/dev-renders/white/epal3-1.webp';
+import cp1 from '../../../../../assets/dev-renders/white/cp1-1.webp';
+import cp3 from '../../../../../assets/dev-renders/white/cp3-1.webp';
+import cp6 from '../../../../../assets/dev-renders/white/cp6-1.webp';
+import cp7 from '../../../../../assets/dev-renders/white/cp7-1.webp';
+import collar from '../../../../../assets/dev-renders/white/collar-1.webp';
+import gma from '../../../../../assets/dev-renders/white/gma-1.webp';
+import hw01 from '../../../../../assets/dev-renders/white/hw01-1.webp';
+import pw02 from '../../../../../assets/dev-renders/white/pw02-1.webp';
+
+const recipe = (geometry as Record<string, unknown>).epal1;
+const r = Object.fromEntries(RANGE.map((p) => [p.id, p]));
+const rail = [
+  { p: r.epal1, img: e1, epal: true }, { p: r.epal2, img: e2, epal: true }, { p: r.epal3, img: e3, epal: true },
+  { p: r.cp1, img: cp1, epal: true }, { p: r.cp3, img: cp3, epal: true }, { p: r.cp6, img: cp6, epal: true }, { p: r.cp7, img: cp7, epal: true },
+  { p: r.collar, img: collar }, { p: r.gma, img: gma }, { p: r.hw01, img: hw01 }, { p: r.pw02, img: pw02 },
+];
+const specs = [
+  ['Size', '1200 × 800 × 144 mm'],
+  ['Top deck', '5 boards, 22 mm thick'],
+  ['Cross boards', '3 boards, 22 mm thick'],
+  ['Blocks', '9 blocks'],
+  ['Bottom deck', '3 boards, chamfered outer edges'],
+  ['Nails', '78, in the positions EPAL specifies'],
+  ['Weight', 'about 25 kg'],
+  ['Safe working load', '1,500 kg'],
+  ['Stacking load', '5,500 kg'],
+  ['Treatment', 'ISPM-15 heat treatment, IPPC marked'],
+];
+const epal = CERTS[0];
+---
+<div class="asm">
+  <header class="head">
+    <Logo />
+    <nav class="nav" aria-label="Main">
+      <a href="#b-range">Products</a><a href="#b-certs">Certifications</a><a href="#">About</a><a href="#">Contact</a>
+    </nav>
+    <a class="btn primary sm" href="#">Request a quote</a>
+  </header>
+
+  <section class="hero">
+    <h1 class="title"><span>Built to the</span><span class="blue">EPAL standard</span></h1>
+    <div class="stage" data-assembly data-recipe={JSON.stringify(recipe)} aria-label="3D model of the EPAL 1 Euro pallet. Drag to turn it.">
+      <svg class="dims" aria-hidden="true"></svg>
+      <Image class="poster" src={poster} alt="EPAL 1 Euro pallet" widths={[800, 1200]} sizes="80vw" />
+      <span class="hint">Drag to turn</span>
+    </div>
+    <div class="bar">
+      <div class="lede">
+        <p>EPAL Euro pallets and CP pallets made in India under licence from the European Pallet Association, every board where the EPAL drawing puts it.</p>
+        <div class="actions">
+          <a class="btn primary" href="#">Request a quote</a>
+          <button class="btn line" type="button" data-layers><Icon name="stack" size={18} /><span>Show the layers</span></button>
+          <button class="btn line icon-only" type="button" data-rebuild aria-label="Build it again"><Icon name="arrow-counter-clockwise" size={19} /></button>
+        </div>
+      </div>
+      <a class="licence" href={epal.verifyUrl} rel="noopener">
+        <img src="/dev/stamps/epal.png" alt="" width="70" height="35" />
+        <span><b>Licensed EPAL producer</b><em>Licence <mark>{epal.number}</mark></em></span>
+        <Icon name="arrow-up-right" size={18} />
+      </a>
+    </div>
+  </section>
+
+  <section class="spec">
+    <div class="spec-copy" data-reveal>
+      <h2>What makes it an EPAL pallet.</h2>
+      <p>Anyone can cut boards to 1200 × 800. An EPAL pallet is built to EPAL’s technical regulations and checked by EPAL’s independent inspectors, so it can be exchanged in Europe’s open pallet pool.</p>
+    </div>
+    <dl class="table" data-reveal>
+      {specs.map(([k, v]) => (<div><dt>{k}</dt><dd>{v}</dd></div>))}
+    </dl>
+  </section>
+
+  <section class="range" id="b-range">
+    <div class="range-head" data-reveal>
+      <h2>The range</h2>
+      <div class="range-ctrl">
+        <a class="more" href="#">All 28 pallets <Icon name="arrow-right" size={18} /></a>
+        <button type="button" data-rail="-1" aria-label="Scroll back"><Icon name="arrow-right" size={20} class="flip" /></button>
+        <button type="button" data-rail="1" aria-label="Scroll on"><Icon name="arrow-right" size={20} /></button>
+      </div>
+    </div>
+    <div class="rail" data-railbox>
+      {rail.map(({ p, img, epal: isEpal }) => (
+        <a class="tile" href="#">
+          <Image src={img} alt={`${p.code} ${p.name.toLowerCase()}, ${p.L} × ${p.W} mm`} widths={[420, 640]} sizes="340px" />
+          <span class="t-code">{p.code}{isEpal && <em>EPAL</em>}</span>
+          <span class="t-name">{p.name}</span>
+          <span class="t-size">{p.L} × {p.W} × {p.H} mm</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="certs" id="b-certs">
+    <div class="c-copy">
+      <h2>Certified at every step.</h2>
+      <p>Every certificate here links to the register of the body that issued it. Check us before you place an order.</p>
+    </div>
+    <ul class="rows">
+      {CERTS.map((c, i) => (
+        <li data-reveal style={`transition-delay:${i * 50}ms`}>
+          <Icon name={c.icon} size={30} />
+          <div class="r-main"><b>{c.name}</b><span>{c.issuer}</span></div>
+          <div class="r-num"><span>No.</span><mark>{c.number}</mark></div>
+          {c.verifyUrl ? (
+            <a class="r-verify" href={c.verifyUrl} rel="noopener">Verify <Icon name="arrow-up-right" size={16} /></a>
+          ) : (
+            <span class="r-verify muted">On request</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="band">
+    <div data-reveal>
+      <h2>Tell us about your next shipment.</h2>
+      <p>The pallet, the quantity and the port of loading. We come back with a quote.</p>
+    </div>
+    <a class="btn white" href="#" data-reveal>Request a quote</a>
+  </section>
+
+  <footer class="foot">
+    <Logo />
+    <nav aria-label="Footer"><a href="#">Products</a><a href="#">Certifications</a><a href="#">About</a><a href="#">Contact</a><a href="#">Privacy</a></nav>
+    <p>© 2026 Pallet Euro Packaging. EPAL® is a registered trademark of the European Pallet Association e.V.</p>
+  </footer>
+</div>
+
+<style>
+  .asm {
+    --mist: #f4f6fa;
+    --ink: #0b1324;
+    --ink-2: #3c4658;
+    --ink-3: #7a8396;
+    --line: #e3e8ef;
+    --blue: #0b3a9e;
+    --blue-deep: #072a75;
+    --blue-soft: #edf2fc;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    font-family: 'Albert Sans Variable', system-ui, sans-serif;
+    color: var(--ink);
+    background: #fff;
+    overflow-x: clip;
+  }
+  .asm mark { background: none; color: inherit; border-bottom: 1px dashed currentColor; }
+  .asm :global(svg) { flex: none; }
+  .asm :global(.flip) { transform: scaleX(-1); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; white-space: nowrap; height: 52px; padding: 0 26px; border-radius: 999px; font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s var(--ease); }
+  .btn.sm { height: 44px; padding: 0 20px; font-size: 15px; }
+  .primary { background: var(--blue); color: #fff; }
+  .primary:hover { background: var(--blue-deep); transform: translateY(-1px); }
+  .line { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); background: #fff; }
+  .line:hover { box-shadow: inset 0 0 0 1.5px var(--blue); color: var(--blue); }
+  .line.on { background: var(--blue-soft); box-shadow: inset 0 0 0 1.5px var(--blue); color: var(--blue); }
+  .icon-only { width: 52px; padding: 0; }
+  .white { background: #fff; color: var(--blue); }
+  .white:hover { transform: translateY(-1px); }
+  .more { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 600; text-decoration: none; }
+  .more :global(svg) { transition: transform 0.35s var(--ease); }
+  .more:hover :global(svg) { transform: translateX(4px); }
+
+  .head { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 48px; padding: 18px 56px; background: rgba(255, 255, 255, 0.88); backdrop-filter: saturate(1.4) blur(14px); transition: box-shadow 0.3s; }
+  :global(html.scrolled) .head { box-shadow: 0 1px 0 var(--line); }
+  .nav { display: flex; gap: 36px; margin-left: auto; }
+  .nav a { color: var(--ink-2); font-size: 16px; font-weight: 500; text-decoration: none; transition: color 0.25s; }
+  .nav a:hover { color: var(--blue); }
+
+  /* hero */
+  .hero { display: flex; flex-direction: column; min-height: calc(100vh - 80px); padding: 20px 56px 36px; }
+  .title { position: relative; z-index: 0; text-align: center; text-transform: uppercase; font-weight: 250; font-size: clamp(44px, 8.4vw, 136px); line-height: 0.9; letter-spacing: -0.015em; }
+  .title span { display: block; animation: rise 1.2s var(--ease) both; }
+  .title span + span { animation-delay: 0.1s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(30px); } }
+  .blue { color: var(--blue); }
+  .stage { position: relative; z-index: 1; flex: 1; min-height: 340px; margin-top: -3vh; }
+  .stage :global(canvas) { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
+  .stage :global(canvas:active) { cursor: grabbing; }
+  .stage :global(.poster) { position: absolute; left: 50%; top: 50%; width: min(70%, 760px); height: auto; transform: translate(-50%, -50%); opacity: 0; pointer-events: none; }
+  .stage.no-gl :global(.poster) { opacity: 1; }
+  .dims { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 2; }
+  .dims :global(line) { stroke: var(--blue); stroke-width: 1.4; }
+  .dims :global(circle) { fill: var(--blue); }
+  .dims :global(text) { fill: var(--blue); font: 650 13px 'Albert Sans Variable', sans-serif; letter-spacing: 0.06em; }
+  .hint { position: absolute; right: 2%; top: 6%; font-size: 13px; font-weight: 600; color: var(--ink-3); opacity: 0; transition: opacity 0.6s; pointer-events: none; }
+  .stage[data-phase='built'] .hint { opacity: 1; }
+  .bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 40px; align-items: end; }
+  .lede p { max-width: 34em; font-size: 18px; line-height: 1.6; color: var(--ink-2); text-wrap: pretty; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+  .licence { display: flex; align-items: center; gap: 16px; padding: 14px 18px 14px 16px; border-radius: 18px; background: var(--blue-soft); color: var(--ink); text-decoration: none; transition: background 0.3s; }
+  .licence:hover { background: #e1e9fb; }
+  .licence img { width: 70px; height: auto; }
+  .licence span { display: flex; flex-direction: column; gap: 3px; }
+  .licence b { font-size: 16px; font-weight: 700; }
+  .licence em { font-style: normal; font-size: 14px; color: var(--ink-3); }
+  .licence :global(svg) { color: var(--blue); }
+
+  /* spec sheet */
+  .spec { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; padding: 140px 56px; background: var(--mist); }
+  .spec-copy { position: sticky; top: 120px; align-self: start; }
+  h2 { font-size: clamp(34px, 3.8vw, 56px); line-height: 1.04; font-weight: 500; letter-spacing: -0.03em; }
+  .spec-copy p, .c-copy p { margin-top: 20px; font-size: 18px; line-height: 1.6; color: var(--ink-2); max-width: 28em; }
+  .table div { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 24px; padding: 20px 0; border-bottom: 1px solid #dfe4ec; }
+  .table div:first-child { border-top: 1px solid #dfe4ec; }
+  dt { font-size: 16px; color: var(--ink-3); font-weight: 500; }
+  dd { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+
+  /* range rail */
+  .range { padding: 130px 0 120px; }
+  .range-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; padding: 0 56px; margin-bottom: 36px; }
+  .range-ctrl { display: flex; align-items: center; gap: 10px; }
+  .range-ctrl .more { margin-right: 18px; }
+  .range-ctrl button { width: 48px; height: 48px; border-radius: 999px; display: grid; place-items: center; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); cursor: pointer; transition: box-shadow 0.25s, color 0.25s; }
+  .range-ctrl button:hover { box-shadow: inset 0 0 0 1.5px var(--blue); color: var(--blue); }
+  .rail { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 56px; padding: 4px 56px 24px; scrollbar-width: none; cursor: grab; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail.drag { cursor: grabbing; scroll-snap-type: none; }
+  .tile { flex: 0 0 340px; scroll-snap-align: start; display: flex; flex-direction: column; gap: 2px; padding-bottom: 22px; border: 1px solid var(--line); border-radius: 26px; color: var(--ink); text-decoration: none; background: #fff; overflow: hidden; transition: border-color 0.3s, transform 0.5s var(--ease), box-shadow 0.5s var(--ease); user-select: none; }
+  .tile:hover { border-color: transparent; transform: translateY(-5px); box-shadow: 0 28px 50px -30px rgba(11, 19, 36, 0.32); }
+  .tile :global(img) { width: 100%; height: auto; pointer-events: none; transition: transform 0.7s var(--ease); }
+  .tile:hover :global(img) { transform: scale(1.04); }
+  .t-code { display: flex; align-items: center; gap: 10px; padding: 0 24px; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .t-code em { font-style: normal; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(--blue); background: var(--blue-soft); padding: 4px 8px; border-radius: 999px; }
+  .t-name { padding: 0 24px; font-size: 16px; color: var(--ink-2); }
+  .t-size { padding: 0 24px; font-size: 14px; color: var(--ink-3); margin-top: 6px; }
+
+  /* certificates */
+  .certs { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; padding: 120px 56px 140px; border-top: 1px solid var(--line); }
+  .c-copy { position: sticky; top: 120px; align-self: start; }
+  .rows li { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto auto; gap: 22px; align-items: center; padding: 24px 4px; border-bottom: 1px solid var(--line); transition: background 0.3s, opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+  .rows li:first-child { border-top: 1px solid var(--line); }
+  .rows li:hover { background: #fafbfd; }
+  .rows li > :global(svg) { color: var(--blue); }
+  .r-main { display: flex; flex-direction: column; gap: 3px; }
+  .r-main b { font-size: 19px; font-weight: 650; letter-spacing: -0.01em; }
+  .r-main span { font-size: 15px; color: var(--ink-3); }
+  .r-num { display: flex; gap: 8px; align-items: baseline; font-size: 16px; font-weight: 600; white-space: nowrap; }
+  .r-num span { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .r-verify { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 16px; border-radius: 999px; font-size: 15px; font-weight: 600; color: var(--blue); background: var(--blue-soft); text-decoration: none; transition: background 0.25s; }
+  .r-verify:hover { background: #dde7fb; }
+  .r-verify.muted { background: none; color: var(--ink-3); }
+
+  .band { display: flex; justify-content: space-between; align-items: center; gap: 32px; flex-wrap: wrap; padding: 96px 56px; background: var(--blue); color: #fff; }
+  .band h2 { color: #fff; }
+  .band p { margin-top: 14px; font-size: 19px; color: rgba(255, 255, 255, 0.78); }
+  .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding: 40px 56px 96px; }
+  .foot nav { display: flex; flex-wrap: wrap; gap: 28px; }
+  .foot nav a { color: var(--ink-2); text-decoration: none; font-weight: 500; }
+  .foot p { width: 100%; font-size: 13px; color: var(--ink-3); }
+
+  @media (max-width: 1100px) {
+    .head { padding: 14px 24px; }
+    .nav { display: none; }
+    .head .btn { margin-left: auto; }
+    .hero { padding: 20px 24px 32px; min-height: auto; }
+    .stage { min-height: 360px; height: 58vw; max-height: 520px; }
+    .bar { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    .licence { justify-self: start; }
+    .spec, .certs { grid-template-columns: minmax(0, 1fr); gap: 40px; padding: 96px 24px; }
+    .spec-copy, .c-copy { position: static; }
+    .range-head { padding: 0 24px; }
+    .rail { padding: 4px 24px 24px; scroll-padding: 0 24px; }
+    .band { padding: 72px 24px; }
+    .foot { padding: 32px 24px 96px; }
+  }
+  @media (max-width: 640px) {
+    .head .btn { height: 40px; padding: 0 16px; font-size: 14px; }
+    .title { font-size: 10.2vw; }
+    .head .btn { padding: 0 14px; font-size: 13.5px; }
+    .dims :global(text) { font-size: 11px; }
+    .stage { min-height: 300px; height: 86vw; margin-top: 0; }
+    .lede p { font-size: 17px; }
+    .tile { flex-basis: 78vw; }
+    .range-ctrl button { display: none; }
+    .range-ctrl .more { margin-right: 0; }
+    .rows li { grid-template-columns: 30px minmax(0, 1fr); gap: 8px 16px; }
+    .r-num, .r-verify { grid-column: 2; justify-self: start; }
+    .table div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  }
+</style>
+
+<script>
+  import { mountAssembly, type Recipe } from './scene';
+
+  const host = document.querySelector<HTMLElement>('.asm [data-assembly]');
+  let api: ReturnType<typeof mountAssembly> | null = null;
+  const start = () => {
+    if (!host || api || host.offsetParent === null) return;
+    try {
+      const gl = document.createElement('canvas').getContext('webgl2');
+      if (!gl) throw new Error('no webgl');
+      api = mountAssembly(host, host.querySelector('svg.dims') as SVGSVGElement, JSON.parse(host.dataset.recipe!) as Recipe, {
+        epal: '/dev/stamps/epal.png',
+        ippc: '/dev/stamps/ippc_IN-XXX_HT.png',
+      });
+    } catch {
+      host.classList.add('no-gl');
+    }
+  };
+  start();
+  window.addEventListener('variant:shown', (e) => {
+    if ((e as CustomEvent).detail !== 'B') return;
+    if (api) api.rebuild(); else start();
+  });
+  const layersBtn = document.querySelector<HTMLButtonElement>('.asm [data-layers]');
+  layersBtn?.addEventListener('click', () => {
+    if (!api) return;
+    const on = api.toggleLayers();
+    layersBtn.classList.toggle('on', on);
+    layersBtn.querySelector('span')!.textContent = on ? 'Put it back together' : 'Show the layers';
+  });
+  document.querySelector('.asm [data-rebuild]')?.addEventListener('click', () => api?.rebuild());
+
+  // Range rail: arrow buttons and drag to scroll.
+  const rail = document.querySelector<HTMLElement>('.asm [data-railbox]');
+  document.querySelectorAll<HTMLButtonElement>('.asm [data-rail]').forEach((b) =>
+    b.addEventListener('click', () => rail?.scrollBy({ left: Number(b.dataset.rail) * 360, behavior: 'smooth' })),
+  );
+  if (rail) {
+    let down = false, x0 = 0, s0 = 0, moved = false;
+    rail.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') return; down = true; moved = false; x0 = e.clientX; s0 = rail.scrollLeft; });
+    window.addEventListener('pointermove', (e) => { if (!down) return; const dx = e.clientX - x0; if (Math.abs(dx) > 4) { moved = true; rail.classList.add('drag'); } rail.scrollLeft = s0 - dx; });
+    window.addEventListener('pointerup', () => { down = false; rail.classList.remove('drag'); });
+    rail.addEventListener('click', (e) => { if (moved) { e.preventDefault(); moved = false; } }, true);
+  }
+</script>

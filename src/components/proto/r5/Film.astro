@@ -1,0 +1,81 @@
+---
+// PROTOTYPE round 5: shell for an Apple-style scroll film (see film.ts). Captions are the slot: elements
+// with data-in / data-out (0..1 of the film) and a placement class (at-left, at-top-left, at-bottom-left).
+// All text is in the static HTML. The poster (last frame, phone size) is the no-JS picture and the alt text.
+interface Props {
+  id: string;
+  label: string;
+  dir: string;
+  count: number;
+  phoneDir: string;
+  phoneCount: number;
+  alt: string;
+  scroll?: number;      // section height on computers, in vh (the longer, the slower the film)
+  duration?: number;    // phone playback, ms
+  bg?: string;
+  focus?: { x: number; y: number };
+}
+const { id, label, dir, count, phoneDir, phoneCount, alt, scroll = 500, duration = 8000, bg = '#e4e2de', focus = { x: 0.5, y: 0.5 } } = Astro.props;
+const last = String(phoneCount - 1).padStart(phoneCount > 100 ? 3 : 2, '0');
+---
+<section class="film" id={id} aria-label={label} data-film data-dir={dir} data-count={count}
+  data-phone-dir={phoneDir} data-phone-count={phoneCount} data-duration={duration} data-fx={focus.x} data-fy={focus.y}
+  style={`--scroll:${scroll}vh;--film-bg:${bg};--fx:${focus.x * 100}%;--fy:${focus.y * 100}%`}>
+  <div class="stage" data-stage>
+    <div class="frame" data-frame>
+      <img class="poster" src={`${phoneDir}/${last}.webp`} alt={alt} width="800" height="450" loading="lazy" decoding="async" />
+      <canvas aria-hidden="true"></canvas>
+    </div>
+    <div class="beats"><slot /></div>
+  </div>
+  <button class="replay" type="button" data-replay>Play again</button>
+</section>
+
+<script>
+  import { mountFilm } from './film';
+  document.querySelectorAll<HTMLElement>('[data-film]').forEach((el) => mountFilm(el));
+</script>
+
+<style>
+  .film { position: relative; background: var(--film-bg); }
+  .stage { position: relative; overflow: hidden; }
+  .frame { position: relative; }
+  .poster, canvas { display: block; width: 100%; }
+  canvas { position: absolute; inset: 0; height: 100%; opacity: 0; transition: opacity 0.5s; }
+  canvas:global(.ready) { opacity: 1; }
+  .beats :global(.beat) { color: var(--ink); }
+  .beats :global(.beat h2), .beats :global(.beat h3) { font-weight: 600; letter-spacing: -0.03em; line-height: 1.04; text-wrap: balance; }
+  .beats :global(.beat h2) { font-size: clamp(36px, 4.2vw, 64px); }
+  .beats :global(.beat h3) { font-size: clamp(28px, 3vw, 46px); }
+  .beats :global(.beat p) { margin-top: 16px; font-size: 18px; line-height: 1.6; color: var(--ink-2); text-wrap: pretty; }
+  .beats :global(.beat .more) { margin-top: 18px; }
+  .replay { display: none; }
+
+  @media (min-width: 901px) {
+    .film { height: var(--scroll); }
+    .stage { position: sticky; top: 0; height: 100vh; height: 100svh; }
+    .frame { position: absolute; inset: 0; }
+    .poster { position: absolute; inset: 0; height: 100%; object-fit: cover; object-position: var(--fx) var(--fy); }
+    .beats { position: absolute; inset: 0; pointer-events: none; }
+    .beats :global(.beat) { position: absolute; left: var(--pad); max-width: 30rem; opacity: 0; will-change: opacity, transform; }
+    .beats :global(.beat a), .beats :global(.beat button) { pointer-events: auto; }
+    .beats :global(.at-left) { top: 30vh; }
+    .beats :global(.at-top-left) { top: 14vh; }
+    .beats :global(.at-bottom-left) { bottom: 11vh; }
+    .beats :global(.card) { padding: 28px 30px 30px; border-radius: 26px; background: rgba(255, 255, 255, 0.92); box-shadow: 0 24px 60px -30px rgba(11, 19, 36, 0.35); }
+    :global(.static) .beats :global(.beat) { position: relative; }
+  }
+
+  @media (max-width: 900px) {
+    .stage { margin: 0; }
+    .poster { aspect-ratio: 16 / 9; height: auto; object-fit: cover; }
+    .beats { display: grid; gap: 22px; padding: 26px var(--pad) 18px; }
+    .beats :global(.beat) { transition: opacity 0.45s; }
+    .film:not(.ended):not(:global(.static)) .beats :global(.beat:not(.on)) { opacity: 0.32; }
+    .beats :global(.beat h2) { font-size: 34px; }
+    .beats :global(.beat h3) { font-size: 26px; }
+    .beats :global(.beat p) { font-size: 16px; margin-top: 10px; }
+    .replay { display: none; margin: 0 var(--pad) 30px; height: 40px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 14px; font-weight: 650; color: var(--ink-2); background: rgba(255, 255, 255, 0.85); box-shadow: inset 0 0 0 1px var(--line); cursor: pointer; }
+    .film:global(.ended) .replay { display: inline-flex; align-items: center; }
+  }
+</style>

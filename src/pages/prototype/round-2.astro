@@ -1,0 +1,18 @@
+---
+// PROTOTYPE ARCHIVE · round 2 (7 Nov 2026): the first light directions, kept for reference.
+// Owner's verdict: kept the A headline, A's product cards, B's "Certified at every step" and
+// C's "Your next container" band; rejected all three hero concepts. See docs/prototypes/.
+import Proto from '../../layouts/Proto.astro';
+import Switcher from '../../components/proto/Switcher.astro';
+import Studio from '../../components/proto/archive/r2/studio/Studio.astro';
+import Assembly from '../../components/proto/archive/r2/assembly/Assembly.astro';
+import Certified from '../../components/proto/archive/r2/certified/Certified.astro';
+---
+<Proto title="Round 2 archive · Pallet Euro (prototype)">
+  <main>
+    <div class="variant" data-variant="A"><Studio /></div>
+    <div class="variant" data-variant="B"><Assembly /></div>
+    <div class="variant" data-variant="C"><Certified /></div>
+  </main>
+  <Switcher round="Round 2" variants={[{ key: 'A', name: 'Studio' }, { key: 'B', name: 'Assembly' }, { key: 'C', name: 'Certified' }]} />
+</Proto>

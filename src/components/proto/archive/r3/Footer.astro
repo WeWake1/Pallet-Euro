@@ -1,0 +1,15 @@
+---
+import Logo from '../../Logo.astro';
+---
+<footer class="foot">
+  <Logo />
+  <nav aria-label="Footer"><a href="#range">Products</a><a href="#certified">Certifications</a><a href="#">About</a><a href="#">Contact</a><a href="#">Privacy</a></nav>
+  <p>© 2026 Pallet Euro Packaging. EPAL® is a registered trademark of the European Pallet Association e.V.</p>
+</footer>
+
+<style>
+  .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding: 40px var(--pad) 96px; }
+  nav { display: flex; flex-wrap: wrap; gap: 28px; }
+  nav a { color: var(--ink-2); text-decoration: none; font-weight: 550; }
+  p { width: 100%; font-size: 13px; color: var(--ink-3); }
+</style>
