@@ -1,0 +1,55 @@
+---
+// Sticky header. `overlay`: over a full-bleed picture it starts transparent on computers and turns solid on scroll.
+// Phones and tablets get a Menu button (a plain <details>, no script).
+import Logo from './Logo.astro';
+import { NAV, QUOTE_HREF } from '../../data/site';
+
+interface Props { overlay?: boolean }
+const { overlay = false } = Astro.props;
+const here = Astro.url.pathname;
+const current = (href: string) => (here.startsWith(href) ? 'page' : undefined);
+---
+<header class:list={['head', { overlay }]}>
+  <Logo />
+  <nav class="nav" aria-label="Main">
+    {NAV.map((n) => <a href={n.href} aria-current={current(n.href)}>{n.label}</a>)}
+  </nav>
+  <a class="btn primary sm" href={QUOTE_HREF}>Request a quote</a>
+  <details class="menu">
+    <summary>Menu</summary>
+    <nav aria-label="Main (small screens)">
+      {NAV.map((n) => <a href={n.href} aria-current={current(n.href)}>{n.label}</a>)}
+      <a class="btn primary" href={QUOTE_HREF}>Request a quote</a>
+    </nav>
+  </details>
+</header>
+
+<style>
+  .head { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 48px; height: var(--head-h); padding: 0 var(--pad); background: rgba(255, 255, 255, 0.86); backdrop-filter: saturate(1.4) blur(14px); transition: background 0.3s, box-shadow 0.3s; }
+  :global(html.scrolled) .head { box-shadow: 0 1px 0 var(--line); }
+  @media (min-width: 901px) {
+    :global(html:not(.scrolled)) .head.overlay { background: transparent; backdrop-filter: none; }
+  }
+  .nav { display: flex; gap: 36px; margin-left: auto; }
+  .nav a, .menu nav a:not(.btn) { color: var(--ink-2); font-size: 16px; font-weight: 550; text-decoration: none; transition: color 0.25s; }
+  .nav a:hover, .nav a[aria-current] { color: var(--blue); }
+  .menu { display: none; }
+  @media (max-width: 1100px) {
+    .head { gap: 12px; }
+    .nav { display: none; }
+    .head > :global(.btn) { margin-left: auto; }
+    .menu { display: block; }
+    .menu summary { display: inline-flex; align-items: center; height: 40px; padding: 0 14px; border-radius: 999px; box-shadow: inset 0 0 0 1.5px var(--line); font-size: 15px; font-weight: 650; color: var(--ink); cursor: pointer; list-style: none; }
+    .menu summary::-webkit-details-marker { display: none; }
+    .menu[open] summary { box-shadow: inset 0 0 0 1.5px var(--blue); color: var(--blue); }
+    .menu nav { position: absolute; left: 0; right: 0; top: 100%; display: grid; padding: 8px var(--pad) 20px; background: #fff; box-shadow: 0 1px 0 var(--line), 0 24px 40px -28px rgba(11, 19, 36, 0.35); }
+    .menu nav a:not(.btn) { padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 18px; }
+    .menu nav .btn { margin-top: 20px; }
+  }
+  /* Narrow phones: logo and Menu only; the quote button moves into the menu (the hero's own button is just below). */
+  @media (max-width: 560px) {
+    .head > :global(.btn) { display: none; }
+    .menu { margin-left: auto; }
+  }
+  @media (min-width: 561px) { .menu nav .btn { display: none; } }
+</style>

@@ -1,0 +1,78 @@
+---
+// The first screen: the chosen headline (decision #13) over a full-bleed render; phones show the picture first,
+// then the copy. The picture is a stand-in until the owner picks the hero (round 5, docs/decisions.md): pass
+// another render through the props, or replace the .pic block with the chosen hero's motion.
+import Icon from './Icon.astro';
+import { CERTS } from '../../data/certificates';
+import { QUOTE_HREF } from '../../data/site';
+
+interface Props {
+  src: string; // full-size render (public path)
+  srcSm: string; // 960 px phone version
+  width: number;
+  height: number;
+  alt: string;
+  focus?: string; // object-position on computers
+  phoneFocus?: string; // object-position in the 5:4 phone crop
+  bg?: string; // colour behind the picture while it loads
+}
+const { src, srcSm, width, height, alt, focus = '50% 50%', phoneFocus = focus, bg = '#ece8e1' } = Astro.props;
+const epal = CERTS[0];
+---
+<section class="hero" style={`--pic-bg:${bg};--focus:${focus};--focus-phone:${phoneFocus}`} aria-labelledby="hero-title">
+  <div class="pic">
+    <img src={src} srcset={`${srcSm} 960w, ${src} ${width}w`} sizes="100vw" width={width} height={height} fetchpriority="high" alt={alt} />
+  </div>
+  <div class="copy">
+    <h1 id="hero-title">
+      <span class="ln"><span>Europe’s standard pallet,</span></span>
+      <span class="ln"><span class="blue">made in India.</span></span>
+    </h1>
+    <p class="lede">EPAL Euro pallets and CP pallets, built under licence from the European Pallet Association and heat treated to ISPM-15 for export.</p>
+    <div class="actions">
+      <a class="btn primary" href={QUOTE_HREF}>Request a quote</a>
+      <a class="more" href="#range">Explore the range <Icon name="arrow-right" size={18} /></a>
+    </div>
+    <a class="licence" href={epal.verifyUrl} rel="noopener">
+      <img src="/dev/stamps/epal-128.webp" alt="" width="64" height="32" />
+      <span>
+        <b>Licensed EPAL producer</b>
+        <em>Licence <mark>{epal.number}</mark> · verify on EPAL’s register <Icon name="arrow-up-right" size={14} /></em>
+      </span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .hero { position: relative; display: flex; align-items: center; height: 100svh; min-height: 660px; max-height: 1080px; margin-top: calc(-1 * var(--head-h)); padding: var(--head-h) var(--pad) 0; overflow: hidden; }
+  .pic { position: absolute; inset: 0; background: var(--pic-bg); }
+  .pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--focus); }
+  .copy { position: relative; z-index: 2; max-width: 600px; padding-bottom: 40px; }
+  h1 { font-size: clamp(42px, 5.4vw, 84px); line-height: 1.02; font-weight: 600; letter-spacing: -0.035em; }
+  .ln { display: block; overflow: hidden; padding-bottom: 0.06em; text-wrap: balance; }
+  .ln > span { display: inline-block; animation: lineUp 1.1s var(--ease) both; }
+  .ln:nth-child(2) > span { animation-delay: 0.12s; }
+  .blue { color: var(--blue); }
+  .lede { margin-top: 24px; max-width: 25em; font-size: 19px; line-height: 1.6; font-weight: 450; color: var(--ink-2); text-wrap: pretty; animation: fadeUp 1s var(--ease) 0.3s both; }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 26px; margin-top: 32px; animation: fadeUp 1s var(--ease) 0.42s both; }
+  .licence { display: inline-flex; align-items: center; gap: 16px; margin-top: 36px; padding: 12px 20px 12px 14px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255, 255, 255, 0.82); color: var(--ink); text-decoration: none; transition: border-color 0.3s, background 0.3s; animation: fadeUp 1s var(--ease) 0.56s both; }
+  .licence:hover { border-color: var(--blue); background: var(--blue-soft); }
+  .licence img { width: 64px; height: auto; }
+  .licence span { display: flex; flex-direction: column; gap: 3px; }
+  .licence b { font-size: 15px; font-weight: 700; }
+  .licence em { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 5px; font-style: normal; font-size: 13.5px; color: var(--ink-3); }
+  @keyframes lineUp { from { transform: translateY(105%); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } }
+  @media (max-width: 900px) {
+    .hero { flex-direction: column; align-items: stretch; height: auto; min-height: 0; max-height: none; margin-top: 0; padding: 0 var(--pad); }
+    .pic { position: relative; inset: auto; aspect-ratio: 5 / 4; margin: 0 calc(-1 * var(--pad)) 28px; }
+    .pic img { object-position: var(--focus-phone); }
+    .copy { padding-bottom: 8px; }
+  }
+  @media (max-width: 640px) {
+    h1 { font-size: 40px; }
+    .lede { font-size: 17px; margin-top: 18px; }
+    .actions { gap: 20px; margin-top: 26px; }
+    .licence { margin-top: 26px; }
+  }
+</style>

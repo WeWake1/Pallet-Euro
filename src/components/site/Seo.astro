@@ -1,0 +1,30 @@
+---
+// Title, description, canonical URL, robots (follows the launch gate), Open Graph and JSON-LD for one page.
+import { LAUNCHED, SITE } from '../../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string; // share picture, path from the site root (none yet: needs a render with Pallet Euro's own marks)
+  type?: 'website' | 'article';
+  schema?: object[];
+  noindex?: boolean;
+}
+const { title, description, image, type = 'website', schema = [], noindex = false } = Astro.props;
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site).href;
+const robots = LAUNCHED && !noindex ? 'index, follow, max-image-preview:large' : 'noindex, nofollow';
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={robots} />
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:locale" content={SITE.locale} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+{image && <meta property="og:image" content={new URL(image, site).href} />}
+<meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+{schema.length > 0 && <script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': schema })} />}

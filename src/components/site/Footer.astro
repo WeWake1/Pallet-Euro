@@ -1,0 +1,36 @@
+---
+// Footer: links to every main page and the company's contact details (visible placeholders until the owner sends them).
+import Logo from './Logo.astro';
+import { FOOTER_NAV, SITE, isPlaceholder } from '../../data/site';
+
+const year = new Date().getFullYear();
+const contact = [
+  { value: SITE.address },
+  { value: SITE.phone, href: `tel:${SITE.phone.replace(/[^+\d]/g, '')}` },
+  { value: SITE.email, href: `mailto:${SITE.email}` },
+];
+---
+<footer class="foot">
+  <div class="top">
+    <Logo />
+    <nav aria-label="Footer">
+      {FOOTER_NAV.map((n) => <a href={n.href}>{n.label}</a>)}
+    </nav>
+  </div>
+  <address>
+    {contact.map(({ value, href }) =>
+      isPlaceholder(value) ? <mark>{value}</mark> : href ? <a href={href}>{value}</a> : <span>{value}</span>,
+    )}
+  </address>
+  <p>© {year} {SITE.name}. EPAL® is a registered trademark of the European Pallet Association e.V.</p>
+</footer>
+
+<style>
+  .foot { display: grid; gap: 28px; padding: 56px var(--pad) 72px; border-top: 1px solid var(--line); }
+  .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; }
+  nav { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+  nav a, address a { color: var(--ink-2); text-decoration: none; font-weight: 550; }
+  nav a:hover, address a:hover { color: var(--blue); }
+  address { display: flex; flex-wrap: wrap; gap: 8px 28px; font-style: normal; color: var(--ink-2); }
+  p { font-size: 13px; color: var(--ink-3); }
+</style>

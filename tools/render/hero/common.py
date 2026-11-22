@@ -11,6 +11,7 @@ Flags (after `--`): --recipe epal1 --recipes src/data/pallet-geometry.json --out
 import argparse
 import math
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -30,6 +31,8 @@ ap.add_argument("--test", action="store_true", help="quarter size, few samples")
 ap.add_argument("--device", default=os.environ.get("PE_RENDER_DEVICE", "auto"),
                 help="Cycles device: auto (Metal on a Mac, else OptiX, HIP, CUDA, oneAPI), one of those, or CPU")
 args, _ = ap.parse_known_args(argv)
+# Blender on Windows resolves a relative output path from the drive root (C:\), not the working folder.
+args.out = os.path.abspath(args.out)
 
 scene = pk.scene
 W, H = (int(v) for v in args.size.split("x"))
@@ -37,6 +40,11 @@ os.makedirs(args.out, exist_ok=True)
 
 
 GPU_ORDER = ["METAL"] if sys.platform == "darwin" else ["OPTIX", "HIP", "CUDA", "ONEAPI"]
+
+
+def is_integrated(name):
+    """The GPU built into the CPU, e.g. "AMD Radeon(TM) Graphics" next to the RX 9060 XT on the owner's PC."""
+    return re.search(r"Radeon(\(TM\))?( \w+)* Graphics$|Intel\(R\) (UHD|Iris|HD) ", name) is not None
 
 
 def pick_device():
@@ -53,8 +61,10 @@ def pick_device():
         prefs.refresh_devices()
         gpus = [d for d in prefs.devices if d.type == kind]
         if gpus:
+            gpus = [d for d in gpus if not is_integrated(d.name)] or gpus
+            ids = {d.id for d in gpus}
             for d in prefs.devices:
-                d.use = d.type == kind     # GPU only: adding the CPU slows the GPU render down
+                d.use = d.id in ids        # dedicated GPU only: the CPU or the CPU's own GPU slows the render down
             print(f"DEVICE {kind}: " + ", ".join(d.name for d in gpus), flush=True)
             return "GPU"
     print("WARNING no GPU found for Cycles; rendering on the CPU (much slower)", flush=True)

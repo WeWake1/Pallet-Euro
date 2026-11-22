@@ -1,0 +1,26 @@
+---
+// Page not found (Hostinger serves dist/404.html). Never indexed.
+import Base from '../layouts/Base.astro';
+import Icon from '../components/site/Icon.astro';
+import { NAV, QUOTE_HREF } from '../data/site';
+---
+<Base title="Page not found | Pallet Euro Packaging" description="This page does not exist." noindex>
+  <section class="nf">
+    <p class="code">404</p>
+    <h1>This page does not exist.</h1>
+    <p class="lede">The link may be old, or the address mistyped. These pages are a good place to start:</p>
+    <ul>
+      <li><a class="more" href="/">Home <Icon name="arrow-right" size={18} /></a></li>
+      {NAV.map((n) => <li><a class="more" href={n.href}>{n.label} <Icon name="arrow-right" size={18} /></a></li>)}
+    </ul>
+    <a class="btn primary" href={QUOTE_HREF}>Request a quote</a>
+  </section>
+</Base>
+
+<style>
+  .nf { min-height: 70vh; padding: 120px var(--pad) 140px; }
+  .code { font-size: 13px; font-weight: 750; letter-spacing: 0.14em; color: var(--blue); }
+  h1 { margin-top: 10px; font-size: clamp(36px, 4.4vw, 64px); line-height: 1.05; font-weight: 600; letter-spacing: -0.03em; }
+  .lede { margin-top: 20px; max-width: 30em; font-size: 18px; line-height: 1.6; color: var(--ink-2); }
+  ul { display: flex; flex-wrap: wrap; gap: 14px 32px; margin: 28px 0 40px; }
+</style>

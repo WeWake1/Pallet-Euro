@@ -1,0 +1,48 @@
+/* The production site (pages on src/layouts/Base.astro): tokens, type, buttons. Light theme only, never dark.
+   Ported from the approved prototype sections (src/components/proto/home/home.css), unscoped. */
+:root {
+  --white: #ffffff;
+  --mist: #f4f6fa;
+  --ink: #0b1324;
+  --ink-2: #3c4658;
+  --ink-3: #667085; /* the prototype's #7a8396 fails WCAG contrast for small text (3.8:1 on white; this is 5:1) */
+  --line: #e3e8ef;
+  --blue: #0b3a9e;
+  --blue-deep: #072a75;
+  --blue-soft: #edf2fc;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --pad: 56px;
+  --head-h: 80px;
+  --condensed: 'Sofia Sans Condensed Variable', 'Arial Narrow', sans-serif;
+}
+body { font-family: 'Urbanist Variable', system-ui, sans-serif; color: var(--ink); background: var(--white); overflow-x: clip; }
+svg { flex: none; }
+/* Placeholders ({{phone}}, IND-0XX …) are marked so they cannot be missed. */
+mark { background: none; color: inherit; border-bottom: 1px dashed currentColor; white-space: nowrap; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
+  height: 52px; padding: 0 26px; border-radius: 999px; font: inherit; font-size: 16px; font-weight: 650;
+  text-decoration: none; cursor: pointer;
+  transition: background 0.3s, color 0.3s, transform 0.3s var(--ease), box-shadow 0.3s;
+}
+.btn.sm { height: 44px; padding: 0 20px; font-size: 15px; }
+.btn.primary { background: var(--blue); color: #fff; box-shadow: 0 10px 24px -12px rgba(11, 58, 158, 0.6); }
+.btn.primary:hover { background: var(--blue-deep); transform: translateY(-1px); }
+.btn.white { background: #fff; color: var(--blue); }
+.btn.white:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.45); }
+.btn.ghost { color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.5); }
+.btn.ghost:hover { box-shadow: inset 0 0 0 1.5px #fff; }
+.more { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 650; font-size: 16px; text-decoration: none; white-space: nowrap; }
+.more svg { transition: transform 0.35s var(--ease); }
+.more:hover svg { transform: translateX(4px); }
+.h2 { font-size: clamp(34px, 3.8vw, 56px); line-height: 1.06; font-weight: 600; letter-spacing: -0.03em; }
+
+.skip { position: absolute; left: 12px; top: -80px; z-index: 100; padding: 10px 16px; border-radius: 10px; background: var(--blue); color: #fff; font-weight: 650; text-decoration: none; }
+.skip:focus { top: 12px; }
+
+/* Content stays visible when scripts do not run (the reveal starts hidden only once the page has JS). */
+html:not(.js) [data-reveal] { opacity: 1; transform: none; }
+
+@media (max-width: 1100px) { :root { --pad: 24px; --head-h: 68px; } }
+@media (max-width: 640px) { .btn.sm { height: 40px; padding: 0 16px; font-size: 14px; } }

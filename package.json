@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^7.1.4",
+    "@astrojs/sitemap": "^3.7.6",
     "@fontsource-variable/albert-sans": "^5.3.0",
     "@fontsource-variable/sofia-sans": "^5.3.0",
     "@fontsource-variable/sofia-sans-condensed": "^5.3.0",

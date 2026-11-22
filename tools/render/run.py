@@ -98,6 +98,8 @@ def main():
         t0 = time.time()
         p = subprocess.run(cmd, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
         for line in p.stdout.splitlines():
+            if "CUEW" in line:   # Windows without an NVIDIA card: Blender cannot load CUDA (harmless)
+                continue
             if line.startswith(("DEVICE", "WARNING", "WROTE", "Traceback", "SCREEN")) or "Error" in line:
                 print("  " + line.replace(ROOT + os.sep, ""))
         if p.returncode:

@@ -1,0 +1,113 @@
+---
+// "Every EPAL pallet, built to the drawing." The product cards the owner kept (decision #15). Each card links to its
+// product page. The pictures are dev renders (Ambica's IN-083 mark): replace them with the launch re-render.
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { RANGE } from '../../data/certificates';
+import { RANGE28 } from '../../data/range28';
+import v1 from '../../assets/dev-renders/white/epal1-1.webp';
+import v2 from '../../assets/dev-renders/white/epal1-2.webp';
+import e2a from '../../assets/dev-renders/white/epal2-1.webp';
+import e2b from '../../assets/dev-renders/white/epal2-2.webp';
+import e3a from '../../assets/dev-renders/white/epal3-1.webp';
+import e3b from '../../assets/dev-renders/white/epal3-2.webp';
+import cp1 from '../../assets/dev-renders/white/cp1-1.webp';
+import cp3 from '../../assets/dev-renders/white/cp3-1.webp';
+import cp6 from '../../assets/dev-renders/white/cp6-1.webp';
+import cp7 from '../../assets/dev-renders/white/cp7-1.webp';
+
+const r = Object.fromEntries(RANGE.map((p) => [p.id, p]));
+const href = (code: string) => {
+  const p = RANGE28.find((x) => x.code === code);
+  if (!p) throw new Error(`No product page for ${code}`);
+  return `/products/${p.slug}/`;
+};
+const epals = [
+  { p: r.epal1, a: v1, b: v2, line: 'The Euro pallet. The one Europe’s pallet pool runs on.' },
+  { p: r.epal2, a: e2a, b: e2b, line: 'Wide base for heavy, bulky loads and roller conveyors.' },
+  { p: r.epal3, a: e3a, b: e3b, line: 'The 1200 × 1000 footprint for chemicals and building materials.' },
+];
+const cps = [{ p: r.cp1, img: cp1 }, { p: r.cp3, img: cp3 }, { p: r.cp6, img: cp6 }, { p: r.cp7, img: cp7 }];
+const kg = (n?: number) => (n ? n.toLocaleString('en-IN') + ' kg' : '');
+---
+<section class="range" id="range" aria-labelledby="range-title">
+  <div class="sec-head" data-reveal>
+    <h2 class="h2" id="range-title">Every EPAL pallet,<br />built to the drawing.</h2>
+    <div>
+      <p>Board widths, block positions and all 78 nails of the Euro pallet follow EPAL’s technical regulations, pallet after pallet.</p>
+      <a class="more" href="/products/">See all 28 pallets <Icon name="arrow-right" size={18} /></a>
+    </div>
+  </div>
+  <div class="cards">
+    {epals.map(({ p, a, b, line }, i) => (
+      <a class="card" href={href(p.code)} data-reveal style={`transition-delay:${i * 90}ms`}>
+        <div class="pic">
+          <Image src={a} alt={`${p.code} ${p.name.toLowerCase()}, ${p.L} × ${p.W} mm`} widths={[480, 720]} sizes="(max-width: 1100px) 92vw, 420px" />
+          <Image class="alt" src={b} alt="" widths={[480, 720]} sizes="(max-width: 1100px) 92vw, 420px" />
+        </div>
+        <div class="body">
+          <span class="code">{p.code}</span>
+          <h3>{p.name}</h3>
+          <p>{line}</p>
+          <dl>
+            <div><dt>Size</dt><dd>{p.L} × {p.W} × {p.H} mm</dd></div>
+            <div><dt>Safe load</dt><dd>{kg(p.swl)}</dd></div>
+            <div><dt>Weight</dt><dd>≈ {kg(p.kg)}</dd></div>
+          </dl>
+        </div>
+      </a>
+    ))}
+  </div>
+  <div class="cp" data-reveal>
+    <div class="cp-head">
+      <h3>CP pallets for the chemical industry</h3>
+      <a class="more" href="/products/">All nine CP types <Icon name="arrow-right" size={18} /></a>
+    </div>
+    <div class="cp-row">
+      {cps.map(({ p, img }) => (
+        <a class="mini" href={href(p.code)}>
+          <Image src={img} alt={`${p.code} chemical pallet, ${p.L} × ${p.W} mm`} widths={[360, 540]} sizes="(max-width: 1100px) 45vw, 300px" />
+          <b>{p.code}</b><span>{p.L} × {p.W} mm</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .range { padding: 140px var(--pad) 120px; }
+  .sec-head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: end; margin-bottom: 56px; }
+  .sec-head p { font-size: 18px; line-height: 1.6; color: var(--ink-2); margin-bottom: 18px; max-width: 30em; }
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .card { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 28px; overflow: hidden; color: var(--ink); text-decoration: none; background: #fff; transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease), border-color 0.3s, opacity 0.9s var(--ease); }
+  .card:hover { transform: translateY(-6px); box-shadow: 0 30px 60px -30px rgba(11, 19, 36, 0.3); border-color: transparent; }
+  .pic { position: relative; aspect-ratio: 4 / 3; background: #fff; }
+  .pic :global(img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity 0.6s var(--ease), transform 0.8s var(--ease); }
+  .pic :global(img.alt) { opacity: 0; }
+  .card:hover .pic :global(img) { transform: scale(1.03); }
+  .card:hover .pic :global(img.alt) { opacity: 1; }
+  .body { padding: 4px 28px 28px; }
+  .code { font-size: 13px; font-weight: 750; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue); }
+  .body h3 { margin-top: 6px; font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
+  .body p { margin-top: 8px; font-size: 16px; line-height: 1.55; color: var(--ink-2); min-height: 3.1em; }
+  dl { display: grid; grid-template-columns: repeat(3, auto); justify-content: space-between; gap: 12px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+  dt { font-size: 12px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  dd { margin-top: 4px; font-size: 15px; font-weight: 650; white-space: nowrap; }
+  .cp { margin-top: 88px; }
+  .cp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; margin-bottom: 24px; }
+  .cp-head h3 { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
+  .cp-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+  .mini { display: grid; gap: 2px; padding: 0 0 18px; border-radius: 22px; background: var(--mist); color: var(--ink); text-decoration: none; overflow: hidden; transition: background 0.3s; }
+  .mini:hover { background: var(--blue-soft); }
+  .mini :global(img) { width: 100%; height: auto; mix-blend-mode: multiply; transition: transform 0.6s var(--ease); }
+  .mini:hover :global(img) { transform: scale(1.04); }
+  .mini b { padding: 0 20px; font-size: 18px; font-weight: 700; }
+  .mini span { padding: 0 20px; font-size: 14px; color: var(--ink-3); }
+  @media (max-width: 1100px) {
+    .range { padding: 96px var(--pad); }
+    .sec-head { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .cards { grid-template-columns: minmax(0, 1fr); }
+    .cp-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) { .cp-head { flex-direction: column; gap: 8px; } }
+</style>

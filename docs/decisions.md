@@ -12,6 +12,26 @@ Owner answers, newest first. Never re-ask anything answered here.
 
 The owner now also works on a Windows PC (AMD Radeon RX 9060 XT, 32 GB RAM) for heavier Blender renders. `docs/handoff.md` carries the context between machines.
 
+Later the same day:
+
+| # | Question | Answer |
+|---|---|---|
+| 32 | Stop the stale dev server and install the tools the PC needs? | **Yes: "you can install whatever you want."** |
+| 33 | Start the parts of the production home page that do not depend on the hero (SEO tags and schema, the noindex gate, sitemap, the kept sections as production components)? | **Yes.** Built the same day (`docs/handoff.md`, section 7). |
+| 34 | Round 5 | The owner asked to continue from where the work stopped: the round-5 questions were asked again (below). |
+
+Claude's calls while setting up the PC (the owner said "read the handoff and continue"):
+- Keep Node 22.23.5 there instead of replacing the system Node with 24 (every package accepts 22.23.4 or newer).
+- Render on the dedicated GPU only (the RX 9060 XT without the CPU's built-in GPU: about 25% faster).
+- Production home page: hero stand-in = a still of round 5's B; phone header = logo and Menu (the quote button moves into the menu below 560 px); grey small text darkened to pass WCAG contrast (#7a8396 → #667085).
+
+### Open questions (asked 2026-11-23, with the round-5 questions above)
+
+35. Domain: palleteuro.com, registered in the owner's name? (Canonical URLs, the sitemap and the schema already use it.)
+36. Product page addresses: keep `/products/euro-pallet-1200x800/` style (sizes, no "EPAL" in the address, so no URL changes if the licence covers fewer products)?
+37. Home page title "EPAL Euro Pallets, Made in India | Pallet Euro Packaging" and the draft description: keep until the keyword research?
+38. The batch catalogue renderer is only on the Mac: copy it into this repo next time on the Mac (scripts only, Ambica names removed), so the launch re-render of all 28 pallets and their 3D models can run on the PC?
+
 ## 2026-11-07 (after round 4)
 
 | # | Question | Answer |
@@ -133,4 +153,6 @@ Render note for the later re-render job: the high-key studio light looks flat on
 - EPAL licence certificate issued, and licence number known.
 - Re-render all 28 products and GLBs with the EPAL marks and Pallet Euro's own HT code (current images carry Ambica's IN-083 HT). The round-4 hero frames (`public/dev/r4/`, from `tools/render/hero/`) carry the EPAL oval and the `IN-XXX` placeholder: re-render them too once the licence and HT code exist.
 - Real company details: address, phones, WhatsApp, email, hours.
-- Delete the prototype: `src/pages/prototype/`, `src/components/proto/`, `src/layouts/Proto.astro`, `src/assets/dev-renders/`, `public/dev/`.
+- Delete the prototype: `src/pages/prototype/`, `src/components/proto/`, `src/layouts/Proto.astro`, `src/assets/dev-renders/`, `public/dev/`, and the prototype rules in `src/styles/global.css`. The production components still use dev pictures (`Range.astro`, the hero stand-in in `src/pages/index.astro`, the EPAL stamp in `Hero.astro`): swap them for the re-render first.
+- Certificates on the home page (`Certified.astro`): only the ones issued to Pallet Euro Packaging, with real numbers.
+- Then set `LAUNCHED = true` in `src/data/site.ts` (drops `noindex`, opens `robots.txt`, adds the sitemap line).

@@ -8,10 +8,13 @@ Read this first in every Claude Code session, on either machine. It carries ever
 
 ## 1. Status (last updated 2026-11-23)
 
-- **Stage:** prototyping the home page design. Round 5 was delivered on 2026-11-08: three new hero concepts and two Apple-style scroll stories (the Mark, the container). Live at `/prototype/` (switch heroes with `?variant=A|B|C` or the arrow keys).
-- **Waiting on the owner:** the round-5 questions (`docs/decisions.md`, "Open questions (round 5)") and the company facts from round 2. On 2026-11-23 the owner said they will answer later: do not push for answers; continue with whatever they ask for next.
+- **Stage:** two tracks.
+  - **Hero:** round 5 (delivered 2026-11-08: three hero concepts and two Apple-style scroll stories, the Mark and the container) still waits for the owner's verdict. Live at `/prototype/` (switch heroes with `?variant=A|B|C` or the arrow keys).
+  - **Production home page:** started on 2026-11-23 with the parts that do not depend on the hero (decision #33). `/` now runs on the production layout with the kept sections, SEO head, schema, the launch gate, `robots.txt`, sitemap and 404 (section 7). Mobile Lighthouse: 100 / 100 / 100 for performance, accessibility and best practices; SEO 69 only because of the `noindex` gate.
+- **Waiting on the owner:** the round-5 questions, re-asked on 2026-11-23 at the owner's request, and the new questions #35–#38 (`docs/decisions.md`, "Open questions"), plus the company facts from round 2.
 - **Fallback hero** if nothing in round 5 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
 - **Why the second machine:** the owner wants to do heavier Blender work on their Windows PC (AMD Radeon RX 9060 XT, 32 GB RAM). Section 3 explains the setup.
+- **Windows PC: set up and verified (2026-11-23).** Every round-5 scene renders on the RX 9060 XT and matches the Mac's frames; the site builds; the review scripts run. Two Windows-only render bugs were fixed in `tools/render/hero/common.py` (section 3, step 7). cwebp is installed.
 - **Nothing is public yet.** Every page is `noindex`. The EPAL licence is applied for, not granted (see CLAUDE.md hard rules 1 and 2).
 - **Repo privacy (owner's decision, 2026-11-23):** the GitHub repo `WeWake1/Pallet-Euro` is **public** and stays public for now. Claude pointed out the cost: anyone can see the EPAL-oval renders, the older renders with Ambica's `IN-083 HT` mark, and the notes naming Ambica (this file included), which conflicts with hard rules 1 and 2. The owner chose to keep it public. Do not change the visibility unless they ask; mention it again only before anything goes live (domain, Search Console, directories).
 
@@ -24,19 +27,22 @@ npm run proto           # dev server on http://127.0.0.1:4322
 
 Open `http://127.0.0.1:4322/prototype/` (round 5), `/prototype/round-4/`, `/round-3/`, `/round-2/`. `/` is a placeholder.
 Astro 7 may start the dev server in the background and return at once: `npx astro dev status`, `npx astro dev logs`, `npx astro dev stop`. On the Mac, port 4321 belongs to another project; that is why this one uses 4322.
+Astro 7 allows one dev server per project: if `npm run proto` says "Another astro dev server is already running", stop the old one (`npx astro dev stop`, or close its terminal) and start again.
 `npm run check` type-checks (0 errors expected; one deprecation hint in the round-2 archive is known).
 `vite.server.forwardConsole` is off in `astro.config.mjs` on purpose: with it on, Vite 7 crashed the dev server.
 
 ## 3. Set up a new machine (Windows PC with the Radeon)
 
+All steps were done on the PC on 2026-11-23. The notes in italics are what that setup found.
+
 1. **Git for Windows**, then `git clone https://github.com/WeWake1/Pallet-Euro.git`. Line endings are pinned by `.gitattributes`; leave them alone.
-2. **Node.js 24**, then `npm ci` and `npm run proto` (section 2).
-3. **Blender 5.1.x** (the Mac uses 5.1.2; keep both machines on the same version so renders match). Blender's Cycles supports the RX 9000 (RDNA 4) cards through **HIP** since Blender 4.4, with AMD's Adrenalin driver 24.6.1 or newer: install the latest Adrenalin driver. Check Edit > Preferences > System > Cycles Render Devices > HIP lists the RX 9060 XT.
+2. **Node.js 24**, then `npm ci` and `npm run proto` (section 2). *The PC has Node 22.23.5, which every package accepts (Astro 7.4.7 needs 22.23.4 or newer), so it was kept; move it to 24 when convenient.*
+3. **Blender 5.1.x** (the Mac uses 5.1.2; keep both machines on the same version so renders match). Blender's Cycles supports the RX 9000 (RDNA 4) cards through **HIP** since Blender 4.4, with AMD's Adrenalin driver 24.6.1 or newer: install the latest Adrenalin driver. Check Edit > Preferences > System > Cycles Render Devices > HIP lists the RX 9060 XT. *The PC has 5.1.2. HIP lists two devices there: the RX 9060 XT and the CPU's built-in "AMD Radeon(TM) Graphics". `common.py` renders on the dedicated card only (the heaviest Mark frame took 26 s on the card alone, 34 s on both).*
 4. **Python 3** on PATH (only for `tools/render/run.py`; the scenes run on Blender's own Python).
-5. **cwebp** for the phone-size images: download libwebp from https://developers.google.com/speed/webp/download, unzip, add its `bin` folder to PATH (or set `CWEBP`).
+5. **cwebp** for the phone-size images: download libwebp from https://developers.google.com/speed/webp/download, unzip, add its `bin` folder to PATH (or set `CWEBP`). *On the PC: libwebp 1.6.0 (signature checked against the WebP release key) in `%LOCALAPPDATA%\Programs\libwebp-1.6.0-windows-x64\`, its `bin` folder on the user PATH (new terminals only).*
 6. **Google Chrome** for the review scripts in `tools/shot/` (or set `CHROME` to `chrome.exe` / `msedge.exe`).
-7. **First render test:** `python tools/render/run.py mark --test --frames 0`. It should print `DEVICE HIP: AMD Radeon RX 9060 XT ...` and write `.render-test/mark/000.webp`. A `WARNING no GPU found` line means Blender fell back to the CPU: fix the driver first. Force a backend with `--device HIP` or the env var `PE_RENDER_DEVICE`.
-8. **Long renders:** stop the PC from sleeping while plugged in (Windows Settings > System > Power), or a queue pauses for hours. That happened twice on the Mac.
+7. **First render test:** `python tools/render/run.py mark --test --frames 0`. It should print `DEVICE HIP: AMD Radeon RX 9060 XT` and write `.render-test/mark/000.webp`. A `WARNING no GPU found` line means Blender fell back to the CPU: fix the driver first. Force a backend with `--device HIP` or the env var `PE_RENDER_DEVICE`. *Passes on the PC. Before the fix, Blender on Windows wrote every frame under the drive root (`C:\.render-test\...`) while the log said WROTE, so the repo folder stayed empty; `common.py` now makes `--out` absolute. Blender's `CUEW initialization failed` line (no NVIDIA card) is harmless; `run.py` hides it.*
+8. **Long renders:** stop the PC from sleeping while plugged in (Windows Settings > System > Power), or a queue pauses for hours. That happened twice on the Mac. *Already so on the PC: sleep and hibernate are off on AC power.*
 9. **Claude Code:** open this folder. `CLAUDE.md` loads by itself and points here. The project skills in `.claude/skills/` (grilling, prototype, karpathy-guidelines) come with the repo. Claude's own memory from the Mac does not travel; its content is in section 5.
 10. **Keyword research (optional, later):** OpenSEO is a separate project, not in this repo (section 10).
 
@@ -80,7 +86,16 @@ Round 5 in one line each:
 
 ## 7. Code map
 
-- `src/pages/prototype/index.astro`: round 5 (live). `round-2/3/4.astro`: frozen archives. `src/pages/index.astro`: placeholder.
+**Production (stays at launch):**
+- `src/pages/index.astro`: the home page in progress (hero stand-in: a still of round 5's B). `404.astro`. `robots.txt.ts` (blocks all crawlers until launch).
+- `src/layouts/Base.astro`: the production layout (SEO head, fonts, header, footer, reveal-on-view). `src/styles/site.css`: tokens and buttons (light only).
+- `src/components/site/`: `Seo.astro`, `Header.astro` (Menu button below 1100 px; below 560 px the quote button moves into the menu), `Footer.astro`, `Hero.astro`, `Range.astro`, `Certified.astro`, `QuoteBand.astro`, `Logo.astro`, `Icon.astro`. Ported from the prototype's kept sections, with real links.
+- `src/data/site.ts`: company facts (placeholders in `{{braces}}`), navigation, and **`LAUNCHED`, the launch gate** (false: `noindex` everywhere and `robots.txt` blocks crawling). `src/lib/schema.ts`: Organization and WebSite JSON-LD (no `sameAs`, no parent company).
+- `astro.config.mjs`: `site` (domain not confirmed), `@astrojs/sitemap` (prototype and 404 left out), CSS inlined into every page.
+- Product links use `/products/<slug>/` with the slugs in `src/data/range28.ts` (open question #36). Those pages do not exist yet.
+
+**Prototype (deleted before launch):**
+- `src/pages/prototype/index.astro`: round 5 (live). `round-2/3/4.astro`: frozen archives.
 - `src/layouts/Proto.astro`: prototype layout (noindex, fonts, `?variant=` before first paint, `[data-reveal]` observer).
 - `src/components/proto/home/`: the live home sections shared by the current round (Header, HeroCopy, Range, CertifiedSteps, ContainerBand, Footer, `home.css` scoped under `.pe`, `when-shown.ts` to start a hero only when its variant is visible).
 - `src/components/proto/r5/`: round-5 heroes, `Film.astro` + `film.ts` (scroll film: pinned and scrubbed on screens over 900 px, play-once on phones, lazy frame loading, rests on whole frames), `seq.ts` (frame player: coarse-to-fine loading, cross-fade, cover crop around a focus point).
@@ -117,7 +132,9 @@ Round 5 in one line each:
 
 Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm`, `container-sm`), hero frames at 960×540 (`anamorph-sm`), stills at 1200×675 (`*-sm.webp`). Pages pick them on screens up to 900 px wide.
 
-**Timings on the Mac (M4, 10-core GPU), rough:** Mark about 1 h in total (smoke frames about 45 s each, the rest about 15 s); container about 40 min; anamorph about 30 min; each 2400×1350 still 1–3 min. Measure the first frame on the Radeon and expect it to be faster.
+**Timings on the Mac (M4, 10-core GPU), rough:** Mark about 1 h in total (smoke frames about 45 s each, the rest about 15 s); container about 40 min; anamorph about 30 min; each 2400×1350 still 1–3 min.
+
+**Timings on the PC (RX 9060 XT, HIP),** one full-quality frame per scene on 2026-11-23, each including about 3 s of scene setup: Mark smoke frame 26 s, plain frame about 6 s; container 9 s; anamorph 13 s; 2400×1350 stills 12–27 s; X-ray IDs 3 s. Estimated from those (not yet measured end to end): Mark about 25 min, container about 15 min, anamorph about 10 min.
 
 **Lessons:**
 - Always render one test frame at half size first (`--test`), look at it, then run the sequence.
@@ -128,6 +145,7 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 - A generated image must be saved to a file and reloaded before Cycles sees it (the `_*.png` files in `hero/`, now ignored by git).
 - An anamorphic part must keep the depth order of the real pallet (deck closest, then stringer boards, blocks, bottom boards), or hidden parts show through.
 - The scroll player must rest on whole frames, or a half cross-fade leaves a double image when scrolling stops.
+- Blender on Windows resolves a relative output path from the drive root (`C:\`), not the working folder: keep every path handed to Blender absolute (`common.py` does this for `--out`; the textures and stamps already are).
 
 **Render rules from the owner (do not break; copied from the earlier catalogue handoff on the Mac):**
 - Chamfers only where the official drawing has them; no generic bevels. Corner chamfer through every layer at that corner: EPAL 1 = 17 mm, EPAL 2/3 = 24 mm, CP = 20 mm, all at 45°.
@@ -141,12 +159,14 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 
 ## 9. Open questions waiting on the owner
 
-- Round 5 (asked 2026-11-08): hero pick (B recommended), keep the Mark and container stories as built, reuse the other heroes (Two worlds on About, X-ray lens on product pages), build the production home page next, placeholders for company facts. Full text: `docs/decisions.md`.
+- 2026-11-23: #35 domain, #36 product URLs, #37 home title and description, #38 bring the batch catalogue renderer over from the Mac.
+- Round 5 (asked 2026-11-08, again 2026-11-23): hero pick (B recommended), keep the Mark and container stories as built, reuse the other heroes (Two worlds on About, X-ray lens on product pages), build the production home page next, placeholders for company facts. Full text: `docs/decisions.md`.
 - Round 2 (still open): domain, own factory address/phones/email, which EPAL products the licence covers, status of the other certificates (numbers, issuers, validity, scans), trademark ® or ™, what "SOP" and "IIP" mean, whether to mention 20+ years of experience, real figures (capacity, area, HT chamber, people), launch timing.
 
 ## 10. Not in this repo (on the Mac only)
 
-- **Ambica site repo** `/Users/wewake/VSC/APIPL/apiplSite`: the original 28-product render pipeline and assets. What this project uses is already copied in: `palletkit.py` (lines 1–741 of its `render_pallet.py`), textures, stamps, geometry, catalogue data, dev renders. Never edit that repo, and never let it show on this site.
+- **Ambica site repo** `/Users/wewake/VSC/APIPL/apiplSite`: the original 28-product render pipeline and assets. What this project uses is already copied in: `palletkit.py` (lines 1–741 of its `render_pallet.py`), textures, stamps, geometry, catalogue data, dev renders (one cut-out per pallet plus some extra views, `src/assets/dev-renders/`). **Not copied:** the batch catalogue renderer (the rest of `render_pallet.py`, `pallets.py`, `render_all.sh`: product views and GLB export), the 28 GLB models (`public/models/`) and the full-size catalogue renders. Never edit that repo, and never let it show on this site.
+- There are no `.blend` files to carry: every scene is built by a script, so the round-4/5 renders can be remade from this repo alone (proven on the PC on 2026-11-23).
 - **Earlier Pallet Euro attempt** `github.com/WeWake1/PalletEuro`: EPAL stamp setup, product copy, guides. Reuse data and copy only, not its design.
 - **OpenSEO** (`../open-seo` next to this folder on the Mac, cloned from `github.com/every-app/open-seo`) with the owner's DataForSEO key in `.env.local`. On the PC: clone it next to this repo, copy `.env.example` to `.env.local`, paste the key (never commit it), follow its README. DataForSEO gives $1 free credit; the minimum top-up is $50.
 - **Claude's memory files** on the Mac: their content is now in section 5.
@@ -175,6 +195,16 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
   - Moved the review scripts into `tools/shot/` (puppeteer-core as a dev dependency).
   - Git: ignore Python caches and generated textures; `.gitattributes` for line endings; `.nvmrc`; `npm run proto`.
   - Found the GitHub repo is public. The owner chose to keep it public, and to commit and push themselves (`docs/decisions.md` #29–#30).
+- **2026-11-23 (on the Windows PC):** Set up and verified the PC (section 3).
+  - Fixed two Windows-only render bugs in `common.py`: frames were written under `C:\` instead of the repo, and Cycles also used the CPU's built-in GPU (about 25% slower).
+  - Every round-5 scene renders on the RX 9060 XT; frames match the Mac's. The PC's timings are in section 8.
+  - The site type-checks and builds; the review scripts run (hero B, desktop and phone: 0 errors, 0 overflow).
+  - Kept Node 22.23.5.
+  - Later the same day (owner: "stop the old dev server, install whatever you want, start the final home page"):
+    - Stopped the stale dev server; installed cwebp.
+    - Built the production foundation (section 7). Mobile Lighthouse 100/100/100 (SEO 69 = the `noindex` gate).
+    - Two small visual changes from the prototype: grey small text darkened for contrast (`--ink-3` #7a8396 → #667085); phone header shows logo and Menu only.
+    - Re-asked the round-5 questions and asked #35–#38.
 
 ## 13. Updating this file
 

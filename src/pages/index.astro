@@ -1,16 +1,34 @@
 ---
-// Placeholder until the chosen design is built. Not indexed.
-import '../styles/global.css';
+// The production home page (in progress; noindex until launch, see LAUNCHED in src/data/site.ts).
+// Built from the sections the owner kept. Still to come once round 5 is settled (docs/decisions.md):
+// the chosen hero in place of the stand-in picture, the Mark scroll story after the hero (#23) and the container
+// scroll story ending on the quote band (#24). Title and description are drafts until the keyword research.
+import Base from '../layouts/Base.astro';
+import Hero from '../components/site/Hero.astro';
+import Range from '../components/site/Range.astro';
+import Certified from '../components/site/Certified.astro';
+import QuoteBand from '../components/site/QuoteBand.astro';
+import { organization, website } from '../lib/schema';
+
+const site = Astro.site!;
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>Pallet Euro Packaging</title>
-  </head>
-  <body style="background:#070707;color:#ddd;font:16px/1.6 system-ui;display:grid;place-items:center;min-height:100vh">
-    <p>Work in progress. Design directions: <a href="/prototype/" style="color:#fff">/prototype/</a></p>
-  </body>
-</html>
+<Base
+  title="EPAL Euro Pallets, Made in India | Pallet Euro Packaging"
+  description="EPAL 1, 2 and 3 Euro pallets and CP chemical pallets, built under EPAL licence and heat treated to ISPM-15 for export. Request a quote from Pallet Euro Packaging."
+  schema={[organization(site), website(site)]}
+  overlayHeader
+>
+  <Hero
+    src="/dev/r5/anamorph/30.webp"
+    srcSm="/dev/r5/anamorph-sm/30.webp"
+    width={1920}
+    height={1080}
+    focus="50% 50%"
+    phoneFocus="68% 50%"
+    bg="#e9e7e3"
+    alt="An EPAL 1 Euro pallet seemingly floating in a white gallery: its boards and blocks hang on fine wires and line up from one viewpoint"
+  />
+  <Range />
+  <Certified />
+  <QuoteBand />
+</Base>

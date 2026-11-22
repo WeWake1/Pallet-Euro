@@ -1,0 +1,60 @@
+---
+// The production layout: every public page uses it. SEO head (follows the launch gate in src/data/site.ts),
+// self-hosted fonts (Urbanist; Sofia Sans Condensed only for statement bands), header, footer, reveal-on-view.
+import '../styles/global.css';
+import '../styles/site.css';
+import '@fontsource-variable/urbanist';
+import '@fontsource-variable/sofia-sans-condensed';
+import urbanist from '@fontsource-variable/urbanist/files/urbanist-latin-wght-normal.woff2?url';
+import Seo from '../components/site/Seo.astro';
+import Header from '../components/site/Header.astro';
+import Footer from '../components/site/Footer.astro';
+import { SITE } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  schema?: object[];
+  noindex?: boolean;
+  overlayHeader?: boolean; // the page starts with a full-bleed picture under a transparent header
+}
+const { title, description, image, schema, noindex, overlayHeader = false } = Astro.props;
+---
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preload" href={urbanist} as="font" type="font/woff2" crossorigin />
+    <Seo title={title} description={description} image={image} schema={schema} noindex={noindex} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ffffff" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Header overlay={overlayHeader} />
+    <main id="main"><slot /></main>
+    <Footer />
+    <script>
+      // Reveal [data-reveal] elements once, when they come into view.
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) {
+              e.target.classList.add('is-in');
+              io.unobserve(e.target);
+            }
+          }
+        },
+        { rootMargin: '0px 0px -10% 0px' },
+      );
+      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+      // The sticky header turns solid once the page scrolls.
+      const onScroll = () => document.documentElement.classList.toggle('scrolled', window.scrollY > 12);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    </script>
+  </body>
+</html>
