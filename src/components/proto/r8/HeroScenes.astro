@@ -1,0 +1,101 @@
+---
+// PROTOTYPE round 8 · B "The journey" (scenes that advance by themselves, decision #59): three photoreal scenes play in
+// turn like a short film, each with a slow push-in: an Indian sandstone courtyard ("Made in India"), the container
+// being loaded ("Loaded for export"), a north-European warehouse ("To Europe's standard"). The bars at the bottom show
+// the progress; tapping one jumps to its scene. Pauses when out of view; reduced motion: no push-in, no auto-advance.
+// Pictures: round 7's frieze (frame 20), container.py --still, round 5's Europe warehouse (all dev renders).
+import HeroCopy from '../home/HeroCopy.astro';
+
+const scenes = [
+  { src: '/dev/r7/frieze/20.webp', sm: '/dev/r7/frieze-sm/20.webp', w: 1920, h: 1080, fx: 60, pfx: 72, o: '62% 60%', n: '01', t: 'Made in India',
+    alt: 'An EPAL 1 Euro pallet at eye level in a sunlit Indian sandstone courtyard with pointed arches' },
+  { src: '/dev/r8/scenes/still.webp', sm: '/dev/r8/scenes/still-sm.webp', w: 2400, h: 1350, fx: 72, pfx: 74, o: '74% 52%', n: '02', t: 'Loaded for export',
+    alt: 'A deep-blue shipping container with its doors open, loaded with cartons on EPAL pallets' },
+  { src: '/dev/r5/worlds/europe.webp', sm: '/dev/r5/worlds/europe-sm.webp', w: 2400, h: 1350, fx: 60, pfx: 70, o: '62% 60%', n: '03', t: 'To Europe’s standard',
+    alt: 'The same EPAL 1 in a bright north-European warehouse with a steel factory window' },
+];
+---
+<section class="photo-hero r8-scenes" data-key="B" aria-label="Pallet Euro Packaging" style="--pic-bg:#EEE9E1">
+  <div class="pic" data-pic>
+    {scenes.map((s, i) => (
+      <img class:list={['scene', { on: i === 0 }]} src={s.src} srcset={`${s.sm} 1200w, ${s.src} ${s.w}w`} sizes="100vw" width={s.w} height={s.h}
+        style={`--fx:${s.fx}%;--pfx:${s.pfx}%;--o:${s.o}`} alt={s.alt} decoding="async" fetchpriority={i === 0 ? 'high' : 'low'} loading={i === 0 ? 'eager' : 'lazy'} />
+    ))}
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <ol class="chapters" aria-label="Scenes">
+    {scenes.map((s, i) => (
+      <li><button type="button" class:list={{ on: i === 0 }} data-i={i} aria-label={`Scene ${s.n}: ${s.t}`}>
+        <span class="bar"><i></i></span><b>{s.n}</b> {s.t}
+      </button></li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .r8-scenes .scene { opacity: 0; transition: opacity 1.4s var(--ease); object-position: var(--fx) 50%; transform-origin: var(--o); }   /* push in towards the subject */
+  .r8-scenes .scene.on { opacity: 1; }
+  .r8-scenes.play .scene.on { animation: push var(--dur, 7s) linear both; }
+  .r8-scenes.play .scene.was { animation: push var(--dur, 7s) linear both; animation-play-state: paused; }
+  @keyframes push { from { transform: scale(1.0); } to { transform: scale(1.075); } }
+  .chapters { position: absolute; right: var(--pad); bottom: 30px; z-index: 3; display: flex; gap: 10px; list-style: none; margin: 0; padding: 0; }
+  .chapters button { display: grid; gap: 9px; width: 200px; padding: 0 0 2px; border: 0; background: none; text-align: left; font: inherit; font-size: 14px;
+    font-weight: 600; color: var(--ink-2); cursor: pointer; }
+  .chapters button b { font-weight: 700; color: var(--blue); margin-right: 4px; font-variant-numeric: tabular-nums; }
+  .chapters .bar { display: block; height: 2px; background: rgba(11, 19, 36, 0.14); overflow: hidden; border-radius: 2px; }
+  .chapters .bar i { display: block; height: 100%; width: 100%; background: var(--blue); transform: scaleX(0); transform-origin: left; }
+  .chapters button.done .bar i { transform: scaleX(1); }
+  .r8-scenes.play .chapters button.on .bar i { animation: fill var(--dur, 7s) linear both; }
+  .r8-scenes:not(.play) .chapters button.on .bar i { transform: scaleX(1); }
+  @keyframes fill { to { transform: scaleX(1); } }
+  .chapters button.on { color: var(--ink); }
+  .r8-scenes.paused .scene.on, .r8-scenes.paused .chapters .bar i { animation-play-state: paused !important; }
+  @media (max-width: 900px) {
+    .r8-scenes .scene { object-position: var(--pfx) 50%; }
+    .chapters { position: relative; right: auto; bottom: auto; order: -1; margin: -18px 0 22px; gap: 8px; }
+    .chapters li { flex: 1; min-width: 0; }
+    .chapters button { width: 100%; font-size: 12.5px; }
+    .chapters button b { display: block; }
+  }
+</style>
+
+<script>
+  import { whenShown } from '../home/when-shown';
+
+  for (const root of document.querySelectorAll<HTMLElement>('.r8-scenes')) {
+    const imgs = [...root.querySelectorAll<HTMLImageElement>('.scene')];
+    const btns = [...root.querySelectorAll<HTMLButtonElement>('.chapters button')];
+    whenShown(root.dataset.key!, root.querySelector('[data-pic]')!, () => {
+      const DUR = 7000;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let i = 0, timer = 0, left = DUR, started = 0;
+      const go = (n: number) => {
+        imgs.forEach((im, k) => { im.classList.toggle('was', k === i && k !== n); im.classList.toggle('on', k === n); });
+        btns.forEach((b, k) => { b.classList.toggle('on', k === n); b.classList.toggle('done', k < n); });
+        i = n;
+        // restart the CSS push-in and the bar of the new scene
+        for (const el of [imgs[n], btns[n].querySelector('i')!]) { el.style.animation = 'none'; void (el as HTMLElement).offsetWidth; el.style.animation = ''; }
+        if (!reduce) schedule(DUR);
+      };
+      const schedule = (ms: number) => {
+        clearTimeout(timer);
+        left = ms; started = performance.now();
+        timer = window.setTimeout(() => go((i + 1) % imgs.length), ms);
+      };
+      btns.forEach((b, k) => b.addEventListener('click', () => go(k)));
+      if (reduce) return {};
+      root.style.setProperty('--dur', `${DUR}ms`);
+      root.classList.add('play');
+      schedule(DUR);
+      // pause when the hero is off screen or the tab is hidden
+      const pause = (p: boolean) => {
+        if (p === root.classList.contains('paused')) return;
+        root.classList.toggle('paused', p);
+        if (p) { clearTimeout(timer); left -= performance.now() - started; } else schedule(Math.max(left, 400));
+      };
+      new IntersectionObserver((es) => pause(!es.some((e) => e.isIntersecting))).observe(root);
+      document.addEventListener('visibilitychange', () => pause(document.hidden));
+      return { replay: () => go(0) };
+    });
+  }
+</script>

@@ -1,0 +1,9 @@
+{
+ "job": "assemble",
+ "recipe": "epal3",
+ "frames": 36,
+ "size": [
+  1920,
+  1080
+ ]
+}

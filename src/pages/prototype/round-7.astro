@@ -1,0 +1,50 @@
+---
+// PROTOTYPE ARCHIVE · round 7 (23 Nov 2026): From the drawing, Eye level, Carved, kept for reference. Owner's verdict
+// (decision #58): "good", but not the final hero; the move-your-cursor interaction "is getting boring".
+// The Mark and container scroll stories continue on the live prototype.
+import Proto from '../../layouts/Proto.astro';
+import Switcher from '../../components/proto/Switcher.astro';
+import '../../components/proto/home/home.css';
+import Header from '../../components/proto/home/Header.astro';
+import Range from '../../components/proto/home/Range.astro';
+import CertifiedSteps from '../../components/proto/home/CertifiedSteps.astro';
+import Footer from '../../components/proto/home/Footer.astro';
+import HeroFrames from '../../components/proto/r7/HeroFrames.astro';
+import MarkFilm from '../../components/proto/r5/MarkFilm.astro';
+import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
+---
+<Proto title="Round 7 (archive) · hero concepts · Pallet Euro (prototype)">
+  <div class="pe">
+    <Header />
+    <main>
+      <div class="variant" data-variant="A">
+        <HeroFrames variant="A" dir="/dev/r7/blueprint" count={22} start={12} drift={14} fx={0.53} phoneFx={0.7} dims
+          bg="#F3F3F2" icon="ruler" fine="Move your cursor: from the drawing to the pallet" coarse="From the drawing to the pallet, part by part"
+          alt="An EPAL 1 Euro pallet in a white studio, half real wood and half a deep-blue technical drawing, with its dimensions" />
+      </div>
+      <div class="variant" data-variant="B">
+        <HeroFrames variant="B" dir="/dev/r7/frieze" count={41} start={20} drift={18} fx={0.6} phoneFx={0.72}
+          bg="#EDE5D9" icon="eye" fine="Move your cursor to look along the pallet" coarse="At eye level with an EPAL 1"
+          alt="The long side of an EPAL 1 Euro pallet seen from floor level, its branded blocks facing the camera, in front of a sunlit sandstone arcade" />
+      </div>
+      <div class="variant" data-variant="C">
+        <HeroFrames variant="C" dir="/dev/r7/carved" count={48} start={22} drift={12} fx={0.5} phoneFx={0.66}
+          bg="#EFECE7" icon="tree" fine="Move your cursor to carve it out of the wood" coarse="An EPAL 1, carved out of solid spruce"
+          alt="A solid slab of spruce turning to sawdust, revealing the EPAL 1 Euro pallet inside it" />
+      </div>
+      <MarkFilm />
+      <Range />
+      <CertifiedSteps />
+      <ContainerFilm />
+    </main>
+    <Footer />
+  </div>
+  <Switcher round="Round 7 (archive)" variants={[{ key: 'A', name: 'From the drawing' }, { key: 'B', name: 'Eye level' }, { key: 'C', name: 'Carved' }]} />
+</Proto>
+
+<style is:global>
+  /* Photo heroes: on computers the header floats transparent over the picture until the page scrolls. */
+  @media (min-width: 901px) {
+    html:not(.scrolled) .pe .head { background: transparent; backdrop-filter: none; }
+  }
+</style>

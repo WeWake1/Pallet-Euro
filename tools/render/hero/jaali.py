@@ -4,6 +4,7 @@ position; the page scrubs them (cursor on desktop, slow drift on phones).
 
   Blender -b --factory-startup --python tools/render/hero/jaali.py -- --recipe epal1 \
       --recipes src/data/pallet-geometry.json --out public/dev/r4/jaali [--frames 0-47] [--test]
+  --glide: round 8's "Plays by itself" instead: 72 frames of a slow camera glide (public/dev/r8/glide)
 """
 import math
 import os
@@ -184,6 +185,20 @@ cam.data.dof.use_dof = True
 cam.data.dof.focus_distance = (cam.location - PALLET).length
 cam.data.dof.aperture_fstop = 2.8
 
+if "--glide" in sys.argv:
+    # round 8 D "Plays by itself": a living photograph. The camera glides slowly in and across while the sun's pattern
+    # drifts a little; the page plays the frames forward and back with easing, so it never shows a seam.
+    GLIDE = 72
+    start = cam.location.copy()
+    aim0 = Vector((0.62, 0.35, 0.2))
+    for f in C.frame_list(GLIDE):
+        t = f / (GLIDE - 1)
+        cam.location = start + Vector((-0.78, 0.6, 0.06)) * t
+        C.look_at(cam, aim0 + Vector((-0.06, 0.04, -0.02)) * t)
+        cam.data.dof.focus_distance = (cam.location - PALLET).length
+        C.aim_sun(sun, elev_deg=EL0 + 1.0 - 2.0 * t, azim_deg=AZ0 - 5 + 10 * t)
+        C.render_to(os.path.join(C.args.out, f"{f:02d}.webp"))
+    sys.exit(0)
 for f in C.frame_list(COUNT):
     t = f / (COUNT - 1)
     C.aim_sun(sun, elev_deg=EL0 + 1.5 - 3.0 * t, azim_deg=AZ0 - 8 + 16 * t)

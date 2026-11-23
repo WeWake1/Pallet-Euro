@@ -1,0 +1,135 @@
+---
+// PROTOTYPE round 8 · A "Built in layers" (a scroll story, decision #59): the hero opens on the whole EPAL 1 beside
+// the headline. On computers the hero stays pinned while the page scrolls, and the scroll takes the pallet apart into
+// its layers (top deck boards first), each layer named at its end; scrolling on releases the hero into the page.
+// Phones: no scroll-driven motion (rule 7): it plays once by itself when in view, then holds the exploded pallet.
+// Frames: tools/render/hero/layers.py --job explode (public/dev/r8/explode, labels in layers.json).
+import fs from 'node:fs';
+import path from 'node:path';
+import HeroCopy from '../home/HeroCopy.astro';
+import Icon from '../Icon.astro';
+
+const DIR = '/dev/r8/explode';
+const file = path.join(process.cwd(), 'public', DIR, 'layers.json');   // written by the render; absent until then
+const meta = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : { frames: 60, size: [1920, 1080], labels: [] };
+const COUNT: number = meta.frames;
+const NAMES = ['Bottom deck · 3', 'Blocks · 9', 'Stringer boards · 3', 'Top deck · 5', 'Nails · 78'];
+const labels = (meta.labels as { layer: number; x: number; y: number }[]).map((l) => ({ ...l, name: NAMES[l.layer] }));
+const [W, H] = meta.size as number[];
+---
+<section class="r8-scroll" data-key="A" data-count={COUNT} data-dir={DIR} aria-label="Pallet Euro Packaging">
+  <div class="pin">
+    <div class="photo-hero">
+      <div class="pic" data-pic>
+        <img src={`${DIR}/00.webp`} srcset={`${DIR}-sm/00.webp 960w, ${DIR}/00.webp 1920w`} sizes="100vw" width="1920" height="1080"
+          fetchpriority="high" decoding="async" alt="An EPAL 1 Euro pallet in a white studio, which comes apart into its layers as the page scrolls" />
+        <canvas aria-hidden="true"></canvas>
+        <div class="labels" data-labels style={`--iw:${W};--ih:${H}`} aria-hidden="true">
+          {labels.map((l) => (
+            <span style={`left:${(l.x / W) * 100}%;top:${(l.y / H) * 100}%`}><i></i>{l.name}</span>
+          ))}
+        </div>
+      </div>
+      <div class="copy-wrap"><HeroCopy /></div>
+      <p class="hint scroll-hint" aria-hidden="true"><Icon name="mouse-scroll" size={20} /><span>Scroll to take it apart</span></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .r8-scroll { position: relative; height: 230vh; margin-top: calc(-1 * var(--head-h, 80px)); }
+  .pin { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+  .pin .photo-hero { margin-top: 0; height: 100vh; max-height: none; }
+  .pin .pic img { object-position: 53% 50%; }
+  .labels { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
+  /* a small name tag on the right-hand end of each layer */
+  .labels span { position: absolute; display: inline-flex; align-items: center; gap: 8px; transform: translate(calc(-100% + 10px), -50%) scale(0.96);
+    padding: 6px 12px 7px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.94); box-shadow: 0 0 0 1px rgba(11, 19, 36, 0.06), 0 8px 20px -12px rgba(11, 19, 36, 0.4);
+    white-space: nowrap; font-size: 14px; font-weight: 650; color: var(--ink); opacity: 0; transition: opacity 0.45s var(--ease), transform 0.45s var(--ease); }
+  .labels span i { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+  .labels.on span { opacity: 1; transform: translate(calc(-100% + 10px), -50%) scale(1); }
+  .labels.on span:nth-child(2) { transition-delay: 0.06s; }
+  .labels.on span:nth-child(3) { transition-delay: 0.12s; }
+  .labels.on span:nth-child(4) { transition-delay: 0.18s; }
+  .labels.on span:nth-child(5) { transition-delay: 0.24s; }
+  .scroll-hint { transition: opacity 0.4s; }
+  .r8-scroll.moved .scroll-hint { opacity: 0; }
+  @media (max-width: 900px) {
+    .r8-scroll { height: auto; margin-top: 0; }
+    .pin { position: relative; height: auto; overflow: visible; }
+    .pin .photo-hero { height: auto; }
+    .pin .pic img { object-position: 66% 50%; }
+    .labels span { font-size: 11px; gap: 5px; padding: 4px 8px 5px 7px; }
+    .labels span i { width: 5px; height: 5px; }
+    .scroll-hint { display: none; }
+  }
+</style>
+
+<script>
+  import { createSeq, frames } from '../r5/seq';
+  import { whenShown } from '../home/when-shown';
+
+  for (const root of document.querySelectorAll<HTMLElement>('.r8-scroll')) {
+    const pic = root.querySelector<HTMLElement>('[data-pic]')!;
+    const labels = root.querySelector<HTMLElement>('[data-labels]')!;
+    whenShown(root.dataset.key!, pic, () => {
+      const count = Number(root.dataset.count);
+      const wide = matchMedia('(min-width: 901px)').matches;
+      const fx = wide ? 0.53 : 0.66;
+      const seq = createSeq(pic.querySelector('canvas')!, frames(wide ? root.dataset.dir! : `${root.dataset.dir}-sm`, count), { x: fx, y: 0.5 }, 0);
+      // labels follow the canvas's cover crop (seq.ts)
+      const place = () => {
+        const iw = 1920, ih = 1080, Wp = pic.clientWidth, Hp = pic.clientHeight;
+        const s = Math.max(Wp / iw, Hp / ih);
+        const sx = Math.min(Math.max(fx * iw - Wp / s / 2, 0), iw - Wp / s);
+        const sy = Math.min(Math.max(0.5 * ih - Hp / s / 2, 0), ih - Hp / s);
+        Object.assign(labels.style, { left: `${-sx * s}px`, top: `${-sy * s}px`, width: `${iw * s}px`, height: `${ih * s}px` });
+      };
+      new ResizeObserver(place).observe(pic);
+      place();
+      const showAt = (f: number) => { seq.show(f); labels.classList.toggle('on', f > count * 0.9); };
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) { showAt(count - 1); return {}; }
+
+      if (wide) {
+        let cur = 0, last = performance.now(), running = false;
+        const progress = () => {
+          const r = root.getBoundingClientRect();
+          const span = r.height - innerHeight;
+          return span > 0 ? Math.min(Math.max(-r.top / (span * 0.85), 0), 1) : 0;   // done a little before it releases
+        };
+        const tick = (now: number) => {
+          const dt = Math.min(now - last, 64);
+          last = now;
+          const target = Math.round(progress() * (count - 1));
+          cur += (target - cur) * (1 - Math.exp(-dt / 90));
+          if (Math.abs(target - cur) < 0.01) cur = target;
+          showAt(cur);
+          root.classList.toggle('moved', cur > 1);
+          if (cur !== target) requestAnimationFrame(tick);
+          else running = false;
+        };
+        const kick = () => { if (!running) { running = true; last = performance.now(); requestAnimationFrame(tick); } };
+        addEventListener('scroll', kick, { passive: true });
+        addEventListener('resize', kick);
+        kick();
+      } else {
+        // phones: once, by itself, when the picture is in view
+        let played = false;
+        new IntersectionObserver((es) => {
+          if (played || !es.some((e) => e.intersectionRatio > 0.6)) return;
+          played = true;
+          seq.done.then(() => {
+            const t0 = performance.now(), dur = 3600;
+            const step = (now: number) => {
+              const t = Math.min((now - t0) / dur, 1);
+              showAt((t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2) * (count - 1));
+              if (t < 1) requestAnimationFrame(step);
+            };
+            setTimeout(() => requestAnimationFrame(step), 700);
+          });
+        }, { threshold: [0, 0.6, 1] }).observe(pic);
+      }
+      return {};
+    });
+  }
+</script>

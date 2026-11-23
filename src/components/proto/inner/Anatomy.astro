@@ -1,0 +1,387 @@
+---
+// PROTOTYPE (guide page "What makes an EPAL pallet") · the anatomy viewer, the owner's refinement of the part inspector
+// (decision #60). Photoreal frames only (no live 3D):
+//   - "Take it apart" plays the exploded-view animation (layers.py --job film); "Put it together" plays it back.
+//   - Taken apart, drag (or the arrow buttons) turns the pallet all the way round (36 angles, --job orbit).
+//   - Layer by layer: pick a layer (or step through them) and its parts stand out; pick a part in the list or on the
+//     pallet and that part stands out, named with its size.
+// The highlight is vector: clean outlines traced from an ID map at twice the size (tools/render/trace_ids.py), a thin
+// white-and-blue line around the part, everything else softly veiled. The parts list is plain HTML.
+import { EPAL1_LAYERS } from '../../../data/epal1-parts';
+import Icon from '../Icon.astro';
+
+const DIR = '/dev/inner/anatomy';
+---
+<section class="anatomy" aria-labelledby="ana-h" data-dir={DIR}>
+  <div class="head">
+    <p class="kicker">Guide · EPAL 1 · 1200 × 800 × 144 mm</p>
+    <h2 id="ana-h" class="h2">Every part, layer by layer.</h2>
+    <p class="sub">An EPAL 1 is 11 boards, 9 blocks and 78 nails. Take it apart, turn it round, and pick any layer or part.</p>
+  </div>
+  <div class="body">
+    <div class="viewer">
+      <div class="stage" data-stage>
+        <img src={`${DIR}/film/00.webp`} srcset={`${DIR}/film-sm/00.webp 960w, ${DIR}/film/00.webp 1600w`} sizes="(max-width: 1100px) 100vw, 62vw"
+          width="1600" height="1000" alt="An EPAL 1 Euro pallet in a white studio" decoding="async" />
+        <canvas aria-hidden="true"></canvas>
+        <svg class="hl" viewBox="0 0 1600 1000" aria-hidden="true">
+          <defs><mask id="ana-mask"><rect width="1600" height="1000" fill="#fff" /><g data-cut fill="#000"></g></mask></defs>
+          <rect class="veil" width="1600" height="1000" mask="url(#ana-mask)" />
+          <g data-halo class="halo"></g>
+          <g data-line class="line"></g>
+          <g data-hit class="hit"></g>
+        </svg>
+        <p class="tag" aria-hidden="true"><b></b><span></span></p>
+        <p class="drag" aria-hidden="true"><Icon name="hand-grabbing" size={18} /> Drag to turn it round</p>
+      </div>
+      <div class="controls">
+        <button type="button" class="btn sm primary" data-toggle><span class="t-apart">Take it apart</span><span class="t-together">Put it together</span></button>
+        <div class="turn">
+          <button type="button" data-turn="-1" aria-label="Turn left"><Icon name="arrow-counter-clockwise" size={20} /></button>
+          <button type="button" data-turn="1" aria-label="Turn right"><Icon name="arrow-clockwise" size={20} /></button>
+        </div>
+      </div>
+    </div>
+    <div class="layers">
+      <div class="lhead">
+        <h3>Layer by layer</h3>
+        <div class="step">
+          <button type="button" data-step="-1" aria-label="Previous layer"><Icon name="caret-up" size={18} /></button>
+          <button type="button" data-step="1" aria-label="Next layer"><Icon name="caret-down" size={18} /></button>
+        </div>
+      </div>
+      <ol>
+        {EPAL1_LAYERS.map((l, i) => (
+          <li class="layer" data-layer={i} data-ids={l.parts.flatMap((p) => p.ids).join(',')}>
+            <button type="button" class="lbtn" data-name={l.name} data-size={`${l.count} in an EPAL 1`}>
+              <span class="n">{String(i + 1).padStart(2, '0')}</span><span class="nm">{l.name}</span><span class="c">{l.count}</span>
+            </button>
+            <div class="more"><div>
+              <p>{l.note}</p>
+              <table>
+                <tbody>
+                  {l.parts.map((p) => (
+                    <tr data-ids={p.ids.join(',')} data-name={p.name} data-size={p.size} tabindex="0">
+                      <th scope="row">{p.name}</th><td>{p.size}{/^\d/.test(p.size) ? ' mm' : ''}</td><td>{p.qty}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div></div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .anatomy { padding: 72px var(--pad) 96px; }
+  .head { max-width: 760px; margin-bottom: 36px; }
+  .kicker { font-size: 15px; font-weight: 650; color: var(--blue); font-variant-numeric: tabular-nums; margin-bottom: 14px; }
+  .sub { margin-top: 18px; font-size: 18px; line-height: 1.6; color: var(--ink-2); }
+  .body { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr); gap: 48px; align-items: start; }
+  .stage { position: relative; aspect-ratio: 1600 / 1000; background: #f4f4f3; border-radius: 8px; overflow: hidden; touch-action: pan-y; user-select: none; }
+  .stage img, .stage canvas, .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stage canvas { opacity: 0; transition: opacity 0.4s; }
+  .stage canvas.ready { opacity: 1; }
+  .anatomy.apart .stage { cursor: grab; }
+  .anatomy.dragging .stage { cursor: grabbing; }
+  .hl { pointer-events: none; }
+  .veil { fill: #fbfbfa; opacity: 0; transition: opacity 0.35s var(--ease); }
+  .hl.on .veil { opacity: 0.62; }
+  .halo :global(path) { fill: none; stroke: #fff; stroke-width: 5; stroke-linejoin: round; vector-effect: non-scaling-stroke; opacity: 0.95; }
+  .line :global(path) { fill: none; stroke: var(--blue); stroke-width: 1.75; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .halo, .line { opacity: 0; transition: opacity 0.3s var(--ease); }
+  .hl.on .halo, .hl.on .line { opacity: 1; }
+  /* the paths are drawn by the script, so they need :global() to get these styles */
+  .hit :global(path) { fill: transparent; pointer-events: all; cursor: pointer; }
+  .anatomy.dragging .hit :global(path) { pointer-events: none; }
+  .hl :global([data-cut] path) { fill: #000; }
+  .tag { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; gap: 2px; padding: 9px 13px 10px; border-radius: 6px; background: #fff;
+    box-shadow: 0 0 0 1px rgba(11, 58, 158, 0.16), 0 12px 28px -16px rgba(11, 19, 36, 0.45); pointer-events: none; white-space: nowrap;
+    opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)); transition: opacity 0.2s; }
+  .tag.on { opacity: 1; }
+  .tag b { font-size: 14.5px; font-weight: 700; }
+  .tag span { font-size: 13.5px; color: var(--blue); font-variant-numeric: tabular-nums; }
+  .drag { position: absolute; left: 16px; bottom: 14px; display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 7px 12px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86); font-size: 13.5px; font-weight: 600; color: var(--ink-2); opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+  .anatomy.apart:not(.turned) .drag { opacity: 1; }
+  .controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; }
+  .controls .t-together, .anatomy.apart .controls .t-apart { display: none; }
+  .anatomy.apart .controls .t-together { display: inline; }
+  .turn { display: flex; gap: 8px; opacity: 0.35; pointer-events: none; transition: opacity 0.3s; }
+  .anatomy.apart .turn { opacity: 1; pointer-events: auto; }
+  .turn button, .step button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff; color: var(--ink);
+    box-shadow: inset 0 0 0 1.5px var(--line); cursor: pointer; transition: box-shadow 0.25s, color 0.25s; }
+  .turn button:hover, .step button:hover { color: var(--blue); box-shadow: inset 0 0 0 1.5px var(--blue); }
+  .lhead { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+  .lhead h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+  .step { display: flex; gap: 6px; }
+  .step button { width: 36px; height: 36px; }
+  .layers ol { list-style: none; margin: 0; padding: 0; }
+  .layer { border-bottom: 1px solid var(--line); }
+  .lbtn { display: grid; grid-template-columns: 34px 1fr auto; align-items: baseline; width: 100%; padding: 15px 4px; border: 0; background: none; font: inherit; text-align: left;
+    cursor: pointer; color: var(--ink); }
+  .lbtn .n { font-size: 13px; font-weight: 700; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .lbtn .nm { font-size: 17px; font-weight: 650; }
+  .lbtn .c { font-size: 15px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .layer.on .lbtn .n, .layer.on .lbtn .nm { color: var(--blue); }
+  .more { display: grid; grid-template-rows: 0fr; overflow: hidden; transition: grid-template-rows 0.45s var(--ease); }
+  .more > * { min-height: 0; overflow: hidden; padding-left: 34px; }
+  .layer.on .more { grid-template-rows: 1fr; }
+  .more p { margin: 0; padding: 0 4px 10px 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+  .more table { width: 100%; margin: 0 0 14px; border-collapse: collapse; font-size: 14px; }
+  .more th, .more td { padding: 8px 6px 8px 0; text-align: left; border-top: 1px solid var(--line); font-weight: 600; }
+  .more td { font-weight: 450; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .more td:last-child { text-align: right; width: 2.5em; }
+  .more tr { cursor: pointer; outline: none; transition: color 0.2s; }
+  .more tr.on th, .more tr:focus-visible th { color: var(--blue); }
+  /* phones and tablets: the layers sit under the picture and stay expanded (all the text in view) */
+  @media (max-width: 1100px) { .body { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) {
+    .anatomy { padding: 48px var(--pad) 64px; }
+    .lbtn .nm { font-size: 16px; }
+    .drag { font-size: 12px; left: 10px; bottom: 10px; }
+  }
+</style>
+
+<script>
+  import { partOf } from '../../../data/epal1-parts';
+
+  type Outlines = { size: [number, number]; frames: Record<string, string>[] };
+  const SVGNS = 'http://www.w3.org/2000/svg';
+
+  for (const root of document.querySelectorAll<HTMLElement>('.anatomy')) {
+    const DIR = root.dataset.dir!;
+    const stage = root.querySelector<HTMLElement>('[data-stage]')!;
+    const canvas = stage.querySelector('canvas')!;
+    const ctx = canvas.getContext('2d', { alpha: false })!;
+    const svg = stage.querySelector<SVGSVGElement>('svg.hl')!;
+    const g = (k: string) => svg.querySelector<SVGGElement>(`[data-${k}]`)!;
+    const tag = stage.querySelector<HTMLElement>('.tag')!;
+    const layerEls = [...root.querySelectorAll<HTMLElement>('.layer')];
+    const rows = [...root.querySelectorAll<HTMLTableRowElement>('.more tr')];
+    const small = innerWidth <= 900;
+    const FILM = 48, ORBIT = 36;
+
+    // ---- frames
+    const load = (dir: string, n: number) => Array.from({ length: n }, (_, i) => {
+      const im = new Image();
+      im.decoding = 'async';
+      im.src = `${DIR}/${dir}${small ? '-sm' : ''}/${String(i).padStart(2, '0')}.webp`;
+      return im;
+    });
+    let film: HTMLImageElement[] = [], orbit: HTMLImageElement[] = [];
+    let outlines: Outlines | null = null;
+    const blit = (im: HTMLImageElement, a: number) => {
+      if (!im?.complete || !im.naturalWidth) return;
+      ctx.globalAlpha = a;
+      ctx.drawImage(im, 0, 0, canvas.width, canvas.height);
+    };
+    let view: { set: HTMLImageElement[]; f: number; loop: boolean } = { set: film, f: 0, loop: false };
+    const draw = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      const { set, f, loop } = view;
+      const n = set.length;
+      const i0 = Math.floor(f), t = f - i0, i1 = loop ? (i0 + 1) % n : Math.min(i0 + 1, n - 1);
+      blit(set[((i0 % n) + n) % n], 1);
+      if (t > 0.001) blit(set[i1], t);
+      ctx.globalAlpha = 1;
+    };
+    new ResizeObserver(draw).observe(canvas);
+
+    // ---- state
+    let apart = false, busy = false, turn = 0;     // turn: fractional orbit frame
+    let pinned: { ids: number[]; name: string; size: string; el: HTMLElement } | null = null;
+
+    const animate = (from: number, to: number, ms: number, set: HTMLImageElement[], loop = false) => new Promise<void>((done) => {
+      const t0 = performance.now();
+      const step = (now: number) => {
+        const k = Math.min((now - t0) / ms, 1);
+        const e = k < 0.5 ? 4 * k * k * k : 1 - (-2 * k + 2) ** 3 / 2;
+        view = { set, f: from + (to - from) * e, loop };
+        draw();
+        if (k < 1) requestAnimationFrame(step); else done();
+      };
+      requestAnimationFrame(step);
+    });
+
+    // ---- highlight (vector, from the traced outlines of the orbit frame in view)
+    const clear = (...ks: string[]) => ks.forEach((k) => g(k).replaceChildren());
+    const path = (d: string) => { const p = document.createElementNS(SVGNS, 'path'); p.setAttribute('d', d); return p; };
+    const frameNow = () => (((Math.round(turn) % ORBIT) + ORBIT) % ORBIT);
+    const paint = (ids: number[] | null) => {
+      clear('cut', 'halo', 'line');
+      svg.classList.toggle('on', !!ids && apart);
+      if (!ids || !apart || !outlines) return;
+      const fr = outlines.frames[frameNow()];
+      for (const id of ids) {
+        const d = fr[String(id)];
+        if (!d) continue;
+        g('cut').append(path(d));
+        g('halo').append(path(d));
+        g('line').append(path(d));
+      }
+    };
+    const hits = () => {
+      clear('hit');
+      if (!apart || !outlines) return;
+      const fr = outlines.frames[frameNow()];
+      for (const [id, d] of Object.entries(fr)) {
+        const p = path(d);
+        p.dataset.id = id;
+        g('hit').append(p);
+      }
+    };
+    const select = (ids: number[] | null, name = '', size = '', el: HTMLElement | null = null) => {
+      layerEls.forEach((l) => l.classList.toggle('on', !!el && (l === el || l.contains(el))));
+      rows.forEach((r) => r.classList.toggle('on', r === el));
+      pinned = ids ? { ids, name, size, el: el! } : null;
+      paint(ids);
+    };
+    const placeTag = (x: number, y: number) => {       // beside the pointer, always inside the picture
+      const W = stage.clientWidth, tw = tag.offsetWidth;
+      const tx = x > W * 0.6 ? x - tw - 16 : x + 16;
+      tag.style.setProperty('--tx', `${Math.min(Math.max(tx, 8), W - tw - 8)}px`);
+      tag.style.setProperty('--ty', `${Math.max(y - tag.offsetHeight - 12, 8)}px`);
+    };
+    const showTag = (name: string, size: string, x: number, y: number) => {
+      tag.querySelector('b')!.textContent = name;
+      tag.querySelector('span')!.textContent = /^\d/.test(size) ? `${size} mm` : size;
+      placeTag(x, y);
+      tag.classList.add('on');
+    };
+
+    // ---- take apart / put together
+    const setApart = async (on: boolean) => {
+      if (busy || on === apart) return;
+      busy = true;
+      paint(null); clear('hit'); tag.classList.remove('on');
+      if (on) {
+        await animate(0, FILM - 1, 1900, film);
+        apart = true; turn = 0;
+        view = { set: orbit, f: 0, loop: true }; draw();
+      } else {
+        const m = ((Math.round(turn) % ORBIT) + ORBIT) % ORBIT;   // turn back to the start the short way, then close up
+        if (m) await animate(m, m > ORBIT / 2 ? ORBIT : 0, 700, orbit, true);
+        apart = false; turn = 0;
+        await animate(FILM - 1, 0, 1500, film);
+      }
+      root.classList.toggle('apart', apart);
+      busy = false;
+      hits();
+      if (pinned) paint(pinned.ids);
+    };
+    root.querySelector('[data-toggle]')!.addEventListener('click', () => setApart(!apart));
+
+    // ---- turning: drag or buttons
+    const settle = async (to: number) => {
+      busy = true;
+      await animate(turn, to, 380, orbit, true);
+      turn = to;
+      busy = false;
+      hits();
+      if (pinned) paint(pinned.ids);
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-turn]').forEach((b) => b.addEventListener('click', () => {
+      if (!apart || busy) return;
+      root.classList.add('turned');
+      settle(Math.round(turn) + Number(b.dataset.turn) * 3);   // 30° a click
+    }));
+    let drag: { x: number; t: number; id: number } | null = null;
+    stage.addEventListener('pointerdown', (e) => {
+      if (!apart || busy) return;
+      drag = { x: e.clientX, t: turn, id: e.pointerId };
+    });
+    addEventListener('pointermove', (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x;
+      if (!root.classList.contains('dragging') && Math.abs(dx) < 6) return;
+      if (!root.classList.contains('dragging')) {
+        root.classList.add('dragging', 'turned');
+        paint(null); clear('hit'); tag.classList.remove('on');
+      }
+      turn = drag.t - (dx / stage.clientWidth) * ORBIT * 0.9;
+      view = { set: orbit, f: ((turn % ORBIT) + ORBIT) % ORBIT, loop: true };
+      draw();
+    });
+    const endDrag = () => {
+      if (!drag) return;
+      const was = root.classList.contains('dragging');
+      drag = null;
+      root.classList.remove('dragging');
+      if (was) settle(Math.round(turn));
+    };
+    addEventListener('pointerup', endDrag);
+    addEventListener('pointercancel', endDrag);
+
+    // ---- pointing at a part on the pallet (a tap off the pallet clears it on touch screens)
+    stage.addEventListener('click', (e) => {
+      if ((e.target as Element).closest('.hit')) return;
+      tag.classList.remove('on');
+      rows.forEach((r) => r.classList.toggle('on', r === pinned?.el));
+      paint(pinned ? pinned.ids : null);
+    });
+    svg.addEventListener('pointerover', (e) => {
+      const id = Number((e.target as SVGElement).dataset?.id);
+      if (!id || root.classList.contains('dragging')) return;
+      const hit = partOf(id);
+      if (!hit) return;
+      paint([id]);
+      const row = rows.find((r) => r.dataset.ids!.split(',').map(Number).includes(id));
+      rows.forEach((r) => r.classList.toggle('on', r === row));
+      const r = stage.getBoundingClientRect();
+      showTag(hit.part.name, hit.part.size, e.clientX - r.left, e.clientY - r.top);
+    });
+    svg.addEventListener('pointermove', (e) => {
+      if (!tag.classList.contains('on')) return;
+      const r = stage.getBoundingClientRect();
+      placeTag(e.clientX - r.left, e.clientY - r.top);
+    });
+    svg.addEventListener('pointerout', (e) => {
+      if (e.pointerType !== 'mouse') return;      // touch: a tapped part stays picked until the next tap
+      if ((e.relatedTarget as Element | null)?.closest?.('.hit')) return;
+      tag.classList.remove('on');
+      rows.forEach((r) => r.classList.toggle('on', r === pinned?.el));
+      paint(pinned ? pinned.ids : null);
+    });
+    svg.style.pointerEvents = 'none';
+    g('hit').style.pointerEvents = 'auto';
+
+    // ---- layers and parts in the list
+    const pick = async (ids: number[], name: string, size: string, el: HTMLElement) => {
+      select(ids, name, size, el);
+      if (!apart) await setApart(true);
+    };
+    layerEls.forEach((l) => l.querySelector('.lbtn')!.addEventListener('click', () => {
+      const b = l.querySelector<HTMLElement>('.lbtn')!;
+      pick(l.dataset.ids!.split(',').map(Number), b.dataset.name!, b.dataset.size!, l);
+    }));
+    rows.forEach((r) => {
+      const go = () => pick(r.dataset.ids!.split(',').map(Number), r.dataset.name!, r.dataset.size!, r);
+      r.addEventListener('click', go);
+      r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
+    root.querySelectorAll<HTMLButtonElement>('[data-step]').forEach((b) => b.addEventListener('click', () => {
+      const cur = layerEls.findIndex((l) => l.classList.contains('on'));
+      const next = Math.min(Math.max(cur + Number(b.dataset.step), 0), layerEls.length - 1);
+      const l = layerEls[cur < 0 ? 0 : next];
+      const lb = l.querySelector<HTMLElement>('.lbtn')!;
+      pick(l.dataset.ids!.split(',').map(Number), lb.dataset.name!, lb.dataset.size!, l);
+    }));
+
+    // ---- start loading when the viewer comes near
+    new IntersectionObserver((es, io) => {
+      if (!es.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      film = load('film', FILM);
+      view = { set: film, f: 0, loop: false };
+      film[0].decode().then(() => { draw(); canvas.classList.add('ready'); }, () => {});
+      Promise.all(film.map((im) => im.decode().catch(() => {}))).then(() => { orbit = load('orbit', ORBIT); });
+      fetch(`${DIR}/outlines.json`).then((r) => r.json()).then((o: Outlines) => { outlines = o; hits(); });
+    }, { rootMargin: '400px 0px' }).observe(root);
+  }
+</script>

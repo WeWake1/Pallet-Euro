@@ -1,0 +1,53 @@
+---
+// PROTOTYPE round 8 · D "Living photograph" (plays by itself, decision #59): round 4's Indian light, the hero the owner
+// liked best, with nothing to do: the camera glides slowly into the jaali-lit room and back while the star pattern
+// drifts. The frames play forward and back on a slow sine, so there is no seam and no input. Pauses off screen;
+// reduced motion: one still. Frames: tools/render/hero/jaali.py --glide (public/dev/r8/glide).
+import HeroCopy from '../home/HeroCopy.astro';
+
+const DIR = '/dev/r8/glide';
+const COUNT = 72;
+---
+<section class="photo-hero r8-loop" data-key="D" data-count={COUNT} data-dir={DIR} aria-label="Pallet Euro Packaging" style="--pic-bg:#EDE7DD">
+  <div class="pic" data-pic>
+    <img src={`${DIR}/00.webp`} srcset={`${DIR}-sm/00.webp 960w, ${DIR}/00.webp 1920w`} sizes="100vw" width="1920" height="1080"
+      fetchpriority="high" decoding="async" alt="An EPAL 1 Euro pallet in a pale stone room, morning sun through a jaali throwing a star pattern over it" />
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+</section>
+
+<style>
+  .r8-loop .pic img { object-position: 60% 50%; }
+  @media (max-width: 900px) { .r8-loop .pic img { object-position: 72% 50%; } }
+</style>
+
+<script>
+  import { createSeq, frames } from '../r5/seq';
+  import { whenShown } from '../home/when-shown';
+
+  for (const root of document.querySelectorAll<HTMLElement>('.r8-loop')) {
+    const pic = root.querySelector<HTMLElement>('[data-pic]')!;
+    whenShown(root.dataset.key!, pic, () => {
+      const count = Number(root.dataset.count);
+      const small = innerWidth <= 900;
+      const seq = createSeq(pic.querySelector('canvas')!, frames(small ? `${root.dataset.dir}-sm` : root.dataset.dir!, count), { x: small ? 0.72 : 0.6, y: 0.5 }, 0);
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return {};
+      const HALF = 11000;                         // ms from one end of the glide to the other
+      let visible = true, t = 0, last = performance.now();
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+      seq.done.then(() => {
+        const tick = (now: number) => {
+          requestAnimationFrame(tick);
+          const dt = Math.min(now - last, 64);
+          last = now;
+          if (!visible || document.hidden || pic.offsetParent === null) return;
+          t += dt;
+          seq.show(((1 - Math.cos((t / HALF) * Math.PI)) / 2) * (count - 1));
+        };
+        requestAnimationFrame(tick);
+      });
+      return {};
+    });
+  }
+</script>

@@ -1,20 +1,21 @@
 ---
 // "Every EPAL pallet, built to the drawing." The product cards the owner kept (decision #15). Each card links to its
-// product page. The pictures are dev renders (Ambica's IN-083 mark): replace them with the launch re-render.
+// product page. The pictures are this repo's catalogue renders (tools/render/render_all.py) with the dev marks (EPAL oval,
+// IN-XXX): re-render them with the real HT code before launch.
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import { RANGE } from '../../data/certificates';
 import { RANGE28, productPath } from '../../data/range28';
-import v1 from '../../assets/dev-renders/white/epal1-1.webp';
-import v2 from '../../assets/dev-renders/white/epal1-2.webp';
-import e2a from '../../assets/dev-renders/white/epal2-1.webp';
-import e2b from '../../assets/dev-renders/white/epal2-2.webp';
-import e3a from '../../assets/dev-renders/white/epal3-1.webp';
-import e3b from '../../assets/dev-renders/white/epal3-2.webp';
-import cp1 from '../../assets/dev-renders/white/cp1-1.webp';
-import cp3 from '../../assets/dev-renders/white/cp3-1.webp';
-import cp6 from '../../assets/dev-renders/white/cp6-1.webp';
-import cp7 from '../../assets/dev-renders/white/cp7-1.webp';
+import v1 from '../../assets/products/euro-pallet-1200x800/1.webp';
+import v2 from '../../assets/products/euro-pallet-1200x800/2.webp';
+import e2a from '../../assets/products/euro-industrial-pallet-1200x1000/1.webp';
+import e2b from '../../assets/products/euro-industrial-pallet-1200x1000/2.webp';
+import e3a from '../../assets/products/euro-industrial-pallet-1000x1200/1.webp';
+import e3b from '../../assets/products/euro-industrial-pallet-1000x1200/2.webp';
+import cp1 from '../../assets/products/cp1-type-pallet-1000x1200/1.webp';
+import cp3 from '../../assets/products/cp3-type-pallet-1140x1140/1.webp';
+import cp6 from '../../assets/products/cp6-type-pallet-1200x1000/1.webp';
+import cp7 from '../../assets/products/cp7-type-pallet-1300x1100/1.webp';
 
 const r = Object.fromEntries(RANGE.map((p) => [p.id, p]));
 const href = (code: string) => {

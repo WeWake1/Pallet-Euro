@@ -1,0 +1,9 @@
+{
+ "job": "orbit",
+ "recipe": "epal1",
+ "frames": 36,
+ "size": [
+  1600,
+  1000
+ ]
+}

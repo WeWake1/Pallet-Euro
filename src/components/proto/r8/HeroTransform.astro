@@ -1,0 +1,136 @@
+---
+// PROTOTYPE round 8 · C "The family" (tap to transform, decision #59): the first screen shows one pallet and the names
+// of four in the EPAL family. Tapping a name sends the current pallet's parts flying up out of the frame and drops the
+// new one in, layer by layer: bottom boards, blocks, stringer boards, deck boards, nails. Until the first tap it shows
+// the next one by itself every few seconds. Frames: tools/render/hero/layers.py --job assemble (one film per pallet,
+// played backwards to take a pallet away). Names and sizes from src/data/range28.ts.
+import HeroCopy from '../home/HeroCopy.astro';
+import { RANGE28, productPath } from '../../../data/range28';
+
+const ids = [['epal1', 'EPAL 1'], ['epal2', 'EPAL 2'], ['epal3', 'EPAL 3'], ['cp1', 'CP1']] as const;
+const items = ids.map(([id, code]) => {
+  const p = RANGE28.find((x) => x.code === code)!;
+  return { id, code: p.code, name: p.name, size: `${p.L} × ${p.W}`, href: productPath(p) };
+});
+const COUNT = 36;
+const DIR = '/dev/r8/assemble';
+---
+<section class="photo-hero r8-family" data-key="C" data-count={COUNT} data-dir={DIR} aria-label="Pallet Euro Packaging" style="--pic-bg:#F3F3F2">
+  <div class="pic" data-pic>
+    <img src={`${DIR}/epal1/35.webp`} srcset={`${DIR}/epal1-sm/35.webp 960w, ${DIR}/epal1/35.webp 1920w`} sizes="100vw" width="1920" height="1080"
+      fetchpriority="high" decoding="async" alt="An EPAL 1 Euro pallet in a white studio" />
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <div class="family" role="group" aria-label="Show a pallet of the EPAL family">
+    {items.map((it, i) => (
+      <button type="button" class:list={{ on: i === 0 }} data-id={it.id} aria-pressed={i === 0 ? 'true' : 'false'}>
+        <b>{it.code}</b><span>{it.size}<i> mm</i></span>
+      </button>
+    ))}
+  </div>
+</section>
+
+<style>
+  .r8-family .pic img { object-position: 55% 50%; }
+  .family { position: absolute; right: var(--pad); bottom: 34px; z-index: 3; display: flex; gap: 6px; padding: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.86);
+    box-shadow: inset 0 0 0 1px rgba(11, 19, 36, 0.08), 0 14px 34px -22px rgba(11, 19, 36, 0.45); }
+  .family button { display: grid; gap: 1px; padding: 9px 20px 10px; border: 0; border-radius: 999px; background: none; font: inherit; text-align: left; cursor: pointer;
+    color: var(--ink-2); transition: background 0.35s var(--ease), color 0.35s; }
+  .family b { font-size: 15px; font-weight: 700; color: inherit; }
+  .family span i { font-style: normal; }
+  .family span { font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--ink-3); transition: color 0.35s; }
+  .family button:hover { color: var(--ink); }
+  .family button.on { background: var(--blue); color: #fff; }
+  .family button.on span { color: rgba(255, 255, 255, 0.78); }
+  @media (max-width: 900px) {
+    .r8-family .pic img { object-position: 68% 50%; }
+    .family { position: relative; right: auto; bottom: auto; order: -1; margin: -14px 0 24px; justify-content: space-between; }
+    .family button { padding: 8px 10px 9px; flex: 1; text-align: center; }
+    .family b { font-size: 14px; }
+    .family span { font-size: 10.5px; }
+    .family span i { display: none; }
+  }
+</style>
+
+<script>
+  import { whenShown } from '../home/when-shown';
+
+  // a small frame player: one canvas, a film per pallet, each film loaded on first use
+  for (const root of document.querySelectorAll<HTMLElement>('.r8-family')) {
+    const pic = root.querySelector<HTMLElement>('[data-pic]')!;
+    const canvas = pic.querySelector('canvas')!;
+    const btns = [...root.querySelectorAll<HTMLButtonElement>('.family button')];
+    whenShown(root.dataset.key!, pic, () => {
+      const count = Number(root.dataset.count);
+      const small = innerWidth <= 900;
+      const fx = small ? 0.68 : 0.55;
+      const ctx = canvas.getContext('2d', { alpha: false })!;
+      const films = new Map<string, Promise<HTMLImageElement[]>>();
+      const film = (id: string) => {
+        if (!films.has(id)) {
+          const dir = `${root.dataset.dir}/${id}${small ? '-sm' : ''}`;
+          films.set(id, Promise.all(Array.from({ length: count }, (_, i) => {
+            const im = new Image();
+            im.src = `${dir}/${String(i).padStart(2, '0')}.webp`;
+            return im.decode().then(() => im, () => im);
+          })));
+        }
+        return films.get(id)!;
+      };
+      const draw = (im: HTMLImageElement) => {
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        const cw = Math.round(canvas.clientWidth * dpr), ch = Math.round(canvas.clientHeight * dpr);
+        if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
+        const iw = im.naturalWidth, ih = im.naturalHeight;
+        if (!iw) return;
+        const s = Math.max(cw / iw, ch / ih), sw = cw / s, sh = ch / s;
+        const sx = Math.min(Math.max(fx * iw - sw / 2, 0), iw - sw), sy = Math.min(Math.max(0.5 * ih - sh / 2, 0), ih - sh);
+        ctx.drawImage(im, sx, sy, sw, sh, 0, 0, cw, ch);
+      };
+      const play = (imgs: HTMLImageElement[], from: number, to: number, ms: number) => new Promise<void>((done) => {
+        const t0 = performance.now();
+        const step = (now: number) => {
+          const t = Math.min((now - t0) / ms, 1);
+          draw(imgs[Math.round(from + (to - from) * t)]);
+          if (t < 1) requestAnimationFrame(step); else done();
+        };
+        requestAnimationFrame(step);
+      });
+      let cur = 'epal1', busy = false, auto = true, last: HTMLImageElement | null = null, queued: string | null = null;
+      film('epal1').then((imgs) => { last = imgs[count - 1]; draw(last); canvas.classList.add('ready'); });
+      new ResizeObserver(() => last && draw(last)).observe(canvas);
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const mark = (id: string) => btns.forEach((b) => { const on = b.dataset.id === id; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+      const show = async (id: string) => {
+        if (busy) { queued = id; mark(id); return; }       // a tap during a change plays right after it
+        if (id === cur) { mark(id); return; }
+        busy = true;
+        mark(id);
+        const [out, inn] = await Promise.all([film(cur), film(id)]);
+        if (!reduce) await play(out, count - 1, 0, 650);           // the parts fly up and away
+        if (!reduce) await play(inn, 0, count - 1, 1500);          // the new pallet drops in, layer by layer
+        last = inn[count - 1];
+        draw(last);
+        cur = id;
+        busy = false;
+        if (queued) { const q = queued; queued = null; show(q); }
+      };
+      btns.forEach((b) => b.addEventListener('click', () => { auto = false; show(b.dataset.id!); }));
+      btns.forEach((b) => b.addEventListener('pointerenter', () => film(b.dataset.id!)));   // load ahead
+      // until the first tap, show the next one by itself (only while the hero is on screen)
+      let visible = true;
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+      if (!reduce) {
+        const order = btns.map((b) => b.dataset.id!);
+        const next = () => {
+          if (!auto) return;
+          if (visible && !document.hidden && !busy) show(order[(order.indexOf(cur) + 1) % order.length]);
+          setTimeout(next, 5200);
+        };
+        setTimeout(next, 3800);
+      }
+      return {};
+    });
+  }
+</script>

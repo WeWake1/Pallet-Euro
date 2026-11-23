@@ -2,6 +2,26 @@
 
 Owner answers, newest first. Never re-ask anything answered here.
 
+## 2026-11-23 (late night: round-7 verdict)
+
+| # | Question | Answer |
+|---|---|---|
+| 58 | (#54) Round 7 hero: A "From the drawing"? | **Another round.** Round 7 is "good", but not the final hero. **"All the different designs using the same move-your-cursor thing is getting boring: try something new."** |
+| 59 | Round 8: which kinds of motion? | **All four offered:** a scroll story (computers: the hero changes as you scroll, like the Mark film; phones: plays once), scenes that advance by themselves (made in India → loaded → in Europe), tap to transform (tap a product name, the pallet rebuilds itself into it), and plays by itself (one seamless cinematic loop). One hero per motion, no cursor scrubbing. |
+| 60 | (#55) The part inspector on every product page? | **No: "kind of unnecessary" there.** It lives on **one guide page** ("What makes an EPAL pallet": every part and size), linked from the EPAL product pages. It is "pretty good", but needs: (1) a better, polished highlight (the blue fill and jagged outline do not look polished); (2) more than one isometric view, since not every part is visible; (3) a way to show the parts layer by layer; (4) an exploded 3D view to interact with, or a playable animation of it. |
+| 61 | (#56) Before and after on the About page, with the draft copy? | **Yes:** "the before and after is good." |
+| 62 | (#57) Product cards to the new catalogue renders now? | **Yes.** Done the same night (`Range.astro`, production and prototype). |
+
+Claude's calls (round 8 and the anatomy viewer):
+- One hero per kind of motion, all with the same headline and copy, none moving with the cursor: A "Built in layers" (scroll story: pinned on computers, the EPAL 1 comes apart into its layers with a small name tag on each; phones play it once), B "The journey" (three scenes advance by themselves with a slow push-in: round 7's sandstone courtyard "Made in India", a new container still "Loaded for export", round 5's European warehouse "To Europe's standard"), C "The family" (EPAL 1, EPAL 2, EPAL 3 and CP1: a tap sends the parts of the pallet flying up and drops the new one in, layer by layer; it changes by itself until the first tap), D "Living photograph" (round 4's Indian light, the owner's favourite so far, as a slow camera glide that plays forward and back with no input).
+- Anatomy viewer (guide page): photoreal frames only, no live 3D (the owner found live 3D fake in round 3): a 48-frame exploded-view film, 36 angles of the exploded pallet to drag or turn, "Layer by layer" with each layer's parts, sizes and a one-line note; the highlight is a vector outline (white edge, blue line) traced from an ID map, with the rest of the pallet softly veiled.
+- B's scene captions say only "Made in India", "Loaded for export" and "To Europe's standard": no claim of customers or exports yet.
+
+### Open questions (round 8, asked 2026-11-23)
+
+63. Round 8 hero: A "Built in layers"? (Alternatives: B "The journey", C "The family", D "Living photograph", or a mix, e.g. one as the hero and another further down the page.)
+64. The anatomy viewer (`/prototype/inner/?variant=A`) as built, for the guide page "What makes an EPAL pallet"?
+
 ## 2026-11-23 (night: round-6 verdict)
 
 | # | Question | Answer |
@@ -15,7 +35,7 @@ Claude's calls (round 7 and the inner-page demos):
 - Inspect (product page): the real photo stays; the part under the cursor gets a thin blue outline and a small label with its name and size; a plain HTML parts table (names, sizes in mm, quantities from EPAL's drawing) lights up with it.
 - Before and after (About): same studio, same camera, same light; a generic unmarked worn pallet (grey timber, grime and mould, a missing and a broken deck board, a split-off corner, a twisted block, rusty nails standing proud) against the EPAL 1, with a drag handle. Draft copy uses only what the pictures show and the EPAL facts already checked.
 
-### Open questions (round 7, asked 2026-11-23)
+### Open questions (round 7, asked 2026-11-23; answered the same night: #58–#62 above)
 
 54. Round 7 hero: A "From the drawing"? (Alternatives: B "Eye level", C "Carved", another round, or round 4's "Indian light".)
 55. Inspect (`/prototype/inner/?variant=A`): use it on every product page, each with its own photo and parts list?

@@ -50,10 +50,11 @@ def run(kind, name):
         out = dev_dir(name) + "-sm"
         os.makedirs(out, exist_ok=True)
         for f in sorted(glob.glob(os.path.join(dev_dir(name), "*.webp"))):
-            conv(f, os.path.join(out, os.path.basename(f)), 960, 540, 74)
+            conv(f, os.path.join(out, os.path.basename(f)), 960, 0, 74)   # 960 wide, the same shape
     elif kind == "stills":
         for folder, files, q in (("worlds", ("europe", "india"), 78), ("xray", ("photo", "xray"), 80),
-                                 (os.path.join(DEV, "inner"), ("photo", "generic"), 80)):
+                                 (os.path.join(DEV, "inner"), ("photo", "generic"), 80),
+                                 (os.path.join(DEV, "r8", "scenes"), ("still",), 78)):
             for n in files:
                 src = os.path.join(R5, folder, f"{n}.webp")     # an absolute folder ignores R5
                 if os.path.exists(src):

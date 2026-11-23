@@ -95,9 +95,9 @@ Tried and dropped before showing: a long striped shadow from a low sun (a 14 cm 
 
 Verdict (23 Nov 2026, decision #51): **"good, but still not up to what we want."** No hero chosen; another round, keeping every round saved.
 
-## Round 7 · the same brief, moving something other than the light (23 Nov 2026, awaiting the owner’s verdict)
+## Round 7 · the same brief, moving something other than the light (23 Nov 2026)
 
-Live at `/prototype/` (`?variant=A|B|C`), followed by the Mark and container stories. Rounds 4 and 6 all moved the sun or the shade; round 7 moves the drawing, the viewpoint and the wood itself. Scenes `tools/render/hero/blueprint.py`, `frieze.py`, `carved.py` (`python tools/render/run.py r7`), frames in `public/dev/r7/` with `-sm` phone versions (dev only: EPAL oval and `IN-XXX`). One component plays all three: `src/components/proto/r7/HeroFrames.astro`.
+Archived at `/prototype/round-7/` (`?variant=A|B|C`), followed by the Mark and container stories. Rounds 4 and 6 all moved the sun or the shade; round 7 moves the drawing, the viewpoint and the wood itself. Scenes `tools/render/hero/blueprint.py`, `frieze.py`, `carved.py` (`python tools/render/run.py r7`), frames in `public/dev/r7/` with `-sm` phone versions (dev only: EPAL oval and `IN-XXX`). One component plays all three: `src/components/proto/r7/HeroFrames.astro`.
 
 | | Hero | Idea | Motion |
 |---|---|---|---|
@@ -105,7 +105,9 @@ Live at `/prototype/` (`?variant=A|B|C`), followed by the Mark and container sto
 | B | Eye level | The camera on the floor of a sunlit sandstone courtyard, a hand's height up, close to the long side: the pallet becomes a low frieze with its three branded blocks, the fork openings like doorways; behind, out of focus, an arcade of pointed arches against a bright sky | 41 frames; the cursor moves the camera along the pallet (parallax through the openings); phones: it drifts |
 | C | Carved | The crazy one: a solid slab of spruce, exactly the size of an EPAL 1, turns to sawdust along a rough front and reveals the finished pallet inside; the dust bursts up and fades, heavier grains settle on the floor | 48 frames; the cursor carves (right = more pallet); phones: it drifts |
 
-## Inner pages · Inspect and Before/after (23 Nov 2026, awaiting the owner’s verdict)
+Verdict (23 Nov 2026, decision #58): "good", but not the final hero; **every hero moving with the cursor "is getting boring: try something new."**
+
+## Inner pages · Inspect and Before/after (23 Nov 2026)
 
 Live at `/prototype/inner/` (`?variant=A|B`). The owner's refinements of round 5's unused heroes (decision #52). Renders: `tools/render/hero/inspect.py` (`python tools/render/run.py inner`), in `public/dev/inner/`.
 
@@ -113,3 +115,20 @@ Live at `/prototype/inner/` (`?variant=A|B`). The owner's refinements of round 5
 |---|---|---|
 | A | Inspect (product page) | The real studio photo of the EPAL 1; the part under the cursor gets a thin blue outline and a label with its name and size (from a one-colour-per-part ID map); the parts table beside it (names, sizes, quantities from EPAL's drawing; plain HTML) lights up with it, and hovering a row outlines every part of that kind |
 | B | Before and after (About) | Same studio, camera and light: a generic unmarked worn pallet (grey timber, grime and mould, one deck board missing and one broken, a split-off corner, a twisted block, rusty nails standing proud) against the EPAL 1; a drag handle (computers: it follows the cursor) and three short facts on each side |
+
+Verdict (decisions #60–#61): Before and after **approved** for the About page. Inspect: not needed on every product page; it moves to **one guide page** and needs a polished highlight, more than one view, layer by layer, and an exploded view to play or turn. Rebuilt as "Anatomy" (below).
+
+## Round 8 · four kinds of motion, none of them the cursor (23 Nov 2026, awaiting the owner’s verdict)
+
+Live at `/prototype/` (`?variant=A|B|C|D`), followed by the Mark and container stories. The owner picked all four kinds of motion offered (decision #59). Scenes: `tools/render/hero/layers.py` (one pallet in its layers: explode, assemble, film, orbit, orbit-ids), `container.py --still`, `jaali.py --glide`; frames in `public/dev/r8/`.
+
+| | Hero | Motion |
+|---|---|---|
+| A | Built in layers | A scroll story: the hero stays pinned on computers while scrolling takes the EPAL 1 apart into its layers (top deck first), each layer named at its end, then the page carries on. Phones: plays once by itself |
+| B | The journey | Scenes that advance by themselves, each with a slow push-in and a progress bar: 01 Made in India (round 7's sandstone courtyard), 02 Loaded for export (the deep-blue container, doors open), 03 To Europe’s standard (round 5's European warehouse). Tap a bar to jump |
+| C | The family | Tap to transform: EPAL 1, EPAL 2, EPAL 3 and CP1 under the picture; a tap sends the pallet's parts flying up and drops the new one in, layer by layer. Until the first tap it changes by itself every few seconds |
+| D | Living photograph | Plays by itself: round 4's Indian light (the owner's favourite so far) as a slow camera glide into the jaali-lit room and back, on a sine, with no seam and nothing to do |
+
+## Inner pages · Anatomy (replaces Inspect) and Before/after (23 Nov 2026)
+
+`/prototype/inner/?variant=A`: the guide page's anatomy viewer. "Take it apart" plays the exploded view (48 frames); taken apart, drag or the arrow buttons turn it all the way round (36 angles); "Layer by layer" steps through top deck boards, stringer boards, blocks, bottom deck boards and nails; any part can be picked on the pallet or in the list. The highlight is vector: outlines traced from a double-size ID map (`tools/render/trace_ids.py`), a white-and-blue line around the part, the rest softly veiled.

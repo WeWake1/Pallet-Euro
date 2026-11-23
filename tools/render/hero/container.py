@@ -8,6 +8,7 @@ A deep-blue 20' container in a pale yard. One frame per scroll step:
 
   Blender -b --factory-startup --python tools/render/hero/container.py -- --recipe epal1 \
       --recipes src/data/pallet-geometry.json --out public/dev/r5/container --size 1600x900 [--frames 0-149] [--test]
+  --still: one picture instead (round 8's "Scenes" hero), doors open, framed right of the headline: still.webp
 """
 import math
 import os
@@ -507,6 +508,21 @@ def ease(x):
 
 
 OPEN = math.radians(252)
+if "--still" in sys.argv:
+    # round 8 B "Scenes": one still, both doors open, from the rear three-quarter, the box in the right half of the
+    # picture (the headline sits on the left). Writes still.webp.
+    for ob in (cam, tgt, cam.data):
+        ob.animation_data_clear()
+    for side, bp, d in bar_pivots:
+        bp.rotation_euler = (0, 0, d * math.radians(88))
+    door_pivots[1].rotation_euler = (0, 0, OPEN)
+    door_pivots[0].rotation_euler = (0, 0, -OPEN)
+    cam.location = (6.5, 12.1, 1.5)
+    tgt.location = (0.4, 1.9, 1.2)
+    cam.data.lens = 40
+    cam.data.shift_x = -0.24
+    C.render_to(os.path.join(C.args.out, "still.webp"))
+    sys.exit(0)
 for f in C.frame_list(COUNT):
     scene.frame_set(f)
     for side, bp, d in bar_pivots:

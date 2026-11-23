@@ -45,10 +45,24 @@ PRESETS = {
     "inner-photo":   ("inspect.py", "public/dev/inner", "1920x1200", 128, 86, ["--pass", "photo"], "stills"),
     "inner-generic": ("inspect.py", "public/dev/inner", "1920x1200", 128, 86, ["--pass", "generic"], "stills"),
     "inner-ids":     ("inspect.py", "public/dev/inner", "1920x1200", 1,   86, ["--pass", "ids"], None),
+    # round 8 (layers.py: one pallet in its layers) and the anatomy guide
+    "r8-explode":    ("layers.py", "public/dev/r8/explode", "1920x1080", 64, 82, ["--job", "explode"], "frames"),
+    "r8-asm-epal1":  ("layers.py", "public/dev/r8/assemble/epal1", "1920x1080", 48, 82, ["--job", "assemble", "--recipe", "epal1"], "frames"),
+    "r8-asm-epal2":  ("layers.py", "public/dev/r8/assemble/epal2", "1920x1080", 48, 82, ["--job", "assemble", "--recipe", "epal2"], "frames"),
+    "r8-asm-epal3":  ("layers.py", "public/dev/r8/assemble/epal3", "1920x1080", 48, 82, ["--job", "assemble", "--recipe", "epal3"], "frames"),
+    "r8-asm-cp1":    ("layers.py", "public/dev/r8/assemble/cp1", "1920x1080", 48, 82, ["--job", "assemble", "--recipe", "cp1"], "frames"),
+    "anatomy-film":  ("layers.py", "public/dev/inner/anatomy/film", "1600x1000", 64, 82, ["--job", "film"], "frames"),
+    "anatomy-orbit": ("layers.py", "public/dev/inner/anatomy/orbit", "1600x1000", 64, 82, ["--job", "orbit"], "frames"),
+    "anatomy-ids":   ("layers.py", "tools/render/out/anatomy-ids", "1600x1000", 1, 86, ["--job", "orbit-ids"], None),
+    "r8-container":  ("container.py", "public/dev/r8/scenes", "2400x1350", 48, 84, ["--still"], "stills"),
+    "r8-glide":      ("jaali.py", "public/dev/r8/glide", "1920x1080", 64, 82, ["--glide"], "frames"),
 }
 GROUPS = {"xray": ["xray-photo", "xray-xray", "xray-ids"], "worlds": ["europe", "india"],
           "r6": ["daybreak", "neem", "bullettime"], "r7": ["blueprint", "frieze", "carved"],
-          "inner": ["inner-photo", "inner-generic", "inner-ids"], "all": list(PRESETS)}
+          "inner": ["inner-photo", "inner-generic", "inner-ids"],
+          "r8-layers": ["r8-explode", "r8-asm-epal1", "r8-asm-epal2", "r8-asm-epal3", "r8-asm-cp1"],
+          "anatomy": ["anatomy-film", "anatomy-orbit", "anatomy-ids"], "r8-more": ["r8-container", "r8-glide"],
+          "all": list(PRESETS)}
 
 
 def find_blender(given):
