@@ -368,3 +368,60 @@ def gobo_material(img, size_x, size_y, tile=None, offset=(0.0, 0.0)):
     l.new(df.outputs[0], mix.inputs[2])
     l.new(mix.outputs[0], out.inputs["Surface"])
     return m
+
+
+# ------------------------------------------------------------------ round 7
+def grains(name, pts, radii, colour, sss=0.25):
+    """Sawdust: one small ico sphere instanced on every point, scaled by its radius (in metres). Geometry Nodes
+    instancing keeps tens of thousands of grains cheap. The radius attribute is "grain_r": Mesh to Points makes its
+    own "radius" (5 cm). Update the points with set_grains()."""
+    me = bpy.data.meshes.new(name)
+    ob = bpy.data.objects.new(name, me)
+    scene.collection.objects.link(ob)
+    set_grains(ob, pts, radii)
+    m = bpy.data.materials.new(name + "_mat")
+    m.use_nodes = True
+    pb = m.node_tree.nodes["Principled BSDF"]
+    pb.inputs["Base Color"].default_value = (*srgb(colour), 1)
+    pb.inputs["Roughness"].default_value = 0.9
+    pb.inputs["Subsurface Weight"].default_value = sss
+    pb.inputs["Subsurface Radius"].default_value = (0.004, 0.003, 0.002)
+    ng = bpy.data.node_groups.new(name + "_gn", "GeometryNodeTree")
+    ng.interface.new_socket("Geometry", in_out="INPUT", socket_type="NodeSocketGeometry")
+    ng.interface.new_socket("Geometry", in_out="OUTPUT", socket_type="NodeSocketGeometry")
+    N, L = ng.nodes, ng.links
+    gi, go = N.new("NodeGroupInput"), N.new("NodeGroupOutput")
+    m2p = N.new("GeometryNodeMeshToPoints")
+    ico = N.new("GeometryNodeMeshIcoSphere")
+    ico.inputs["Radius"].default_value = 1.0
+    ico.inputs["Subdivisions"].default_value = 1
+    iop = N.new("GeometryNodeInstanceOnPoints")
+    na = N.new("GeometryNodeInputNamedAttribute")
+    na.data_type = "FLOAT"
+    na.inputs["Name"].default_value = "grain_r"
+    rot = N.new("FunctionNodeRandomValue")          # tumble each grain so the ico facets do not line up
+    rot.data_type = "FLOAT_VECTOR"
+    rot.inputs["Max"].default_value = (6.3, 6.3, 6.3)
+    sm = N.new("GeometryNodeSetMaterial")
+    sm.inputs["Material"].default_value = m
+    L.new(gi.outputs[0], m2p.inputs["Mesh"])
+    L.new(m2p.outputs["Points"], iop.inputs["Points"])
+    L.new(ico.outputs["Mesh"], iop.inputs["Instance"])
+    L.new(na.outputs["Attribute"], iop.inputs["Scale"])
+    L.new(rot.outputs["Value"], iop.inputs["Rotation"])
+    L.new(iop.outputs["Instances"], sm.inputs["Geometry"])
+    L.new(sm.outputs["Geometry"], go.inputs[0])
+    ob.modifiers.new("gn", "NODES").node_group = ng
+    return ob
+
+
+def set_grains(ob, pts, radii):
+    import numpy as np
+    me = ob.data
+    me.clear_geometry()
+    pts = np.asarray(pts, np.float32).reshape(-1, 3)
+    me.vertices.add(len(pts))
+    me.vertices.foreach_set("co", pts.ravel())
+    at = me.attributes.get("grain_r") or me.attributes.new("grain_r", "FLOAT", "POINT")
+    at.data.foreach_set("value", np.asarray(radii, np.float32))
+    me.update()

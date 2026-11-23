@@ -2,6 +2,26 @@
 
 Owner answers, newest first. Never re-ask anything answered here.
 
+## 2026-11-23 (night: round-6 verdict)
+
+| # | Question | Answer |
+|---|---|---|
+| 51 | (#48) Round 6 hero: B "Neem shade"? | **No hero chosen:** "good, but still not up to what we want." **Another round**, keeping round 6 and every earlier round saved. Round 6 archived at `/prototype/round-6/`; round 7 built the same night. |
+| 52 | (#49) Reuse the X-ray lens on product pages and "Two worlds" on About? | **"Maybe", but refined a lot.** X-ray: "looks very cartoonish"; keep the idea of moving the cursor over the parts to see details, but make it **technical, professional and clean**. Two worlds: don't just change the room, **change the pallet: before = a generic, non-EPAL pallet, broken or damaged; after = our clean EPAL pallet.** Both rebuilt as demos at `/prototype/inner/`. |
+| 53 | (#50) Render the full catalogue now on the PC? | **Yes.** Done: 28 pallets × 5 views (the collar 4) in `src/assets/products/<slug>/`, and 28 GLB models in `public/models/`, all with the dev marks (EPAL oval, `IN-XXX`). |
+
+Claude's calls (round 7 and the inner-page demos):
+- Round 7 keeps the brief "two simple, one crazy cool", but **moves something other than the light** (rounds 4 and 6 all moved the sun or shade): A "From the drawing" (a deep-blue technical drawing of the EPAL 1 turns into the real pallet part by part, in assembly order, with its dimension lines; the brand blue finally appears in the hero picture), B "Eye level" (the camera on the courtyard floor at the pallet's own height, the long side as a frieze with its three branded blocks, a sunlit sandstone arcade with pointed arches behind), C "Carved" (a solid slab of spruce the size of an EPAL 1 turns to sawdust and reveals the pallet inside).
+- Inspect (product page): the real photo stays; the part under the cursor gets a thin blue outline and a small label with its name and size; a plain HTML parts table (names, sizes in mm, quantities from EPAL's drawing) lights up with it.
+- Before and after (About): same studio, same camera, same light; a generic unmarked worn pallet (grey timber, grime and mould, a missing and a broken deck board, a split-off corner, a twisted block, rusty nails standing proud) against the EPAL 1, with a drag handle. Draft copy uses only what the pictures show and the EPAL facts already checked.
+
+### Open questions (round 7, asked 2026-11-23)
+
+54. Round 7 hero: A "From the drawing"? (Alternatives: B "Eye level", C "Carved", another round, or round 4's "Indian light".)
+55. Inspect (`/prototype/inner/?variant=A`): use it on every product page, each with its own photo and parts list?
+56. Before and after (`/prototype/inner/?variant=B`): use it on the About page, with the draft copy?
+57. Swap the product cards on the home page to the new catalogue renders now? They carry Pallet Euro's dev marks; the cards still use the copies from the old catalogue with `IN-083 HT`.
+
 ## 2026-11-23 (evening: round-5 verdict)
 
 | # | Question | Answer |
@@ -18,7 +38,7 @@ Owner answers, newest first. Never re-ask anything answered here.
 
 Claude's calls: round 6 = A "Daybreak" (white studio, the cursor carries the sun from sunrise to sunset), B "Neem shade" (lime-plaster courtyard under the moving shade of a neem tree), C "Bullet time" (a dropped EPAL 1 frozen as its corner meets the floor, sawdust in the air, the camera orbits). Two ideas were tried and dropped before showing: a long striped shadow (physically impossible with a 14 cm pallet) and a granite block landing on the pallet (the dust hid the product). `brand.json` now has EPAL's mark layouts for EPAL 2/3 and CP1–CP9 (dev marks).
 
-### Open questions (round 6, asked 2026-11-23)
+### Open questions (round 6, asked 2026-11-23; answered the same night: #51–#53 above)
 
 48. Round 6 hero: B "Neem shade"? (Alternatives: A "Daybreak", C "Bullet time", or round 4's "Indian light".)
 49. (Re-asked #42) Use the two unused round-5 heroes inside other pages: the X-ray lens on each product page (move it over the pallet to see its inside and name each part), and "Two worlds" (the same pallet in a European and an Indian room) on the About page?

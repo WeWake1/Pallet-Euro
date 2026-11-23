@@ -1,0 +1,24 @@
+---
+// PROTOTYPE (throwaway) · two refined ideas for the inner pages, from the owner's round-6 answers (decisions #52):
+//   A "Inspect" (product page): round 5's X-ray lens redone as a clean, technical part inspector on the real photo.
+//   B "Before and after" (About page): round 5's "Two worlds" redone so the pallet changes, not the room: a generic
+//     worn pallet against an EPAL 1. Switch with ?variant=A|B or the arrow keys.
+import Proto from '../../layouts/Proto.astro';
+import Switcher from '../../components/proto/Switcher.astro';
+import '../../components/proto/home/home.css';
+import Header from '../../components/proto/home/Header.astro';
+import Footer from '../../components/proto/home/Footer.astro';
+import Inspect from '../../components/proto/inner/Inspect.astro';
+import BeforeAfter from '../../components/proto/inner/BeforeAfter.astro';
+---
+<Proto title="Inner pages · part inspector and before/after · Pallet Euro (prototype)">
+  <div class="pe">
+    <Header />
+    <main>
+      <div class="variant" data-variant="A"><Inspect /></div>
+      <div class="variant" data-variant="B"><BeforeAfter /></div>
+    </main>
+    <Footer />
+  </div>
+  <Switcher round="Inner pages" variants={[{ key: 'A', name: 'Inspect (product page)' }, { key: 'B', name: 'Before and after (About)' }]} />
+</Proto>

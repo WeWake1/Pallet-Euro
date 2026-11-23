@@ -52,11 +52,13 @@ def run(kind, name):
         for f in sorted(glob.glob(os.path.join(dev_dir(name), "*.webp"))):
             conv(f, os.path.join(out, os.path.basename(f)), 960, 540, 74)
     elif kind == "stills":
-        for folder, files, q in (("worlds", ("europe", "india"), 78), ("xray", ("photo", "xray"), 80)):
+        for folder, files, q in (("worlds", ("europe", "india"), 78), ("xray", ("photo", "xray"), 80),
+                                 (os.path.join(DEV, "inner"), ("photo", "generic"), 80)):
             for n in files:
-                src = os.path.join(R5, folder, f"{n}.webp")
+                src = os.path.join(R5, folder, f"{n}.webp")     # an absolute folder ignores R5
                 if os.path.exists(src):
-                    conv(src, os.path.join(R5, folder, f"{n}-sm.webp"), 1200, 675, q)
+                    w, h = (1200, 750) if "inner" in folder else (1200, 675)
+                    conv(src, os.path.join(R5, folder, f"{n}-sm.webp"), w, h, q)
         out = R5
     else:
         sys.exit(f"unknown kind {kind}")

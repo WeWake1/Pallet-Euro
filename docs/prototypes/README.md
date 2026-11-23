@@ -81,9 +81,9 @@ Verdict (23 Nov 2026, decisions #39–#42):
 - **B (In its place) disliked.** No hero chosen. The owner likes the **simplicity of round 2's A and round 4's A**; wants two new simple heroes and one "crazy cool" one.
 - **The Mark: loved**, with more frames for a smoother scroll (now 335 frames, phones 168). **The container: loved.**
 
-## Round 6 · two simple heroes and one crazy one (23 Nov 2026, awaiting the owner’s verdict)
+## Round 6 · two simple heroes and one crazy one (23 Nov 2026)
 
-Live at `/prototype/` (`?variant=A|B|C`), followed by the Mark and container stories. Rendered on the Windows PC (RX 9060 XT): scenes `tools/render/hero/daybreak.py`, `neem.py`, `bullettime.py` (`python tools/render/run.py r6`), frames in `public/dev/r6/` with `-sm` phone versions (dev only: EPAL oval and `IN-XXX`). One component plays all three: `src/components/proto/r6/HeroFrames.astro`.
+Archived at `/prototype/round-6/` (`?variant=A|B|C`), followed by the Mark and container stories. Rendered on the Windows PC (RX 9060 XT): scenes `tools/render/hero/daybreak.py`, `neem.py`, `bullettime.py` (`python tools/render/run.py r6`), frames in `public/dev/r6/` with `-sm` phone versions (dev only: EPAL oval and `IN-XXX`). One component plays all three: `src/components/proto/r6/HeroFrames.astro`.
 
 | | Hero | Idea | Motion |
 |---|---|---|---|
@@ -93,3 +93,23 @@ Live at `/prototype/` (`?variant=A|B|C`), followed by the Mark and container sto
 
 Tried and dropped before showing: a long striped shadow from a low sun (a 14 cm pallet's blocks and boards block every gap, so the shadow is a flat blob) and a granite block landing on the pallet (the dust cloud hid the product).
 
+Verdict (23 Nov 2026, decision #51): **"good, but still not up to what we want."** No hero chosen; another round, keeping every round saved.
+
+## Round 7 · the same brief, moving something other than the light (23 Nov 2026, awaiting the owner’s verdict)
+
+Live at `/prototype/` (`?variant=A|B|C`), followed by the Mark and container stories. Rounds 4 and 6 all moved the sun or the shade; round 7 moves the drawing, the viewpoint and the wood itself. Scenes `tools/render/hero/blueprint.py`, `frieze.py`, `carved.py` (`python tools/render/run.py r7`), frames in `public/dev/r7/` with `-sm` phone versions (dev only: EPAL oval and `IN-XXX`). One component plays all three: `src/components/proto/r7/HeroFrames.astro`.
+
+| | Hero | Idea | Motion |
+|---|---|---|---|
+| A | From the drawing | Round 2's white studio: the EPAL 1 as a deep-blue technical drawing (Freestyle ink, hidden edges dashed) turning into the real pallet part by part, in assembly order (bottom boards, blocks, stringer boards, deck boards, then nails and marks), with its dimension lines (1200, 800, 144 mm). The brand blue is in the picture itself | 22 frames; the cursor goes from the drawing (left) to the pallet (right); phones: it drifts |
+| B | Eye level | The camera on the floor of a sunlit sandstone courtyard, a hand's height up, close to the long side: the pallet becomes a low frieze with its three branded blocks, the fork openings like doorways; behind, out of focus, an arcade of pointed arches against a bright sky | 41 frames; the cursor moves the camera along the pallet (parallax through the openings); phones: it drifts |
+| C | Carved | The crazy one: a solid slab of spruce, exactly the size of an EPAL 1, turns to sawdust along a rough front and reveals the finished pallet inside; the dust bursts up and fades, heavier grains settle on the floor | 48 frames; the cursor carves (right = more pallet); phones: it drifts |
+
+## Inner pages · Inspect and Before/after (23 Nov 2026, awaiting the owner’s verdict)
+
+Live at `/prototype/inner/` (`?variant=A|B`). The owner's refinements of round 5's unused heroes (decision #52). Renders: `tools/render/hero/inspect.py` (`python tools/render/run.py inner`), in `public/dev/inner/`.
+
+| | Demo | Idea |
+|---|---|---|
+| A | Inspect (product page) | The real studio photo of the EPAL 1; the part under the cursor gets a thin blue outline and a label with its name and size (from a one-colour-per-part ID map); the parts table beside it (names, sizes, quantities from EPAL's drawing; plain HTML) lights up with it, and hovering a row outlines every part of that kind |
+| B | Before and after (About) | Same studio, camera and light: a generic unmarked worn pallet (grey timber, grime and mould, one deck board missing and one broken, a split-off corner, a twisted block, rusty nails standing proud) against the EPAL 1; a drag handle (computers: it follows the cursor) and three short facts on each side |

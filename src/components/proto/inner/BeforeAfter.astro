@@ -1,0 +1,95 @@
+---
+// PROTOTYPE (About page) · before and after, refined from round 5's "Two worlds" as the owner asked (decisions #52):
+// the room stays the same and the pallet changes. The same camera and light show a generic, unmarked, worn pallet of
+// the same size (uneven boards, a missing and a broken deck board, a split-off corner, a twisted block, grey timber,
+// rusty nails standing proud) and an EPAL 1. Drag the handle (or use the arrow keys) to move between them; computers
+// also follow the cursor. Copy is a draft: it states only what the pictures show and facts checked on EPAL's page.
+const DIR = '/dev/inner';
+---
+<section class="ba" aria-labelledby="ba-h">
+  <div class="head">
+    <h2 id="ba-h" class="h2">Same size. Not the same pallet.</h2>
+    <p class="sub">Any pallet can measure 1200 × 800. An EPAL Euro pallet is built to one drawing, marked, and traceable to the licensed producer who made it.</p>
+  </div>
+  <div class="cmp" data-cmp style="--x: 50%">
+    <img class="after" src={`${DIR}/photo.webp`} srcset={`${DIR}/photo-sm.webp 1200w, ${DIR}/photo.webp 1920w`} sizes="(max-width: 900px) 100vw, 90vw"
+      width="1920" height="1200" decoding="async" alt="An EPAL 1 Euro pallet: clean, even boards, branded marks on the blocks" />
+    <img class="before" src={`${DIR}/generic.webp`} srcset={`${DIR}/generic-sm.webp 1200w, ${DIR}/generic.webp 1920w`} sizes="(max-width: 900px) 100vw, 90vw"
+      width="1920" height="1200" decoding="async" alt="A generic unmarked pallet of the same size: grey, worn, a deck board missing and another broken" />
+    <span class="lbl l">Unmarked pallet</span>
+    <span class="lbl r">EPAL Euro pallet</span>
+    <span class="seam" aria-hidden="true"><i></i></span>
+    <input type="range" min="0" max="100" value="50" step="0.1" aria-label="Compare: unmarked pallet on the left, EPAL Euro pallet on the right" />
+  </div>
+  <div class="facts">
+    <ul class="before-l">
+      <li>No mark: nothing says who made it, or how.</li>
+      <li>Board sizes, gaps and nails as the maker chose.</li>
+      <li>Repairs in any timber, to no set standard.</li>
+    </ul>
+    <ul class="after-l">
+      <li>Built to EPAL’s drawing: 11 boards, 9 blocks, 78 nails in set positions.</li>
+      <li>Branded markings: EPAL in oval on the corner blocks, the EPAL ID on the middle block.</li>
+      <li>Heat treated to ISPM 15, with the HT mark.</li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .ba { padding: 72px var(--pad) 96px; }
+  .head { max-width: 760px; margin-bottom: 40px; }
+  .sub { margin-top: 18px; font-size: 18px; line-height: 1.6; color: var(--ink-2); }
+  .cmp { position: relative; aspect-ratio: 1920 / 1200; max-width: min(100%, 1240px, calc((100svh - 120px) * 1.6)); border-radius: 6px; overflow: hidden; background: #f4f4f3; user-select: none; touch-action: pan-y; }   /* the whole picture fits on screen */
+  .cmp img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .before { clip-path: inset(0 calc(100% - var(--x)) 0 0); }
+  .seam { position: absolute; top: 0; bottom: 0; left: var(--x); width: 0; pointer-events: none; }
+  .seam::before { content: ''; position: absolute; top: 0; bottom: 0; left: -1px; width: 2px; background: #fff; box-shadow: 0 0 0 1px rgba(11, 19, 36, 0.08); }
+  .seam i { position: absolute; top: 50%; left: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 0 1px rgba(11, 19, 36, 0.1), 0 10px 24px -12px rgba(11, 19, 36, 0.5); }
+  .seam i::before, .seam i::after { content: ''; position: absolute; top: 50%; width: 7px; height: 7px; margin-top: -4px; border: solid var(--blue); border-width: 0 0 2px 2px; }
+  .seam i::before { left: 12px; transform: rotate(45deg); }
+  .seam i::after { right: 12px; transform: rotate(-135deg); }
+  .lbl { position: absolute; top: 20px; padding: 7px 13px; border-radius: 6px; background: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 700; pointer-events: none; transition: opacity 0.3s; }
+  .lbl.l { left: 20px; color: var(--ink-2); opacity: clamp(0, (var(--n) - 12) / 10, 1); }
+  .lbl.r { right: 20px; color: var(--blue); opacity: clamp(0, (88 - var(--n)) / 10, 1); }
+  .cmp input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+  .cmp:has(input:focus-visible) .seam i { box-shadow: 0 0 0 3px var(--blue); }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; max-width: 1240px; margin-top: 32px; }
+  .facts ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; font-size: 16px; line-height: 1.55; }
+  .facts li { padding-left: 22px; position: relative; color: var(--ink-2); }
+  .facts li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 10px; height: 2px; background: currentColor; }
+  .before-l li::before { background: var(--ink-3); }
+  .after-l li { color: var(--ink); }
+  .after-l li::before { background: var(--blue); }
+  @media (max-width: 760px) {
+    .ba { padding: 48px var(--pad) 64px; }
+    .facts { grid-template-columns: 1fr; gap: 24px; }
+    .lbl { top: 12px; font-size: 13px; }
+    .lbl.l { left: 12px; }
+    .lbl.r { right: 12px; }
+  }
+</style>
+
+<script>
+  for (const cmp of document.querySelectorAll<HTMLElement>('[data-cmp]')) {
+    const input = cmp.querySelector('input')!;
+    let cur = 50, target = 50, raf = 0;
+    const set = (v: number) => { cmp.style.setProperty('--x', `${v}%`); cmp.style.setProperty('--n', String(v)); };
+    const ease = () => {
+      cur += (target - cur) * 0.18;
+      if (Math.abs(target - cur) < 0.05) cur = target;
+      set(cur);
+      raf = cur === target ? 0 : requestAnimationFrame(ease);
+    };
+    const go = (v: number) => { target = Math.min(Math.max(v, 0), 100); input.value = String(target); if (!raf) raf = requestAnimationFrame(ease); };
+    input.addEventListener('input', () => go(Number(input.value)));
+    // computers: the seam follows the cursor
+    if (matchMedia('(pointer: fine)').matches) {
+      cmp.addEventListener('pointermove', (e) => {
+        const r = cmp.getBoundingClientRect();
+        go(((e.clientX - r.left) / r.width) * 100);
+      });
+    }
+    set(50);
+  }
+</script>

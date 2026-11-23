@@ -1,9 +1,10 @@
 ---
-// PROTOTYPE (throwaway) · round 6 (23 Nov 2026): three new photoreal hero concepts. The owner liked the
-// simplicity of round 2's A (Studio) and round 4's A (Indian light) and asked for two new simple heroes and one
-// "crazy cool" one (decisions #39). Then the approved scroll stories: the Mark (now 335 frames, smoother) and the
-// container, around the kept sections. Switch heroes with ?variant=A|B|C or the arrow keys.
-// Earlier rounds: /prototype/round-2/ .. /round-5/.
+// PROTOTYPE (throwaway) · round 7 (23 Nov 2026): three new photoreal hero concepts after the owner found round 6
+// "good, but still not up to what we want" (decisions #51). Still two simple and one "crazy cool", each now moving
+// something other than the light: A turns a technical drawing into the real pallet, part by part; B lies on the
+// courtyard floor at the pallet's own height; C carves the pallet out of a solid slab of spruce. Then the approved
+// scroll stories: the Mark and the container. Switch heroes with ?variant=A|B|C or the arrow keys.
+// Earlier rounds: /prototype/round-2/ .. /round-6/.
 import Proto from '../../layouts/Proto.astro';
 import Switcher from '../../components/proto/Switcher.astro';
 import '../../components/proto/home/home.css';
@@ -11,28 +12,28 @@ import Header from '../../components/proto/home/Header.astro';
 import Range from '../../components/proto/home/Range.astro';
 import CertifiedSteps from '../../components/proto/home/CertifiedSteps.astro';
 import Footer from '../../components/proto/home/Footer.astro';
-import HeroFrames from '../../components/proto/r6/HeroFrames.astro';
+import HeroFrames from '../../components/proto/r7/HeroFrames.astro';
 import MarkFilm from '../../components/proto/r5/MarkFilm.astro';
 import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
 ---
-<Proto title="Round 6 · hero concepts · Pallet Euro (prototype)">
+<Proto title="Round 7 · hero concepts · Pallet Euro (prototype)">
   <div class="pe">
     <Header />
     <main>
       <div class="variant" data-variant="A">
-        <HeroFrames variant="A" dir="/dev/r6/daybreak" count={48} start={6} mode="scrub" drift={16} fx={0.65} phoneFx={0.7}
-          bg="#F3F2EF" icon="sun-horizon" fine="Move your cursor: sunrise to sunset" coarse="One pallet, sunrise to sunset"
-          alt="An EPAL 1 Euro pallet in a white studio in low morning sun, its shadow stretching across the floor" />
+        <HeroFrames variant="A" dir="/dev/r7/blueprint" count={22} start={12} drift={14} fx={0.53} phoneFx={0.7} dims
+          bg="#F3F3F2" icon="ruler" fine="Move your cursor: from the drawing to the pallet" coarse="From the drawing to the pallet, part by part"
+          alt="An EPAL 1 Euro pallet in a white studio, half real wood and half a deep-blue technical drawing, with its dimensions" />
       </div>
       <div class="variant" data-variant="B">
-        <HeroFrames variant="B" dir="/dev/r6/neem" count={48} start={0} mode="loop" fx={0.5} phoneFx={0.64}
-          bg="#ECE7DF" icon="leaf" fine="Move your cursor to stir the breeze" coarse="Neem shade, moving in the breeze"
-          alt="An EPAL 1 Euro pallet in a sunlit lime-plaster courtyard, dappled by the moving shade of a neem tree" />
+        <HeroFrames variant="B" dir="/dev/r7/frieze" count={41} start={20} drift={18} fx={0.6} phoneFx={0.72}
+          bg="#EDE5D9" icon="eye" fine="Move your cursor to look along the pallet" coarse="At eye level with an EPAL 1"
+          alt="The long side of an EPAL 1 Euro pallet seen from floor level, its branded blocks facing the camera, in front of a sunlit sandstone arcade" />
       </div>
       <div class="variant" data-variant="C">
-        <HeroFrames variant="C" dir="/dev/r6/bullettime" count={61} start={30} mode="scrub" drift={12} fx={0.5} phoneFx={0.66}
-          bg="#F6F4F1" icon="camera-rotate" fine="Move your cursor to circle the frozen moment" coarse="One frozen moment, from every side"
-          alt="An EPAL 1 Euro pallet frozen at the instant its corner meets the floor, sawdust hanging in the air" />
+        <HeroFrames variant="C" dir="/dev/r7/carved" count={48} start={22} drift={12} fx={0.5} phoneFx={0.66}
+          bg="#EFECE7" icon="tree" fine="Move your cursor to carve it out of the wood" coarse="An EPAL 1, carved out of solid spruce"
+          alt="A solid slab of spruce turning to sawdust, revealing the EPAL 1 Euro pallet inside it" />
       </div>
       <MarkFilm />
       <Range />
@@ -41,7 +42,7 @@ import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
     </main>
     <Footer />
   </div>
-  <Switcher round="Round 6" variants={[{ key: 'A', name: 'Daybreak' }, { key: 'B', name: 'Neem shade' }, { key: 'C', name: 'Bullet time' }]} />
+  <Switcher round="Round 7" variants={[{ key: 'A', name: 'From the drawing' }, { key: 'B', name: 'Eye level' }, { key: 'C', name: 'Carved' }]} />
 </Proto>
 
 <style is:global>

@@ -1,0 +1,161 @@
+---
+// PROTOTYPE round 7: a full-bleed photoreal hero played from pre-rendered Blender frames (tools/render/hero/), with
+// the chosen headline (HeroCopy). The cursor's position across the hero picks the frame on computers; phones drift
+// back and forth by themselves (no scroll-driven motion, rule 7).
+// With `dims` (A "From the drawing"), it also draws the pallet's dimension lines in brand blue over the picture,
+// from the corner positions the scene wrote (dims.json), kept in register with the canvas's cover crop.
+import fs from 'node:fs';
+import path from 'node:path';
+import HeroCopy from '../home/HeroCopy.astro';
+import Icon from '../Icon.astro';
+
+interface Props {
+  variant: string;
+  dir: string;
+  count: number;
+  start: number; // the frame shown first (and as the static picture before scripts run)
+  drift?: number; // phones: seconds for one sweep
+  fx?: number; // focus point across the picture on computers (0..1)
+  phoneFx?: number; // the same in the 5:4 phone crop
+  bg: string;
+  alt: string;
+  icon: string;
+  fine: string; // hint with a mouse
+  coarse: string; // hint on touch screens
+  dims?: boolean;
+}
+const { variant, dir, count, start, drift = 14, fx = 0.5, phoneFx = 0.64, bg, alt, icon, fine, coarse, dims = false } = Astro.props;
+const name = (i: number) => String(i).padStart(count > 100 ? 3 : 2, '0');
+
+// dimension lines: each runs parallel to one pallet edge, pushed out from the pallet by `gap` pixels
+type Pt = [number, number];
+let svg: { w: number; h: number; lines: { d: string; ext: string; at: Pt; label: string }[] } | null = null;
+if (dims) {
+  const j = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public', dir.replace(/^\//, ''), 'dims.json'), 'utf8'));
+  const c = j.corners as Record<string, Pt>;
+  const [L, W] = j.mm as number[];         // the height (144) would crowd the headline: length and width only
+  const sub = (a: Pt, b: Pt): Pt => [a[0] - b[0], a[1] - b[1]];
+  const add = (a: Pt, b: Pt): Pt => [a[0] + b[0], a[1] + b[1]];
+  const mul = (a: Pt, k: number): Pt => [a[0] * k, a[1] * k];
+  const unit = (a: Pt): Pt => mul(a, 1 / Math.hypot(a[0], a[1]));
+  const f = (p: Pt) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+  const dim = (a: Pt, b: Pt, away: Pt, gap: number, label: string) => {
+    const o = mul(unit(away), gap);
+    const a2 = add(a, o), b2 = add(b, o);
+    const ext = `M${f(add(a, mul(unit(away), 8)))}L${f(add(a2, mul(unit(away), 7)))}M${f(add(b, mul(unit(away), 8)))}L${f(add(b2, mul(unit(away), 7)))}`;
+    const t = mul(unit(sub(b2, a2)), 6), n = mul(unit(away), 6);   // architectural ticks at both ends
+    const tick = (p: Pt) => `M${f(sub(sub(p, t), n))}L${f(add(add(p, t), n))}`;
+    return { d: `M${f(a2)}L${f(b2)}${tick(a2)}${tick(b2)}`, ext, at: mul(add(a2, b2), 0.5), label };
+  };
+  svg = {
+    w: j.size[0], h: j.size[1],
+    lines: [
+      dim(c.LFB, c.RFB, sub(c.LFB, c.LBB), 46, `${L} mm`),       // long side, in front of the pallet
+      dim(c.RFB, c.RBB, sub(c.RFB, c.LFB), 40, `${W}`),          // short side, to the right
+    ],
+  };
+}
+---
+<section class="photo-hero r7-hero" data-key={variant} data-drift={drift}
+  style={`--pic-bg:${bg};--fx:${fx * 100}%;--pfx:${phoneFx * 100}%`} aria-label="Pallet Euro Packaging">
+  <div class="pic" data-pic data-dir={dir} data-count={count} data-start={start} data-fx={fx} data-pfx={phoneFx}>
+    <img src={`${dir}/${name(start)}.webp`} srcset={`${dir}-sm/${name(start)}.webp 960w, ${dir}/${name(start)}.webp 1920w`}
+      sizes="100vw" width="1920" height="1080" fetchpriority="high" decoding="async" alt={alt} />
+    <canvas aria-hidden="true"></canvas>
+    {svg && (
+      <svg class="dims" viewBox={`0 0 ${svg.w} ${svg.h}`} aria-hidden="true">
+        {svg.lines.map((l) => (
+          <g>
+            <path class="ext" d={l.ext} />
+            <path d={l.d} />
+            <text x={l.at[0]} y={l.at[1]} dy="0.35em">{l.label}</text>
+          </g>
+        ))}
+      </svg>
+    )}
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <p class="hint" aria-hidden="true">
+    <Icon name={icon} size={20} />
+    <span class="fine">{fine}</span>
+    <span class="coarse">{coarse}</span>
+  </p>
+</section>
+
+<style>
+  .r7-hero .pic img { object-position: var(--fx) 50%; }
+  .r7-hero :global(.lede) { max-width: 25em; }
+  .dims { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; opacity: 0; transition: opacity 0.5s; }
+  .dims.ready { opacity: var(--dim-o, 1); transition: none; }
+  .dims path { fill: none; stroke: var(--blue); stroke-width: 1.6; stroke-linecap: round; }
+  .dims path.ext { stroke-width: 1.1; opacity: 0.55; }
+  .dims text { font: 600 22px/1 Urbanist, sans-serif; letter-spacing: 0.02em; fill: var(--blue); text-anchor: middle; paint-order: stroke; stroke: #fff; stroke-width: 7px; stroke-linejoin: round; }
+  @media (max-width: 900px) {
+    .r7-hero .pic img { object-position: var(--pfx) 50%; }
+    .dims text { font-size: 30px; }
+  }
+</style>
+
+<script>
+  import { createSeq, frames } from '../r5/seq';
+  import { whenShown } from '../home/when-shown';
+
+  for (const hero of document.querySelectorAll<HTMLElement>('.r7-hero')) {
+    const pic = hero.querySelector<HTMLElement>('[data-pic]')!;
+    whenShown(hero.dataset.key!, pic, () => {
+      const d = pic.dataset;
+      const count = Number(d.count), start = Number(d.start);
+      const small = innerWidth <= 900;
+      const focusX = Number(small ? d.pfx : d.fx);
+      const canvas = pic.querySelector('canvas')!;
+      const seq = createSeq(canvas, frames(small ? `${d.dir}-sm` : d.dir!, count), { x: focusX, y: 0.5 }, start);
+
+      // keep the dimension lines on the picture: the same cover crop as the canvas (seq.ts)
+      const dims = pic.querySelector<SVGSVGElement>('svg.dims');
+      if (dims) {
+        const [, , iw, ih] = dims.getAttribute('viewBox')!.split(' ').map(Number);
+        const place = () => {
+          const W = pic.clientWidth, H = pic.clientHeight;
+          const s = Math.max(W / iw, H / ih);
+          const sx = Math.min(Math.max(focusX * iw - W / s / 2, 0), iw - W / s);
+          const sy = Math.min(Math.max(0.5 * ih - H / s / 2, 0), ih - H / s);
+          Object.assign(dims.style, { left: `${-sx * s}px`, top: `${-sy * s}px`, width: `${iw * s}px`, height: `${ih * s}px` });
+          dims.classList.add('ready');
+        };
+        new ResizeObserver(place).observe(pic);
+        place();
+      }
+      const fade = (f: number) => dims?.style.setProperty('--dim-o', String(1 - 0.75 * Math.min(f / (count - 1), 1)));
+      fade(start);
+
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return {};
+      const fine = matchMedia('(pointer: fine)').matches;
+      const sweep = Number(hero.dataset.drift) * 1000;
+      let cur = start, x = -1, visible = true;
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(hero);
+      if (fine) {
+        hero.addEventListener('pointermove', (e) => {
+          const r = hero.getBoundingClientRect();
+          x = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1);
+        });
+      }
+      // phones: start on the first frame shown, then sweep back and forth
+      const phase = Math.asin(Math.min(Math.max((start / (count - 1)) * 2 - 1, -1), 1));
+      const t0 = performance.now();
+      let last = t0;
+      const tick = (now: number) => {
+        requestAnimationFrame(tick);
+        const dt = Math.min(now - last, 64);
+        last = now;
+        if (!visible || document.hidden || pic.offsetParent === null) return;
+        let target = cur;
+        if (fine) { if (x >= 0) target = x * (count - 1); }
+        else target = ((Math.sin(phase + ((now - t0) / sweep) * Math.PI) + 1) / 2) * (count - 1);
+        const next = cur + (target - cur) * (1 - Math.exp(-dt / 170));
+        if (Math.abs(next - cur) > 0.002) { cur = next; seq.show(cur); fade(cur); }
+      };
+      requestAnimationFrame(tick);
+      return {};
+    });
+  }
+</script>

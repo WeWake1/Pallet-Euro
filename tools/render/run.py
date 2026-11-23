@@ -37,9 +37,18 @@ PRESETS = {
     "daybreak":   ("daybreak.py",  "public/dev/r6/daybreak",  "1920x1080", 64,  82, [], "frames"),
     "neem":       ("neem.py",      "public/dev/r6/neem",      "1920x1080", 64,  82, [], "frames"),
     "bullettime": ("bullettime.py", "public/dev/r6/bullettime", "1920x1080", 48, 82, [], "frames"),
+    # round 7 heroes (blueprint: run.py lays its ink lines over the photos with compose_lines.py)
+    "blueprint":  ("blueprint.py", "public/dev/r7/blueprint", "1920x1080", 64,  82, [], "frames"),
+    "frieze":     ("frieze.py",    "public/dev/r7/frieze",    "1920x1080", 64,  82, [], "frames"),
+    "carved":     ("carved.py",    "public/dev/r7/carved",    "1920x1080", 64,  82, [], "frames"),
+    # inner pages: the part inspector (photo + ID map) and the before/after (generic worn pallet + photo)
+    "inner-photo":   ("inspect.py", "public/dev/inner", "1920x1200", 128, 86, ["--pass", "photo"], "stills"),
+    "inner-generic": ("inspect.py", "public/dev/inner", "1920x1200", 128, 86, ["--pass", "generic"], "stills"),
+    "inner-ids":     ("inspect.py", "public/dev/inner", "1920x1200", 1,   86, ["--pass", "ids"], None),
 }
 GROUPS = {"xray": ["xray-photo", "xray-xray", "xray-ids"], "worlds": ["europe", "india"],
-          "r6": ["daybreak", "neem", "bullettime"], "all": list(PRESETS)}
+          "r6": ["daybreak", "neem", "bullettime"], "r7": ["blueprint", "frieze", "carved"],
+          "inner": ["inner-photo", "inner-generic", "inner-ids"], "all": list(PRESETS)}
 
 
 def find_blender(given):
@@ -109,6 +118,10 @@ def main():
                 print("  " + line.replace(ROOT + os.sep, ""))
         if p.returncode:
             sys.exit(f"{n} failed (exit {p.returncode}); last output:\n" + "\n".join(p.stdout.splitlines()[-25:]))
+        if os.path.isdir(os.path.join(ROOT, out, "_raw")):   # ink lines rendered apart (blueprint.py)
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import compose_lines
+            compose_lines.run(os.path.join(ROOT, out), q)
         if n == "india" and not a.test:   # jaali.py names its frame by number
             src, dst = os.path.join(ROOT, out, "24.webp"), os.path.join(ROOT, out, "india.webp")
             if os.path.exists(src):

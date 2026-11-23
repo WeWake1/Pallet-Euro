@@ -9,11 +9,12 @@ Read this first in every Claude Code session, on either machine. It carries ever
 ## 1. Status (last updated 2026-11-23)
 
 - **Stage:** two tracks.
-  - **Hero:** round 5's heroes were turned down (B disliked; decision #39), its two scroll stories approved (the Mark now has 335 frames for a smoother scroll). **Round 6** (2026-11-23: Daybreak, Neem shade, Bullet time) waits for the owner's verdict. Live at `/prototype/` (switch heroes with `?variant=A|B|C` or the arrow keys). The owner likes the **simplicity** of round 2's A and round 4's A.
+  - **Hero:** rounds 5 and 6 turned down (round 6: "good, but still not up to what we want", decision #51); the two scroll stories are approved (the Mark has 335 frames). **Round 7** (2026-11-23: From the drawing, Eye level, Carved) waits for the owner's verdict. Live at `/prototype/` (switch heroes with `?variant=A|B|C` or the arrow keys). The owner likes the **simplicity** of round 2's A and round 4's A.
+  - **Inner pages:** demos of the refined part inspector (product pages) and before/after (About) at `/prototype/inner/` wait for the owner's verdict (decision #52).
   - **Production home page:** started on 2026-11-23 with the parts that do not depend on the hero (decision #33). `/` now runs on the production layout with the kept sections, SEO head, schema, the launch gate, `robots.txt`, sitemap and 404 (section 7). Mobile Lighthouse: 100 / 100 / 100 for performance, accessibility and best practices; SEO 69 only because of the `noindex` gate.
-- **Waiting on the owner:** round-6 questions #48–#50 (`docs/decisions.md`), plus the company facts from round 2 (domain confirmed: palleteuro.com).
-- **Fallback hero** if nothing in round 6 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
-- **Catalogue renderer now in this repo** (`tools/render/render_pallet.py` + `render_all.py`, decision #47): the 28 studio views and GLB models can be rendered on the PC (about 25 s per pallet).
+- **Waiting on the owner:** round-7 questions (`docs/decisions.md`, open questions after #53), plus the company facts from round 2 (domain confirmed: palleteuro.com).
+- **Fallback hero** if nothing in round 7 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
+- **Catalogue rendered on the PC (2026-11-23, decision #53):** 28 pallets × 5 studio views in `src/assets/products/<slug>/`, 28 GLB models in `public/models/` (dev marks; about 74 s per pallet with its GLB). Not used by any page yet.
 - **Why the second machine:** the owner wants to do heavier Blender work on their Windows PC (AMD Radeon RX 9060 XT, 32 GB RAM). Section 3 explains the setup.
 - **Windows PC: set up and verified (2026-11-23).** Every round-5 scene renders on the RX 9060 XT and matches the Mac's frames; the site builds; the review scripts run. Two Windows-only render bugs were fixed in `tools/render/hero/common.py` (section 3, step 7). cwebp is installed.
 - **Nothing is public yet.** Every page is `noindex`. The EPAL licence is applied for, not granted (see CLAUDE.md hard rules 1 and 2).
@@ -26,7 +27,7 @@ npm ci                  # once per machine (Node 24, see .nvmrc)
 npm run proto           # dev server on http://127.0.0.1:4322
 ```
 
-Open `http://127.0.0.1:4322/prototype/` (round 5), `/prototype/round-4/`, `/round-3/`, `/round-2/`. `/` is a placeholder.
+Open `http://127.0.0.1:4322/prototype/` (round 7), `/prototype/inner/` (part inspector, before/after), `/prototype/round-6/` … `/round-2/`. `/` is the production home page in progress.
 Astro 7 may start the dev server in the background and return at once: `npx astro dev status`, `npx astro dev logs`, `npx astro dev stop`. On the Mac, port 4321 belongs to another project; that is why this one uses 4322.
 Astro 7 allows one dev server per project: if `npm run proto` says "Another astro dev server is already running", stop the old one (`npx astro dev stop`, or close its terminal) and start again.
 `npm run check` type-checks (0 errors expected; one deprecation hint in the round-2 archive is known).
@@ -77,7 +78,8 @@ All steps were done on the PC on 2026-11-23. The notes in italics are what that 
 | 3 | 7 Nov | The Line, Stack, Mark, Container (live three.js) | Mark → scroll story; Line → Products page; 3D looked fake |
 | 4 | 7 Nov | Photoreal: Indian light, On the headline, White desert | Indian light = fallback hero; others disliked |
 | 5 | 8 Nov | Two worlds, In its place, Look inside + Mark and container scroll stories | Heroes turned down (B disliked); both scroll stories loved |
-| 6 | 23 Nov | Daybreak, Neem shade, Bullet time (two simple, one crazy) | **Awaiting verdict** |
+| 6 | 23 Nov | Daybreak, Neem shade, Bullet time (two simple, one crazy) | "Good, but not up to what we want" |
+| 7 | 23 Nov | From the drawing, Eye level, Carved (moving the drawing, the viewpoint, the wood; not the light) | **Awaiting verdict** |
 
 Round 5 in one line each:
 - **A Two worlds** (`r5/HeroWorlds.astro`): the same EPAL 1 from the same camera in a European warehouse (cool light through a steel window) and the Indian jaali room. The cursor moves the seam; on phones it sweeps by itself.
@@ -100,7 +102,8 @@ Round 5 in one line each:
 - `src/pages/prototype/index.astro`: round 5 (live). `round-2/3/4.astro`: frozen archives.
 - `src/layouts/Proto.astro`: prototype layout (noindex, fonts, `?variant=` before first paint, `[data-reveal]` observer).
 - `src/components/proto/home/`: the live home sections shared by the current round (Header, HeroCopy, Range, CertifiedSteps, ContainerBand, Footer, `home.css` scoped under `.pe`, `when-shown.ts` to start a hero only when its variant is visible).
-- `src/components/proto/r6/HeroFrames.astro`: the three round-6 heroes (frames scrubbed by the cursor, or a seamless loop). `src/pages/prototype/round-5.astro`: round 5 archive (its components stay in `r5/`, which the live page still uses for the films).
+- `src/components/proto/r7/HeroFrames.astro`: the three round-7 heroes (frames scrubbed by the cursor; with `dims`, the dimension lines from the scene's `dims.json`, kept in register with the canvas crop). `src/pages/prototype/round-6.astro` (uses `r6/HeroFrames.astro`) and `round-5.astro`: archives (round 5's components stay in `r5/`, which the live page still uses for the films).
+- `src/pages/prototype/inner.astro` + `src/components/proto/inner/`: `Inspect.astro` (part inspector from the ID map) and `BeforeAfter.astro`. Parts data: `src/data/epal1-parts.ts`.
 - `src/components/proto/r5/`: round-5 heroes, `Film.astro` + `film.ts` (scroll film: pinned and scrubbed on screens over 900 px, play-once on phones, lazy frame loading, rests on whole frames), `seq.ts` (frame player: coarse-to-fine loading, cross-fade, cover crop around a focus point).
 - `src/components/proto/r4/`: round-4 heroes (still used by nothing live; the archive has its own frozen copy).
 - `src/components/proto/archive/r2|r3|r4/`: frozen copies of each round (do not edit).
@@ -129,7 +132,11 @@ Round 5 in one line each:
 | Round 6 A Daybreak | `daybreak.py` | `public/dev/r6/daybreak/00-47.webp` | 1920×1080, 64 spp |
 | Round 6 B Neem shade | `neem.py` | `public/dev/r6/neem/00-47.webp` (loop) | 1920×1080, 64 spp |
 | Round 6 C Bullet time | `bullettime.py` | `public/dev/r6/bullettime/00-60.webp` | 1920×1080, 48 spp; all three about 45 min on the PC |
-| Catalogue (28 pallets) | `render_pallet.py` via `render_all.py` | `src/assets/products/<slug>/1-5.webp`, `public/models/<slug>.glb` | 1600 px, 128 spp; about 25 s per pallet per view set on the PC |
+| Round 7 A From the drawing | `blueprint.py` | `public/dev/r7/blueprint/00-21.webp` + `dims.json` | 1920×1080, 64 spp; photo and ink rendered apart, `compose_lines.py` lays the ink over in brand blue (run.py does it) |
+| Round 7 B Eye level | `frieze.py` | `public/dev/r7/frieze/00-40.webp` | 1920×1080, 64 spp |
+| Round 7 C Carved | `carved.py` | `public/dev/r7/carved/00-47.webp` | 1920×1080, 64 spp |
+| Inner pages | `inspect.py --pass photo/generic/ids` (`run.py inner`) | `public/dev/inner/` | 1920×1200, 128 spp; ids.png: red = 10 × id |
+| Catalogue (28 pallets) | `render_pallet.py` via `render_all.py` | `src/assets/products/<slug>/1-5.webp`, `public/models/<slug>.glb` | 1600 px, 128 spp; about 74 s per pallet (5 views + GLB) on the PC, 35 min for all |
 | Container film | `container.py` | `public/dev/r5/container/000-149.webp` | 1600×900, 32 spp |
 | In its place (hero B) | `anamorph.py` | `public/dev/r5/anamorph/00-60.webp` (frame 30 = sweet spot) | 1920×1080, 40 spp |
 | Two worlds, Europe | `europe.py` | `public/dev/r5/worlds/europe.webp` | 2400×1350, 128 spp |
@@ -153,6 +160,9 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 - An anamorphic part must keep the depth order of the real pallet (deck closest, then stringer boards, blocks, bottom boards), or hidden parts show through.
 - The scroll player must rest on whole frames, or a half cross-fade leaves a double image when scrolling stops.
 - Blender on Windows resolves a relative output path from the drive root (`C:\`), not the working folder: keep every path handed to Blender absolute (`common.py` does this for `--out`; the textures and stamps already are).
+- Freestyle (ink lines) draws nothing over holdout surfaces: for a lines-only pass give every surface a fully transparent material instead (`blueprint.py`). AgX shifts any line colour, so render the lines white on transparent and colour them afterwards (`compose_lines.py`).
+- Exact booleans fail silently (the object renders empty) on a cutter with duplicate points or flipped faces: build cutters with bmesh and run `recalc_face_normals` (`frieze.py`, `carved.py`, `inspect.py`).
+- The seamless studio's backdrop must be as bright as the lit floor, or a grey band shows where the floor fades out: about `bg_strength=3` for a white studio under AgX.
 
 **Render rules from the owner (do not break; copied from the earlier catalogue handoff on the Mac):**
 - Chamfers only where the official drawing has them; no generic bevels. Corner chamfer through every layer at that corner: EPAL 1 = 17 mm, EPAL 2/3 = 24 mm, CP = 20 mm, all at 45°.
@@ -166,7 +176,7 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 
 ## 9. Open questions waiting on the owner
 
-- Round 6 (asked 2026-11-23): #48 hero pick (B "Neem shade" recommended), #49 reuse the X-ray lens on product pages and "Two worlds" on About (re-asked in plain words), #50 render the full catalogue now. Full text: `docs/decisions.md`.
+- Round 7 (asked 2026-11-23): #54 hero pick (A "From the drawing" recommended), #55 the part inspector on every product page, #56 before/after on About, #57 swap the home page's product cards to the new catalogue renders. Full text: `docs/decisions.md`.
 - Round 2 (still open): domain, own factory address/phones/email, which EPAL products the licence covers, status of the other certificates (numbers, issuers, validity, scans), trademark ® or ™, what "SOP" and "IIP" mean, whether to mention 20+ years of experience, real figures (capacity, area, HT chamber, people), launch timing.
 
 ## 10. Not in this repo (on the Mac only)
@@ -180,7 +190,7 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 
 ## 11. Next steps (when the owner is ready)
 
-1. Get the round-6 verdict; build the next hero round if nothing wins (keep what landed in mind, section 5: simplicity, one pallet, calm space, one quiet movement).
+1. Get the round-7 verdict; build the next hero round if nothing wins (keep what landed in mind, section 5: simplicity, one pallet, calm space, one quiet movement; rounds 4 and 6 already moved the light every possible way).
 2. Build the production home page around the chosen hero:
    - deferred frame loading and lighter (AVIF) frames on phones;
    - Lighthouse mobile 99–100;
@@ -217,6 +227,12 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
   - Product URLs now carry "epal" for EPAL-licensed products (`productPath()` in `range28.ts`).
   - Catalogue renderer brought over from GitHub `apiplSite`; tested on EPAL 1 and CP3 (views + GLB) on the Radeon. `brand.json`: EPAL 2/3 and CP mark layouts.
   - Waiting: round-6 questions #48–#50.
+- **2026-11-23 (night, PC):** Round-6 verdict (#51–#53): no hero ("good, but not up to what we want"); the X-ray and Two worlds ideas kept only if refined; catalogue render approved.
+  - Round 6 archived at `/prototype/round-6/`. Round 7 built and rendered (`blueprint.py`, `frieze.py`, `carved.py`; `compose_lines.py` colours the drawing's ink).
+  - Inner-page demos at `/prototype/inner/`: the part inspector (`inspect.py` photo + ID map, `Inspect.astro`, `epal1-parts.ts`) and before/after (`inspect.py --pass generic`, `BeforeAfter.astro`).
+  - Catalogue rendered: 28 × 5 views + 28 GLBs with dev marks (35 min). Not used by any page yet (#57).
+  - Shared sawdust helper moved into `common.py` (`grains`, `set_grains`). New review script `tools/shot/inner.mjs`.
+  - Waiting: round-7 questions #54–#57.
 
 ## 13. Updating this file
 

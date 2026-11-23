@@ -1,0 +1,164 @@
+---
+// PROTOTYPE (product page) · the part inspector, refined from round 5's X-ray lens after the owner found the lens
+// "cartoonish" (decisions #52): the photo stays a photo. Moving over the pallet outlines the part under the cursor
+// in a thin brand-blue line and names it, with its size, next to the cursor; the same part lights up in the parts
+// list, which is plain HTML (every name and size is in the page for search engines). Hovering a list row outlines
+// every part of that kind. Touch: tap a part or a row.
+// The ID map (tools/render/hero/inspect.py --pass ids) tells which part each pixel shows.
+import { EPAL1_PARTS } from '../../../data/epal1-parts';
+
+const DIR = '/dev/inner';
+---
+<section class="inspect" aria-labelledby="insp-h">
+  <div class="head">
+    <p class="kicker">EPAL 1 · 1200 × 800 × 144 mm</p>
+    <h2 id="insp-h" class="h2">Every part, to EPAL’s drawing.</h2>
+    <p class="sub">11 boards, 9 blocks and 78 nails. Move over the pallet to see each part and its size.</p>
+  </div>
+  <div class="body">
+    <div class="stage" data-stage data-ids={`${DIR}/ids.png`}>
+      <img src={`${DIR}/photo.webp`} srcset={`${DIR}/photo-sm.webp 1200w, ${DIR}/photo.webp 1920w`} sizes="(max-width: 900px) 100vw, 62vw"
+        width="1920" height="1200" alt="An EPAL 1 Euro pallet in a white studio, seen from the front left" decoding="async" />
+      <canvas class="hl" aria-hidden="true"></canvas>
+      <p class="tag" aria-hidden="true"><b></b><span></span></p>
+    </div>
+    <table class="parts">
+      <caption class="sr">Parts of an EPAL 1 Euro pallet</caption>
+      <thead><tr><th scope="col">Part</th><th scope="col">Size (mm)</th><th scope="col">Qty</th></tr></thead>
+      <tbody>
+        {EPAL1_PARTS.map((g) => (
+          <tr data-ids={g.ids.join(',')} data-name={g.name} data-size={g.size} tabindex="0">
+            <th scope="row">{g.name}</th>
+            <td>{g.size}</td>
+            <td>{g.qty}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .inspect { padding: 72px var(--pad) 96px; }
+  .head { max-width: 760px; margin-bottom: 40px; }
+  .kicker { font-size: 15px; font-weight: 650; color: var(--blue); font-variant-numeric: tabular-nums; margin-bottom: 14px; }
+  .sub { margin-top: 18px; font-size: 18px; line-height: 1.6; color: var(--ink-2); }
+  .body { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr); gap: 48px; align-items: center; }
+  .stage { position: relative; aspect-ratio: 1920 / 1200; background: #f4f4f3; border-radius: 6px; overflow: hidden; cursor: crosshair; }
+  .stage img, .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hl { pointer-events: none; }
+  .tag { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; gap: 2px; padding: 9px 13px 10px; border-radius: 6px; background: #fff;
+    box-shadow: 0 0 0 1px rgba(11, 58, 158, 0.18), 0 10px 26px -14px rgba(11, 19, 36, 0.4); pointer-events: none; white-space: nowrap;
+    opacity: 0; transform: translate(var(--tx, 0), var(--ty, 0)); transition: opacity 0.18s; }
+  .tag.on { opacity: 1; }
+  .tag b { font-size: 14.5px; font-weight: 700; color: var(--ink); }
+  .tag span { font-size: 13.5px; color: var(--blue); font-variant-numeric: tabular-nums; }
+  .parts { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .parts thead th { padding: 0 12px 12px; text-align: left; font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--ink); }
+  .parts td, .parts tbody th { padding: 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; transition: background 0.2s, color 0.2s; }
+  .parts tbody th { font-weight: 650; box-shadow: inset 0 0 0 var(--blue); transition: box-shadow 0.25s var(--ease), background 0.2s, color 0.2s; }
+  .parts td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .parts td:last-child { text-align: right; width: 3.5em; }
+  .parts tr { cursor: default; outline: none; }
+  .parts tr.on th { box-shadow: inset 3px 0 0 var(--blue); color: var(--blue); }
+  .parts tr.on td, .parts tr.on th { background: var(--blue-soft); }
+  .parts tr:focus-visible th { box-shadow: inset 3px 0 0 var(--blue); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (max-width: 1100px) { .body { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) {
+    .inspect { padding: 48px var(--pad) 64px; }
+    .parts { font-size: 14px; }
+    .parts td, .parts tbody th { padding: 10px 8px; }
+  }
+</style>
+
+<script>
+  // Outlines are built from the ID map the first time a part is shown, then cached.
+  const BLUE = [11, 58, 158];
+  for (const stage of document.querySelectorAll<HTMLElement>('[data-stage]')) {
+    const root = stage.closest('.inspect')!;
+    const rows = [...root.querySelectorAll<HTMLTableRowElement>('tbody tr')];
+    const canvas = stage.querySelector<HTMLCanvasElement>('canvas.hl')!;
+    const tag = stage.querySelector<HTMLElement>('.tag')!;
+    const ctx = canvas.getContext('2d')!;
+    let ids: Uint8ClampedArray | null = null, W = 0, H = 0;
+    const cache = new Map<string, ImageData>();
+    const rowOf = (id: number) => rows.find((r) => r.dataset.ids!.split(',').map(Number).includes(id));
+
+    const img = new Image();
+    img.src = stage.dataset.ids!;
+    img.decode().then(() => {
+      W = img.naturalWidth; H = img.naturalHeight;
+      const c = document.createElement('canvas');
+      c.width = W; c.height = H;
+      const cx = c.getContext('2d', { willReadFrequently: true })!;
+      cx.drawImage(img, 0, 0);
+      const rgba = cx.getImageData(0, 0, W, H).data;
+      ids = new Uint8ClampedArray(W * H);
+      for (let i = 0; i < W * H; i++) ids[i] = Math.round(rgba[i * 4] / 10);
+      canvas.width = W; canvas.height = H;
+    });
+
+    const outline = (want: number[]) => {
+      const key = want.join(',');
+      if (cache.has(key)) return cache.get(key)!;
+      const inside = new Uint8Array(W * H);
+      for (let i = 0; i < W * H; i++) if (want.includes(ids![i])) inside[i] = 1;
+      const out = new ImageData(W, H), d = out.data;
+      const R = 2;   // outline half-width in picture pixels
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x;
+        if (!inside[i]) continue;
+        let edge = false;
+        for (let k = 1; k <= R && !edge; k++) {
+          if (x < k || y < k || x >= W - k || y >= H - k) { edge = true; break; }
+          edge = !inside[i - k] || !inside[i + k] || !inside[i - k * W] || !inside[i + k * W];
+        }
+        d.set([...BLUE, edge ? 255 : 30], i * 4);
+      }
+      cache.set(key, out);
+      return out;
+    };
+
+    let shown = '';
+    const show = (want: number[] | null, row?: HTMLTableRowElement | null) => {
+      const key = want ? want.join(',') : '';
+      rows.forEach((r) => r.classList.toggle('on', r === row));
+      if (key === shown || !ids) return;
+      shown = key;
+      ctx.clearRect(0, 0, W, H);
+      if (want) ctx.putImageData(outline(want), 0, 0);
+    };
+
+    const at = (e: PointerEvent) => {
+      if (!ids) return 0;
+      const r = stage.getBoundingClientRect();
+      const x = Math.floor(((e.clientX - r.left) / r.width) * W), y = Math.floor(((e.clientY - r.top) / r.height) * H);
+      return x >= 0 && y >= 0 && x < W && y < H ? ids[y * W + x] : 0;
+    };
+    const point = (e: PointerEvent) => {
+      const id = at(e);
+      const row = id ? rowOf(id) : null;
+      if (!row) { show(null); tag.classList.remove('on'); return; }
+      show([id], row);
+      tag.querySelector('b')!.textContent = row.dataset.name!;
+      tag.querySelector('span')!.textContent = row.dataset.size!.match(/^\d/) ? `${row.dataset.size} mm` : row.dataset.size!;
+      const r = stage.getBoundingClientRect();
+      const px = e.clientX - r.left, py = e.clientY - r.top;
+      const left = px > r.width * 0.62;          // keep the tag inside the picture
+      tag.style.setProperty('--tx', `${left ? px - tag.offsetWidth - 18 : px + 18}px`);
+      tag.style.setProperty('--ty', `${Math.max(py - tag.offsetHeight - 14, 8)}px`);
+      tag.classList.add('on');
+    };
+    stage.addEventListener('pointermove', point);
+    stage.addEventListener('pointerdown', point);
+    stage.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') { show(null); tag.classList.remove('on'); } });
+    for (const r of rows) {
+      const on = () => { show(r.dataset.ids!.split(',').map(Number), r); tag.classList.remove('on'); };
+      r.addEventListener('pointerenter', on);
+      r.addEventListener('focus', on);
+      r.addEventListener('click', on);
+      r.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') show(null); });
+    }
+  }
+</script>
