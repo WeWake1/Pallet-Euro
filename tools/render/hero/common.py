@@ -200,3 +200,171 @@ def build_pallet(rot_deg=0.0, loc=(0, 0, 0)):
     pk.ROOT.rotation_euler = (0, 0, math.radians(rot_deg))
     pk.ROOT.location = loc
     return pk.ROOT
+
+
+# ------------------------------------------------------------------ shared by the round-6 scenes
+def shadow_only(ob):
+    """Seen by nothing but the shadows it casts (gobos, light blockers)."""
+    for attr in ("visible_camera", "visible_diffuse", "visible_glossy", "visible_transmission", "visible_volume_scatter"):
+        setattr(ob, attr, False)
+    ob.visible_shadow = True
+
+
+def seamless_studio(bg="#F2F1EE", floor="#EEECE8", fade=(4.0, 12.0), fill="#F3F2EF", fill_strength=0.5, rough=0.6,
+                    bg_strength=1.0):
+    """Studio without a horizon: the floor takes light and shadow near the camera and fades into the flat backdrop
+    colour with camera distance; the world lights the scene softly but shows the camera only the backdrop."""
+    m = bpy.data.materials.new("studio_floor")
+    m.use_nodes = True
+    n, l = m.node_tree.nodes, m.node_tree.links
+    b = n["Principled BSDF"]
+    b.inputs["Roughness"].default_value = rough
+    b.inputs["Specular IOR Level"].default_value = 0.3
+    noise = n.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 3.0
+    noise.inputs["Detail"].default_value = 6.0
+    ramp = n.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].color = (*srgb(floor), 1)
+    ramp.color_ramp.elements[1].color = (*[min(1.0, c * 1.02) for c in srgb(floor)], 1)
+    l.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+    l.new(ramp.outputs["Color"], b.inputs["Base Color"])
+    cd = n.new("ShaderNodeCameraData")
+    mr = n.new("ShaderNodeMapRange")
+    mr.interpolation_type = "SMOOTHSTEP"
+    mr.inputs["From Min"].default_value, mr.inputs["From Max"].default_value = fade
+    l.new(cd.outputs["View Distance"], mr.inputs["Value"])
+    far = n.new("ShaderNodeEmission")
+    far.inputs["Color"].default_value = (*srgb(bg), 1)
+    far.inputs["Strength"].default_value = bg_strength
+    mix = n.new("ShaderNodeMixShader")
+    l.new(mr.outputs[0], mix.inputs["Fac"])
+    l.new(b.outputs["BSDF"], mix.inputs[1])
+    l.new(far.outputs[0], mix.inputs[2])
+    l.new(mix.outputs[0], n["Material Output"].inputs["Surface"])
+    plane("floor", 80, 80, material=m)
+    w = world(fill, fill_strength)
+    wn, wl = w.node_tree.nodes, w.node_tree.links
+    flat = wn.new("ShaderNodeBackground")
+    flat.inputs["Color"].default_value = (*srgb(bg), 1)
+    flat.inputs["Strength"].default_value = bg_strength
+    lp = wn.new("ShaderNodeLightPath")
+    wm = wn.new("ShaderNodeMixShader")
+    wl.new(lp.outputs["Is Camera Ray"], wm.inputs["Fac"])
+    wl.new(wn["Background"].outputs[0], wm.inputs[1])
+    wl.new(flat.outputs[0], wm.inputs[2])
+    wl.new(wm.outputs[0], wn["World Output"].inputs["Surface"])
+    return m
+
+
+def stone_floor(c1="#EDE7DD", c2="#E3DCCF", joint="#CBC2B3", slab=(1.2, 0.6)):
+    """Honed stone slabs in running bond with fine joints (the round-4 jaali room's floor)."""
+    m = bpy.data.materials.new("stone_floor")
+    m.use_nodes = True
+    n, l = m.node_tree.nodes, m.node_tree.links
+    b = n["Principled BSDF"]
+    b.inputs["Roughness"].default_value = 0.36
+    b.inputs["Specular IOR Level"].default_value = 0.4
+    tc = n.new("ShaderNodeTexCoord")
+    br = n.new("ShaderNodeTexBrick")
+    br.offset, br.offset_frequency = 0.5, 1
+    br.inputs["Scale"].default_value = 1.0
+    br.inputs["Brick Width"].default_value = slab[0]
+    br.inputs["Row Height"].default_value = slab[1]
+    br.inputs["Mortar Size"].default_value = 0.0025
+    br.inputs["Mortar Smooth"].default_value = 0.4
+    br.inputs["Bias"].default_value = 0.0
+    br.inputs["Color1"].default_value = (*srgb(c1), 1)
+    br.inputs["Color2"].default_value = (*srgb(c2), 1)
+    br.inputs["Mortar"].default_value = (*srgb(joint), 1)
+    l.new(tc.outputs["Object"], br.inputs["Vector"])
+    noise = n.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 3.0
+    noise.inputs["Detail"].default_value = 8.0
+    l.new(tc.outputs["Object"], noise.inputs["Vector"])
+    ramp = n.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].color = (0.95, 0.95, 0.94, 1)
+    ramp.color_ramp.elements[1].color = (1.0, 1.0, 1.0, 1)
+    l.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+    mul = n.new("ShaderNodeVectorMath")
+    mul.operation = "MULTIPLY"
+    l.new(br.outputs["Color"], mul.inputs[0])
+    l.new(ramp.outputs["Color"], mul.inputs[1])
+    l.new(mul.outputs["Vector"], b.inputs["Base Color"])
+    bump = n.new("ShaderNodeBump")
+    bump.invert = True
+    bump.inputs["Strength"].default_value = 0.5
+    bump.inputs["Distance"].default_value = 0.001
+    l.new(br.outputs["Fac"], bump.inputs["Height"])
+    l.new(bump.outputs["Normal"], b.inputs["Normal"])
+    return m
+
+
+def plaster(c1="#EAE4DA", c2="#F3EFE8"):
+    """Lime plaster: matte, a soft cloudy tone and a fine trowelled texture."""
+    m = bpy.data.materials.new("plaster")
+    m.use_nodes = True
+    n, l = m.node_tree.nodes, m.node_tree.links
+    b = n["Principled BSDF"]
+    b.inputs["Roughness"].default_value = 0.92
+    b.inputs["Specular IOR Level"].default_value = 0.2
+    noise = n.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 2.2
+    noise.inputs["Detail"].default_value = 4.0
+    ramp = n.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].color = (*srgb(c1), 1)
+    ramp.color_ramp.elements[1].color = (*srgb(c2), 1)
+    l.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+    l.new(ramp.outputs["Color"], b.inputs["Base Color"])
+    fine = n.new("ShaderNodeTexNoise")
+    fine.inputs["Scale"].default_value = 160.0
+    fine.inputs["Detail"].default_value = 8.0
+    bump = n.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.12
+    l.new(fine.outputs["Fac"], bump.inputs["Height"])
+    l.new(bump.outputs["Normal"], b.inputs["Normal"])
+    return m
+
+
+def save_mask(name, arr):
+    """Save a 2-D float array (1 = opaque) as a PNG next to the scenes and load it back (Cycles reads generated
+    images reliably only from a file)."""
+    h, w = arr.shape
+    img = bpy.data.images.new(name, w, h, alpha=False)
+    a = arr.astype("float32")
+    import numpy as np
+    img.pixels.foreach_set(np.stack([a, a, a, np.ones_like(a)], -1).ravel())
+    path = os.path.join(HERE, f"_{name}.png")
+    img.filepath_raw = path
+    img.file_format = "PNG"
+    img.save()
+    bpy.data.images.remove(img)
+    img = bpy.data.images.load(path)
+    img.colorspace_settings.name = "Non-Color"
+    return img
+
+
+def gobo_material(img, size_x, size_y, tile=None, offset=(0.0, 0.0)):
+    """Transparent where the mask is 0, an opaque grey card where it is 1 (only its shadow matters)."""
+    m = bpy.data.materials.new("gobo_" + img.name)
+    m.use_nodes = True
+    n, l = m.node_tree.nodes, m.node_tree.links
+    n.clear()
+    out = n.new("ShaderNodeOutputMaterial")
+    mix = n.new("ShaderNodeMixShader")
+    tr = n.new("ShaderNodeBsdfTransparent")
+    df = n.new("ShaderNodeBsdfDiffuse")
+    tc = n.new("ShaderNodeTexCoord")
+    mp = n.new("ShaderNodeMapping")
+    t = tile or max(size_x, size_y)
+    mp.inputs["Scale"].default_value = (size_x / t, size_y / t, 1)
+    mp.inputs["Location"].default_value = (offset[0], offset[1], 0)
+    tex = n.new("ShaderNodeTexImage")
+    tex.image = img
+    tex.extension = "REPEAT"
+    l.new(tc.outputs["UV"], mp.inputs["Vector"])
+    l.new(mp.outputs["Vector"], tex.inputs["Vector"])
+    l.new(tex.outputs["Color"], mix.inputs["Fac"])
+    l.new(tr.outputs[0], mix.inputs[1])
+    l.new(df.outputs[0], mix.inputs[2])
+    l.new(mix.outputs[0], out.inputs["Surface"])
+    return m

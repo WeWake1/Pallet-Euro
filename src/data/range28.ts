@@ -310,3 +310,14 @@ export const RANGE28: Pallet28[] = [
     "family": "other"
   }
 ];
+
+// Product page address. `slug` stays the key for picture files; pages of EPAL-licensed products carry "epal" in the
+// address (owner, decision #36): /products/epal-1-euro-pallet-1200x800/, /products/epal-cp1-pallet-1000x1200/.
+// The others keep their plain slug. If the licence ends up covering fewer products, set their `epal` to false.
+const kebab = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+export function pageSlug(p: Pallet28): string {
+  if (!p.epal) return p.slug;
+  const size = `${p.L}x${p.W}`;
+  return p.family === 'cp' ? `epal-${kebab(p.code)}-pallet-${size}` : `${kebab(p.code)}-${kebab(p.name)}-${size}`;
+}
+export const productPath = (p: Pallet28) => `/products/${pageSlug(p)}/`;

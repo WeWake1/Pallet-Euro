@@ -33,8 +33,13 @@ PRESETS = {
     "xray-photo": ("xray.py",      "public/dev/r5/xray",      "2400x1350", 128, 86, ["--pass", "photo"], "stills"),
     "xray-xray":  ("xray.py",      "public/dev/r5/xray",      "2400x1350", 128, 86, ["--pass", "xray"], "stills"),
     "xray-ids":   ("xray.py",      "public/dev/r5/xray",      "2400x1350", 1,   86, ["--pass", "ids"], None),
+    # round 6 heroes
+    "daybreak":   ("daybreak.py",  "public/dev/r6/daybreak",  "1920x1080", 64,  82, [], "frames"),
+    "neem":       ("neem.py",      "public/dev/r6/neem",      "1920x1080", 64,  82, [], "frames"),
+    "bullettime": ("bullettime.py", "public/dev/r6/bullettime", "1920x1080", 48, 82, [], "frames"),
 }
-GROUPS = {"xray": ["xray-photo", "xray-xray", "xray-ids"], "worlds": ["europe", "india"], "all": list(PRESETS)}
+GROUPS = {"xray": ["xray-photo", "xray-xray", "xray-ids"], "worlds": ["europe", "india"],
+          "r6": ["daybreak", "neem", "bullettime"], "all": list(PRESETS)}
 
 
 def find_blender(given):
@@ -110,7 +115,7 @@ def main():
                 os.replace(src, dst)
         print(f"   {n} done in {time.time() - t0:.0f} s", flush=True)
         if small and not a.test and not a.no_small and not a.frames:
-            smalls.add((small, os.path.basename(out)))
+            smalls.add((small, os.path.basename(out) if "/r5/" in out else out.split("public/dev/")[1]))
     if smalls:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import make_small

@@ -2,6 +2,28 @@
 
 Owner answers, newest first. Never re-ask anything answered here.
 
+## 2026-11-23 (evening: round-5 verdict)
+
+| # | Question | Answer |
+|---|---|---|
+| 39 | Round 5 hero: B "In its place"? | **No: B disliked.** No hero chosen yet. The owner likes **the simplicity of round 2's A (Studio) and round 4's A (Indian light)** and wants a new round: **two new, unique heroes built on that simplicity, and one "crazy cool" one.** Built the same day as round 6 (`docs/prototypes/README.md`). |
+| 40 | The Mark scroll story as built? | **"Absolutely yes, I love it"**, with **more frames so it is smoother.** Done: 335 frames instead of 168 (every half story frame; phones 168 instead of 84). |
+| 41 | The container scroll story as built? | **Yes, loves it.** |
+| 42 | Reuse the heroes not chosen on other pages (Two worlds on About, the X-ray lens on product pages)? | The owner did not understand the question: asked again in plainer words. |
+| 43 | Visible placeholders for company facts until the owner sends them; domain, address and phone first? | **Yes.** |
+| 44 | (#35) Domain palleteuro.com, the owner's? | **Yes.** |
+| 45 | (#36) Product URLs without "EPAL"? | **No: keep "EPAL" in the address.** Done: EPAL-licensed products get `/products/epal-1-euro-pallet-1200x800/`, `/products/epal-cp1-pallet-1000x1200/` …; the others keep their plain slug (`productPath()` in `src/data/range28.ts`). |
+| 46 | (#37) Draft home title and description until the keyword research? | **Yes.** |
+| 47 | (#38) Bring the batch catalogue renderer over from the Mac? | **Yes; fetch it from the apiplSite repo.** Done from GitHub (`WeWake1/apiplSite`, read only): `render_pallet.py`, `pallets.py`, `make_stamps.py`, the CP1–CP9 and EPAL 2/3 stamp artwork, and a new `render_all.py`. Ambica's 28 GLBs and catalogue renders were **not** copied (they carry Ambica's `IN-083 HT` and this repo is public): the PC regenerates both, with Pallet Euro's dev marks, in about 25 s per pallet. |
+
+Claude's calls: round 6 = A "Daybreak" (white studio, the cursor carries the sun from sunrise to sunset), B "Neem shade" (lime-plaster courtyard under the moving shade of a neem tree), C "Bullet time" (a dropped EPAL 1 frozen as its corner meets the floor, sawdust in the air, the camera orbits). Two ideas were tried and dropped before showing: a long striped shadow (physically impossible with a 14 cm pallet) and a granite block landing on the pallet (the dust hid the product). `brand.json` now has EPAL's mark layouts for EPAL 2/3 and CP1–CP9 (dev marks).
+
+### Open questions (round 6, asked 2026-11-23)
+
+48. Round 6 hero: B "Neem shade"? (Alternatives: A "Daybreak", C "Bullet time", or round 4's "Indian light".)
+49. (Re-asked #42) Use the two unused round-5 heroes inside other pages: the X-ray lens on each product page (move it over the pallet to see its inside and name each part), and "Two worlds" (the same pallet in a European and an Indian room) on the About page?
+50. Render the full catalogue now on the PC (28 pallets × 5 views plus 3D models, with the dev marks) for building the product pages?
+
 ## 2026-11-23 (moving to the Windows PC)
 
 | # | Question | Answer |
@@ -25,7 +47,7 @@ Claude's calls while setting up the PC (the owner said "read the handoff and con
 - Render on the dedicated GPU only (the RX 9060 XT without the CPU's built-in GPU: about 25% faster).
 - Production home page: hero stand-in = a still of round 5's B; phone header = logo and Menu (the quote button moves into the menu below 560 px); grey small text darkened to pass WCAG contrast (#7a8396 → #667085).
 
-### Open questions (asked 2026-11-23, with the round-5 questions above)
+### Questions asked 2026-11-23 (answered the same evening: #44–#47 above)
 
 35. Domain: palleteuro.com, registered in the owner's name? (Canonical URLs, the sitemap and the schema already use it.)
 36. Product page addresses: keep `/products/euro-pallet-1200x800/` style (sizes, no "EPAL" in the address, so no URL changes if the licence covers fewer products)?

@@ -1,0 +1,100 @@
+---
+// PROTOTYPE round 6: a full-bleed photoreal hero played from pre-rendered Blender frames (tools/render/hero/),
+// with the chosen headline (HeroCopy). Two ways to move:
+//   scrub: the cursor's position across the hero picks the frame (Daybreak: the sun; Bullet time: the camera's
+//          orbit). Phones: it drifts back and forth by itself.
+//   loop:  plays as a seamless loop (Neem shade: the breeze); moving the cursor stirs it a little faster.
+import HeroCopy from '../home/HeroCopy.astro';
+import Icon from '../Icon.astro';
+
+interface Props {
+  variant: string;
+  dir: string;
+  count: number;
+  start: number; // the frame shown first (and as the static picture before scripts run)
+  mode: 'scrub' | 'loop';
+  drift?: number; // phones, scrub mode: seconds for one sweep
+  fx?: number; // focus point across the picture on computers (0..1)
+  phoneFx?: number; // the same in the 5:4 phone crop
+  bg: string;
+  alt: string;
+  icon: string;
+  fine: string; // hint with a mouse
+  coarse: string; // hint on touch screens
+}
+const { variant, dir, count, start, mode, drift = 14, fx = 0.5, phoneFx = 0.64, bg, alt, icon, fine, coarse } = Astro.props;
+const name = (i: number) => String(i).padStart(count > 100 ? 3 : 2, '0');
+---
+<section class="photo-hero r6-hero" data-key={variant} data-mode={mode} data-drift={drift}
+  style={`--pic-bg:${bg};--fx:${fx * 100}%;--pfx:${phoneFx * 100}%`} aria-label="Pallet Euro Packaging">
+  <div class="pic" data-pic data-dir={dir} data-count={count} data-start={start} data-fx={fx} data-pfx={phoneFx}>
+    <img src={`${dir}/${name(start)}.webp`} srcset={`${dir}-sm/${name(start)}.webp 960w, ${dir}/${name(start)}.webp 1920w`}
+      sizes="100vw" width="1920" height="1080" fetchpriority="high" decoding="async" alt={alt} />
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <p class="hint" aria-hidden="true">
+    <Icon name={icon} size={20} />
+    <span class="fine">{fine}</span>
+    <span class="coarse">{coarse}</span>
+  </p>
+</section>
+
+<style>
+  .r6-hero .pic img { object-position: var(--fx) 50%; }
+  .r6-hero :global(.lede) { max-width: 25em; }
+  @media (max-width: 900px) { .r6-hero .pic img { object-position: var(--pfx) 50%; } }
+</style>
+
+<script>
+  import { createSeq, frames } from '../r5/seq';
+  import { whenShown } from '../home/when-shown';
+
+  for (const hero of document.querySelectorAll<HTMLElement>('.r6-hero')) {
+    const pic = hero.querySelector<HTMLElement>('[data-pic]')!;
+    whenShown(hero.dataset.key!, pic, () => {
+      const d = pic.dataset;
+      const count = Number(d.count), start = Number(d.start);
+      const small = innerWidth <= 900;
+      const loop = hero.dataset.mode === 'loop';
+      const seq = createSeq(pic.querySelector('canvas')!, frames(small ? `${d.dir}-sm` : d.dir!, count),
+        { x: Number(small ? d.pfx : d.fx), y: 0.5 }, start, loop);
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return {};
+      const fine = matchMedia('(pointer: fine)').matches;
+      const sweep = Number(hero.dataset.drift) * 1000;
+      let cur = start, x = -1, lastX = -1, stir = 0, visible = true;
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(hero);
+      if (fine) {
+        hero.addEventListener('pointermove', (e) => {
+          const r = hero.getBoundingClientRect();
+          const nx = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1);
+          if (lastX >= 0) stir += Math.abs(nx - lastX);
+          lastX = x = nx;
+        });
+      }
+      // phones (scrub): start on the first frame shown, then sweep back and forth
+      const phase = Math.asin(Math.min(Math.max((start / (count - 1)) * 2 - 1, -1), 1));
+      const t0 = performance.now();
+      let last = t0;
+      const tick = (now: number) => {
+        requestAnimationFrame(tick);
+        const dt = Math.min(now - last, 64);
+        last = now;
+        if (!visible || document.hidden || pic.offsetParent === null) return;
+        if (loop) {
+          stir *= Math.exp(-dt / 700);
+          cur = (cur + ((6 + Math.min(stir * 40, 12)) * dt) / 1000) % count;   // 6 fps calm; a stir adds breeze
+          seq.show(cur);
+          return;
+        }
+        let target = cur;
+        if (fine) { if (x >= 0) target = x * (count - 1); }
+        else target = ((Math.sin(phase + ((now - t0) / sweep) * Math.PI) + 1) / 2) * (count - 1);
+        const next = cur + (target - cur) * (1 - Math.exp(-dt / 170));
+        if (Math.abs(next - cur) > 0.002) { cur = next; seq.show(cur); }
+      };
+      requestAnimationFrame(tick);
+      return {};
+    });
+  }
+</script>

@@ -15,7 +15,13 @@ import shutil
 import subprocess
 import sys
 
-R5 = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "public", "dev", "r5")
+DEV = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "public", "dev")
+R5 = os.path.join(DEV, "r5")
+
+
+def dev_dir(name):
+    """"mark" means public/dev/r5/mark; a name with a slash ("r6/neem") is relative to public/dev."""
+    return os.path.join(DEV, name) if "/" in name else os.path.join(R5, name)
 
 
 def cwebp():
@@ -31,16 +37,19 @@ def conv(src, dst, w, h, q):
 
 def run(kind, name):
     if kind == "film":
-        out = os.path.join(R5, f"{name}-sm")
+        out = dev_dir(name) + "-sm"
         os.makedirs(out, exist_ok=True)
-        for f in sorted(glob.glob(os.path.join(R5, name, "*.webp"))):
+        for old in glob.glob(os.path.join(out, "*.webp")):   # the frame count may have changed
+            os.remove(old)
+        evens = [f for f in sorted(glob.glob(os.path.join(dev_dir(name), "*.webp"))) if int(os.path.basename(f)[:-5]) % 2 == 0]
+        width = 3 if len(evens) > 100 else 2                    # the page's frame player pads names the same way
+        for f in evens:
             n = int(os.path.basename(f)[:-5])
-            if n % 2 == 0:
-                conv(f, os.path.join(out, f"{n // 2:02d}.webp"), 800, 450, 72)
+            conv(f, os.path.join(out, f"{n // 2:0{width}d}.webp"), 800, 450, 72)
     elif kind == "frames":
-        out = os.path.join(R5, f"{name}-sm")
+        out = dev_dir(name) + "-sm"
         os.makedirs(out, exist_ok=True)
-        for f in sorted(glob.glob(os.path.join(R5, name, "*.webp"))):
+        for f in sorted(glob.glob(os.path.join(dev_dir(name), "*.webp"))):
             conv(f, os.path.join(out, os.path.basename(f)), 960, 540, 74)
     elif kind == "stills":
         for folder, files, q in (("worlds", ("europe", "india"), 78), ("xray", ("photo", "xray"), 80)):

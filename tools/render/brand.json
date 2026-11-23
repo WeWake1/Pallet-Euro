@@ -1,10 +1,21 @@
 {
   "name": "palleteuro-dev",
-  "_note": "DEV ONLY. EPAL licence applied for, not granted: no render with the EPAL oval may be published until the certificate exists. IPPC code XXX is a placeholder for Pallet Euro's own HT registration.",
+  "_note": "DEV ONLY. EPAL licence applied for, not granted: no render with the EPAL oval may be published until the certificate exists. IPPC code XXX is a placeholder for Pallet Euro's own HT registration. Mark layouts follow EPAL's product sheets: EPAL 1-3 oval on both corner blocks and IPPC (with licence number, year, month) in the middle; CP1-CP9 IPPC left, CP type and EPAL ID in the middle, oval right; non-EPAL pallets IPPC only.",
   "ippc": {"country": "IN", "code": "XXX", "treatment": "HT"},
   "epal": true,
   "marks": {
     "epal1": {"L": "epal", "C": "ippc", "R": "epal"},
+    "epal2": {"L": "epal2", "C": "ippc", "R": "epal2"},
+    "epal3": {"L": "epal3", "C": "ippc", "R": "epal3"},
+    "cp1": {"L": "ippc", "C": "cp1", "R": "epal"},
+    "cp2": {"L": "ippc", "C": "cp2", "R": "epal"},
+    "cp3": {"L": "ippc", "C": "cp3", "R": "epal"},
+    "cp4": {"L": "ippc", "C": "cp4", "R": "epal"},
+    "cp5": {"L": "ippc", "C": "cp5", "R": "epal"},
+    "cp6": {"L": "ippc", "C": "cp6", "R": "epal"},
+    "cp7": {"L": "ippc", "C": "cp7", "R": "epal"},
+    "cp8": {"L": "ippc", "C": "cp8", "R": "epal"},
+    "cp9": {"L": "ippc", "C": "cp9", "R": "epal"},
     "default": {"L": "ippc"}
   },
   "glb": false

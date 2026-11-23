@@ -1,6 +1,7 @@
 """PROTOTYPE round 5 · "The Mark", a scroll story for the home page (Apple-style, photoreal).
 
-One continuous shot, one frame per scroll step:
+One continuous shot (story frames below; since 2026-11-23 it renders every half story frame, 335 files, for a
+smoother scroll):
   0-40    macro on the left corner block: a steel branding head presses in and lifts away; the EPAL
           mark is left glowing, smokes and cools
   40-72   the camera pulls back and tracks along the long side to the middle block (IPPC HT mark)
@@ -23,7 +24,9 @@ from mathutils import Vector  # noqa: E402
 
 pk = C.pk
 scene = C.scene
-COUNT = 168
+COUNT = 168                     # story frames (the timeline in the docstring and the camera keys)
+STEP = 0.5                      # story frames per rendered frame: 0.5 renders every half frame, for a smoother scroll
+FRAMES = int(round((COUNT - 1) / STEP)) + 1   # 335 files, 000-334; file i shows story frame i * STEP
 C.setup_cycles(view="AgX", look="AgX - Medium High Contrast", exposure=0.35)
 scene.cycles.max_bounces = 6
 
@@ -379,8 +382,9 @@ if C.args.test:
         print("SCREEN", f, tuple(round(v, 3) for v in world_to_camera_view(scene, cam, p)))
 
 CONTACT, LIFT, GONE = 16, 22, 34
-for f in C.frame_list(COUNT):
-    scene.frame_set(f)
+for i in C.frame_list(FRAMES):
+    f = i * STEP                      # story time: the keys and events above are in story frames 0-167
+    scene.frame_set(int(f), subframe=f - int(f))
     # head: comes in 6-16, presses 16-22, lifts away 22-34
     if f < CONTACT:
         gap = 0.42 * (1 - ease((f - 6) / (CONTACT - 6)))
@@ -413,4 +417,4 @@ for f in C.frame_list(COUNT):
     smoke_amt.outputs[0].default_value = amt
     smoke_t.outputs[0].default_value = max(f - CONTACT, 0) * 0.08
     smoke.hide_render = amt < 0.02
-    C.render_to(os.path.join(C.args.out, f"{f:03d}.webp"))
+    C.render_to(os.path.join(C.args.out, f"{i:03d}.webp"))

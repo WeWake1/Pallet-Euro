@@ -9,10 +9,11 @@ Read this first in every Claude Code session, on either machine. It carries ever
 ## 1. Status (last updated 2026-11-23)
 
 - **Stage:** two tracks.
-  - **Hero:** round 5 (delivered 2026-11-08: three hero concepts and two Apple-style scroll stories, the Mark and the container) still waits for the owner's verdict. Live at `/prototype/` (switch heroes with `?variant=A|B|C` or the arrow keys).
+  - **Hero:** round 5's heroes were turned down (B disliked; decision #39), its two scroll stories approved (the Mark now has 335 frames for a smoother scroll). **Round 6** (2026-11-23: Daybreak, Neem shade, Bullet time) waits for the owner's verdict. Live at `/prototype/` (switch heroes with `?variant=A|B|C` or the arrow keys). The owner likes the **simplicity** of round 2's A and round 4's A.
   - **Production home page:** started on 2026-11-23 with the parts that do not depend on the hero (decision #33). `/` now runs on the production layout with the kept sections, SEO head, schema, the launch gate, `robots.txt`, sitemap and 404 (section 7). Mobile Lighthouse: 100 / 100 / 100 for performance, accessibility and best practices; SEO 69 only because of the `noindex` gate.
-- **Waiting on the owner:** the round-5 questions, re-asked on 2026-11-23 at the owner's request, and the new questions #35–#38 (`docs/decisions.md`, "Open questions"), plus the company facts from round 2.
-- **Fallback hero** if nothing in round 5 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
+- **Waiting on the owner:** round-6 questions #48–#50 (`docs/decisions.md`), plus the company facts from round 2 (domain confirmed: palleteuro.com).
+- **Fallback hero** if nothing in round 6 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
+- **Catalogue renderer now in this repo** (`tools/render/render_pallet.py` + `render_all.py`, decision #47): the 28 studio views and GLB models can be rendered on the PC (about 25 s per pallet).
 - **Why the second machine:** the owner wants to do heavier Blender work on their Windows PC (AMD Radeon RX 9060 XT, 32 GB RAM). Section 3 explains the setup.
 - **Windows PC: set up and verified (2026-11-23).** Every round-5 scene renders on the RX 9060 XT and matches the Mac's frames; the site builds; the review scripts run. Two Windows-only render bugs were fixed in `tools/render/hero/common.py` (section 3, step 7). cwebp is installed.
 - **Nothing is public yet.** Every page is `noindex`. The EPAL licence is applied for, not granted (see CLAUDE.md hard rules 1 and 2).
@@ -75,13 +76,14 @@ All steps were done on the PC on 2026-11-23. The notes in italics are what that 
 | 2 | 7 Nov | Light: Studio, Assembly (live 3D), Certified | Kept the headline and three sections; all heroes rejected |
 | 3 | 7 Nov | The Line, Stack, Mark, Container (live three.js) | Mark → scroll story; Line → Products page; 3D looked fake |
 | 4 | 7 Nov | Photoreal: Indian light, On the headline, White desert | Indian light = fallback hero; others disliked |
-| 5 | 8 Nov | Two worlds, In its place, Look inside + Mark and container scroll stories | **Awaiting verdict** |
+| 5 | 8 Nov | Two worlds, In its place, Look inside + Mark and container scroll stories | Heroes turned down (B disliked); both scroll stories loved |
+| 6 | 23 Nov | Daybreak, Neem shade, Bullet time (two simple, one crazy) | **Awaiting verdict** |
 
 Round 5 in one line each:
 - **A Two worlds** (`r5/HeroWorlds.astro`): the same EPAL 1 from the same camera in a European warehouse (cool light through a steel window) and the Indian jaali room. The cursor moves the seam; on phones it sweeps by itself.
 - **B In its place** (`r5/HeroAnamorph.astro`): an anamorphic installation. The pallet's 20 parts hang on wires at different depths and line up only from one spot. Cursor movement fans the layers apart; they settle when the cursor rests. This was the recommended pick.
 - **C Look inside** (`r5/HeroXray.astro`): a lens shows the pallet as a blue X-ray with all 78 nails and names the part under it (from an ID-map render).
-- **The Mark** (`r5/MarkFilm.astro`, 168 frames): a steel head brands the EPAL oval (glow, smoke, cooling) → IPPC HT mark → fly under the deck → whole pallet. Captions use only facts checked on EPAL's page (`docs/decisions.md`, after round 4).
+- **The Mark** (`r5/MarkFilm.astro`, 335 frames since 23 Nov; phones 168): a steel head brands the EPAL oval (glow, smoke, cooling) → IPPC HT mark → fly under the deck → whole pallet. Captions use only facts checked on EPAL's page (`docs/decisions.md`, after round 4).
 - **Container** (`r5/ContainerFilm.astro`, 150 frames): a deep-blue 20' container opens (right-hand door first), 11 EPAL pallets of cartons, the roof lifts for the 7 + 4 floor layout, ending on the blue quote card.
 
 ## 7. Code map
@@ -98,6 +100,7 @@ Round 5 in one line each:
 - `src/pages/prototype/index.astro`: round 5 (live). `round-2/3/4.astro`: frozen archives.
 - `src/layouts/Proto.astro`: prototype layout (noindex, fonts, `?variant=` before first paint, `[data-reveal]` observer).
 - `src/components/proto/home/`: the live home sections shared by the current round (Header, HeroCopy, Range, CertifiedSteps, ContainerBand, Footer, `home.css` scoped under `.pe`, `when-shown.ts` to start a hero only when its variant is visible).
+- `src/components/proto/r6/HeroFrames.astro`: the three round-6 heroes (frames scrubbed by the cursor, or a seamless loop). `src/pages/prototype/round-5.astro`: round 5 archive (its components stay in `r5/`, which the live page still uses for the films).
 - `src/components/proto/r5/`: round-5 heroes, `Film.astro` + `film.ts` (scroll film: pinned and scrubbed on screens over 900 px, play-once on phones, lazy frame loading, rests on whole frames), `seq.ts` (frame player: coarse-to-fine loading, cross-fade, cover crop around a focus point).
 - `src/components/proto/r4/`: round-4 heroes (still used by nothing live; the archive has its own frozen copy).
 - `src/components/proto/archive/r2|r3|r4/`: frozen copies of each round (do not edit).
@@ -122,7 +125,11 @@ Round 5 in one line each:
 
 | Scene | Script | Output | Settings |
 |---|---|---|---|
-| The Mark film | `mark.py` | `public/dev/r5/mark/000-167.webp` | 1600×900, 48 spp |
+| The Mark film | `mark.py` | `public/dev/r5/mark/000-334.webp` (every half story frame) | 1600×900, 48 spp; 72 min on the PC |
+| Round 6 A Daybreak | `daybreak.py` | `public/dev/r6/daybreak/00-47.webp` | 1920×1080, 64 spp |
+| Round 6 B Neem shade | `neem.py` | `public/dev/r6/neem/00-47.webp` (loop) | 1920×1080, 64 spp |
+| Round 6 C Bullet time | `bullettime.py` | `public/dev/r6/bullettime/00-60.webp` | 1920×1080, 48 spp; all three about 45 min on the PC |
+| Catalogue (28 pallets) | `render_pallet.py` via `render_all.py` | `src/assets/products/<slug>/1-5.webp`, `public/models/<slug>.glb` | 1600 px, 128 spp; about 25 s per pallet per view set on the PC |
 | Container film | `container.py` | `public/dev/r5/container/000-149.webp` | 1600×900, 32 spp |
 | In its place (hero B) | `anamorph.py` | `public/dev/r5/anamorph/00-60.webp` (frame 30 = sweet spot) | 1920×1080, 40 spp |
 | Two worlds, Europe | `europe.py` | `public/dev/r5/worlds/europe.webp` | 2400×1350, 128 spp |
@@ -155,17 +162,16 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 - **Open data issue:** for CP8/CP9 board counts, EPAL's sheets say 28 and 24 but the drawings give 21 and 18 (the renders follow the drawings). Settle it with the licence documents. Pinewood/hardwood/GMA/collar layouts were measured from a reference range; the owner's production drawings win.
 - **Content rules from that handoff:** specs may match Jay Wood's range, but all text must be original (never copy their text or images). Use real names (EPAL 1/2/3, CP1–CP9, "pallet collar"). Never reuse Ambica's page text or photos. EPAL load ratings only on licensed pallets.
 
-**Launch re-render (blocker):** once the EPAL licence and Pallet Euro's own HT code exist, set `tools/render/brand.json` (`ippc.code`, marks) and re-render everything: the r5 scenes via `run.py`, and the 28 catalogue products plus GLBs. The batch catalogue renderer (views, GLB export) is still only in the Ambica repo on the Mac (`tools/render/render_pallet.py`, `pallets.py`, `render_all.sh`); copy it in when that job starts.
+**Launch re-render (blocker):** once the EPAL licence and Pallet Euro's own HT code exist, set `tools/render/brand.json` (`ippc.code`, marks) and re-render everything: the hero scenes and films via `run.py`, and the 28 catalogue products plus GLBs via `python tools/render/render_all.py` (set `"glb": true` in `brand.json`, or pass `--glb`). The catalogue renderer came from the Ambica repo on 2026-11-23 (`render_pallet.py`, `pallets.py`, `make_stamps.py`; Metal-only GPU code replaced, output paths made absolute). `make_stamps.py` redraws the IPPC stamp from `brand.json` once the real HT code exists. `brand.json` holds EPAL's mark layouts for EPAL 1–3 and CP1–CP9.
 
 ## 9. Open questions waiting on the owner
 
-- 2026-11-23: #35 domain, #36 product URLs, #37 home title and description, #38 bring the batch catalogue renderer over from the Mac.
-- Round 5 (asked 2026-11-08, again 2026-11-23): hero pick (B recommended), keep the Mark and container stories as built, reuse the other heroes (Two worlds on About, X-ray lens on product pages), build the production home page next, placeholders for company facts. Full text: `docs/decisions.md`.
+- Round 6 (asked 2026-11-23): #48 hero pick (B "Neem shade" recommended), #49 reuse the X-ray lens on product pages and "Two worlds" on About (re-asked in plain words), #50 render the full catalogue now. Full text: `docs/decisions.md`.
 - Round 2 (still open): domain, own factory address/phones/email, which EPAL products the licence covers, status of the other certificates (numbers, issuers, validity, scans), trademark ® or ™, what "SOP" and "IIP" mean, whether to mention 20+ years of experience, real figures (capacity, area, HT chamber, people), launch timing.
 
 ## 10. Not in this repo (on the Mac only)
 
-- **Ambica site repo** `/Users/wewake/VSC/APIPL/apiplSite`: the original 28-product render pipeline and assets. What this project uses is already copied in: `palletkit.py` (lines 1–741 of its `render_pallet.py`), textures, stamps, geometry, catalogue data, dev renders (one cut-out per pallet plus some extra views, `src/assets/dev-renders/`). **Not copied:** the batch catalogue renderer (the rest of `render_pallet.py`, `pallets.py`, `render_all.sh`: product views and GLB export), the 28 GLB models (`public/models/`) and the full-size catalogue renders. Never edit that repo, and never let it show on this site.
+- **Ambica site repo** `/Users/wewake/VSC/APIPL/apiplSite`: the original 28-product render pipeline and assets. What this project uses is already copied in: `palletkit.py` (lines 1–741 of its `render_pallet.py`), textures, stamps, geometry, catalogue data, dev renders (one cut-out per pallet plus some extra views, `src/assets/dev-renders/`). Since 2026-11-23 also the batch catalogue renderer (`render_pallet.py`, `pallets.py`, `make_stamps.py`, stamp artwork; fetched read-only from GitHub `WeWake1/apiplSite`, which this PC's git login can read). **Deliberately not copied:** Ambica's 28 GLB models and its 5-view catalogue renders (they carry `IN-083 HT`; `render_all.py` regenerates both with Pallet Euro's dev marks). Never edit that repo, and never let it show on this site.
 - There are no `.blend` files to carry: every scene is built by a script, so the round-4/5 renders can be remade from this repo alone (proven on the PC on 2026-11-23).
 - **Earlier Pallet Euro attempt** `github.com/WeWake1/PalletEuro`: EPAL stamp setup, product copy, guides. Reuse data and copy only, not its design.
 - **OpenSEO** (`../open-seo` next to this folder on the Mac, cloned from `github.com/every-app/open-seo`) with the owner's DataForSEO key in `.env.local`. On the PC: clone it next to this repo, copy `.env.example` to `.env.local`, paste the key (never commit it), follow its README. DataForSEO gives $1 free credit; the minimum top-up is $50.
@@ -174,7 +180,7 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 
 ## 11. Next steps (when the owner is ready)
 
-1. Get the round-5 verdict; build the next hero round if nothing wins (keep what landed in mind, section 5).
+1. Get the round-6 verdict; build the next hero round if nothing wins (keep what landed in mind, section 5: simplicity, one pallet, calm space, one quiet movement).
 2. Build the production home page around the chosen hero:
    - deferred frame loading and lighter (AVIF) frames on phones;
    - Lighthouse mobile 99–100;
@@ -205,6 +211,12 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
     - Built the production foundation (section 7). Mobile Lighthouse 100/100/100 (SEO 69 = the `noindex` gate).
     - Two small visual changes from the prototype: grey small text darkened for contrast (`--ink-3` #7a8396 → #667085); phone header shows logo and Menu only.
     - Re-asked the round-5 questions and asked #35–#38.
+- **2026-11-23 (evening, PC):** Round-5 verdict (#39–#47): heroes turned down, both scroll stories loved.
+  - Mark film re-rendered with 335 frames (smoother scroll; `mark.py` samples every half story frame).
+  - Round 6 built and rendered: Daybreak, Neem shade, Bullet time (`docs/prototypes/README.md`). Round 5 archived at `/prototype/round-5/`.
+  - Product URLs now carry "epal" for EPAL-licensed products (`productPath()` in `range28.ts`).
+  - Catalogue renderer brought over from GitHub `apiplSite`; tested on EPAL 1 and CP3 (views + GLB) on the Radeon. `brand.json`: EPAL 2/3 and CP mark layouts.
+  - Waiting: round-6 questions #48–#50.
 
 ## 13. Updating this file
 

@@ -4,7 +4,7 @@
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import { RANGE } from '../../data/certificates';
-import { RANGE28 } from '../../data/range28';
+import { RANGE28, productPath } from '../../data/range28';
 import v1 from '../../assets/dev-renders/white/epal1-1.webp';
 import v2 from '../../assets/dev-renders/white/epal1-2.webp';
 import e2a from '../../assets/dev-renders/white/epal2-1.webp';
@@ -20,7 +20,7 @@ const r = Object.fromEntries(RANGE.map((p) => [p.id, p]));
 const href = (code: string) => {
   const p = RANGE28.find((x) => x.code === code);
   if (!p) throw new Error(`No product page for ${code}`);
-  return `/products/${p.slug}/`;
+  return productPath(p);
 };
 const epals = [
   { p: r.epal1, a: v1, b: v2, line: 'The Euro pallet. The one Europe’s pallet pool runs on.' },

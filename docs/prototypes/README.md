@@ -63,9 +63,9 @@ Verdict:
 - **Disliked:** B (On the headline) and C (White desert).
 - Everything else asked after round 4 was answered yes (decisions #22–#27), and the owner asked to see the Mark and the container as Apple-style scroll stories.
 
-## Round 5 · hero concepts and two scroll stories (8 Nov 2026, awaiting the owner’s verdict)
+## Round 5 · hero concepts and two scroll stories (8 Nov 2026)
 
-Folder: `round-5-heroes/`. Live at `/prototype/` (`?variant=A|B|C`). All photoreal Blender renders (`tools/render/hero/`), frames in `public/dev/r5/` (dev only: EPAL oval and the `IN-XXX` placeholder).
+Folder: `round-5-heroes/`. Archived at `/prototype/round-5/` (`?variant=A|B|C`). All photoreal Blender renders (`tools/render/hero/`), frames in `public/dev/r5/` (dev only: EPAL oval and the `IN-XXX` placeholder).
 
 | | Hero | Idea | Motion |
 |---|---|---|---|
@@ -76,4 +76,20 @@ Folder: `round-5-heroes/`. Live at `/prototype/` (`?variant=A|B|C`). All photore
 Scroll stories under every hero (owner's request after round 4), pinned and scrubbed on computers, played once by themselves on phones (rule 7):
 - **The Mark** (right after the hero, `mark.py`, 168 frames): a steel head brands "EPAL in oval" into the corner block (glow, smoke, cooling), the camera tracks to the IPPC HT mark, flies through the fork opening under the deck, and pulls back to the whole pallet. Captions use only facts checked on EPAL's page (decisions, after round 4).
 - **Your next container** (the closing band, `container.py`, 150 frames): a weathered deep-blue 20' box opens its doors (right-hand door first, as on a real box) on 11 EPAL pallets of cartons; the camera rises, the roof lifts away and shows the standard 7 + 4 floor layout; it ends on the deep-blue quote card.
+
+Verdict (23 Nov 2026, decisions #39–#42):
+- **B (In its place) disliked.** No hero chosen. The owner likes the **simplicity of round 2's A and round 4's A**; wants two new simple heroes and one "crazy cool" one.
+- **The Mark: loved**, with more frames for a smoother scroll (now 335 frames, phones 168). **The container: loved.**
+
+## Round 6 · two simple heroes and one crazy one (23 Nov 2026, awaiting the owner’s verdict)
+
+Live at `/prototype/` (`?variant=A|B|C`), followed by the Mark and container stories. Rendered on the Windows PC (RX 9060 XT): scenes `tools/render/hero/daybreak.py`, `neem.py`, `bullettime.py` (`python tools/render/run.py r6`), frames in `public/dev/r6/` with `-sm` phone versions (dev only: EPAL oval and `IN-XXX`). One component plays all three: `src/components/proto/r6/HeroFrames.astro`.
+
+| | Hero | Idea | Motion |
+|---|---|---|---|
+| A | Daybreak | Round 2's white studio with a real sun: one EPAL 1, the light travels a whole day. Sunrise low on the left (warm, the low sun shines under the deck through the fork openings), noon high behind, sunset low on the right (the shadow reaches toward the headline) | 48 frames; the cursor carries the sun across; phones: it drifts back and forth |
+| B | Neem shade | Round 4's calm in a new place: an EPAL 1 in a sunlit lime-plaster courtyard under a neem tree the camera never sees. Its dappled shade (procedural neem leaves on two canopy layers) moves gently over wall, floor and pallet; the top left, behind the headline, stays in calm shade | 48-frame seamless loop; moving the cursor stirs the breeze |
+| C | Bullet time | The crazy one: a dropped EPAL 1 frozen at the instant its corner meets the studio floor, tilted hard, with a puff and a spray of sawdust hanging in the air (22,000 grains placed by formula plus a volume puff) | 61 orbit frames; the cursor circles the camera around the frozen moment; phones: it orbits by itself |
+
+Tried and dropped before showing: a long striped shadow from a low sun (a 14 cm pallet's blocks and boards block every gap, so the shadow is a flat blob) and a granite block landing on the pallet (the dust cloud hid the product).
 

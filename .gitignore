@@ -10,6 +10,8 @@ dist/
 __pycache__/
 *.pyc
 tools/render/hero/_*.png
+tools/render/out/
+tools/render/textures/web/
 # quick test renders (tools/render/run.py --test) and review screenshots
 .render-test/
 Thumbs.db

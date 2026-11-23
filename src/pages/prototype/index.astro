@@ -1,9 +1,9 @@
 ---
-// PROTOTYPE (throwaway) · round 5: three new photoreal hero concepts on the home page, followed by the two
-// Apple-style scroll stories the owner asked for (decisions #23, #24): "The Mark" right after the hero and
-// "Your next container" at the end, around the kept sections (product cards, "Certified at every step").
-// Switch heroes with ?variant=A|B|C or the arrow keys. Earlier rounds: /prototype/round-2/ .. /round-4/
-// (round 4's A, "Indian light", is the owner's fallback hero).
+// PROTOTYPE (throwaway) · round 6 (23 Nov 2026): three new photoreal hero concepts. The owner liked the
+// simplicity of round 2's A (Studio) and round 4's A (Indian light) and asked for two new simple heroes and one
+// "crazy cool" one (decisions #39). Then the approved scroll stories: the Mark (now 335 frames, smoother) and the
+// container, around the kept sections. Switch heroes with ?variant=A|B|C or the arrow keys.
+// Earlier rounds: /prototype/round-2/ .. /round-5/.
 import Proto from '../../layouts/Proto.astro';
 import Switcher from '../../components/proto/Switcher.astro';
 import '../../components/proto/home/home.css';
@@ -11,19 +11,29 @@ import Header from '../../components/proto/home/Header.astro';
 import Range from '../../components/proto/home/Range.astro';
 import CertifiedSteps from '../../components/proto/home/CertifiedSteps.astro';
 import Footer from '../../components/proto/home/Footer.astro';
-import HeroWorlds from '../../components/proto/r5/HeroWorlds.astro';
-import HeroAnamorph from '../../components/proto/r5/HeroAnamorph.astro';
-import HeroXray from '../../components/proto/r5/HeroXray.astro';
+import HeroFrames from '../../components/proto/r6/HeroFrames.astro';
 import MarkFilm from '../../components/proto/r5/MarkFilm.astro';
 import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
 ---
-<Proto title="Round 5 · hero concepts and scroll stories · Pallet Euro (prototype)">
+<Proto title="Round 6 · hero concepts · Pallet Euro (prototype)">
   <div class="pe">
     <Header />
     <main>
-      <div class="variant" data-variant="A"><HeroWorlds /></div>
-      <div class="variant" data-variant="B"><HeroAnamorph /></div>
-      <div class="variant" data-variant="C"><HeroXray /></div>
+      <div class="variant" data-variant="A">
+        <HeroFrames variant="A" dir="/dev/r6/daybreak" count={48} start={6} mode="scrub" drift={16} fx={0.65} phoneFx={0.7}
+          bg="#F3F2EF" icon="sun-horizon" fine="Move your cursor: sunrise to sunset" coarse="One pallet, sunrise to sunset"
+          alt="An EPAL 1 Euro pallet in a white studio in low morning sun, its shadow stretching across the floor" />
+      </div>
+      <div class="variant" data-variant="B">
+        <HeroFrames variant="B" dir="/dev/r6/neem" count={48} start={0} mode="loop" fx={0.5} phoneFx={0.64}
+          bg="#ECE7DF" icon="leaf" fine="Move your cursor to stir the breeze" coarse="Neem shade, moving in the breeze"
+          alt="An EPAL 1 Euro pallet in a sunlit lime-plaster courtyard, dappled by the moving shade of a neem tree" />
+      </div>
+      <div class="variant" data-variant="C">
+        <HeroFrames variant="C" dir="/dev/r6/bullettime" count={61} start={30} mode="scrub" drift={12} fx={0.5} phoneFx={0.66}
+          bg="#F6F4F1" icon="camera-rotate" fine="Move your cursor to circle the frozen moment" coarse="One frozen moment, from every side"
+          alt="An EPAL 1 Euro pallet frozen at the instant its corner meets the floor, sawdust hanging in the air" />
+      </div>
       <MarkFilm />
       <Range />
       <CertifiedSteps />
@@ -31,7 +41,7 @@ import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
     </main>
     <Footer />
   </div>
-  <Switcher round="Round 5" variants={[{ key: 'A', name: 'Two worlds' }, { key: 'B', name: 'In its place' }, { key: 'C', name: 'Look inside' }]} />
+  <Switcher round="Round 6" variants={[{ key: 'A', name: 'Daybreak' }, { key: 'B', name: 'Neem shade' }, { key: 'C', name: 'Bullet time' }]} />
 </Proto>
 
 <style is:global>
