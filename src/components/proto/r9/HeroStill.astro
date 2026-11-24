@@ -1,0 +1,23 @@
+---
+// PROTOTYPE round 9: one bold still per hero (decision #65: "something more unique, cool yet simple"). The owner picks
+// the picture first; its motion is designed afterwards. Until then the only movement is a slow settle as the page
+// opens (the picture eases from a little closer to its framing), none with reduced motion.
+import HeroCopy from '../home/HeroCopy.astro';
+
+interface Props { variant: string; name: string; fx?: number; pfx?: number; bg: string; alt: string }
+const { variant, name, fx = 0.6, pfx = 0.7, bg, alt } = Astro.props;
+const src = `/dev/r9/${name}.webp`, sm = `/dev/r9/${name}-sm.webp`;
+---
+<section class="photo-hero r9-hero" data-key={variant} aria-label="Pallet Euro Packaging" style={`--pic-bg:${bg};--fx:${fx * 100}%;--pfx:${pfx * 100}%`}>
+  <div class="pic">
+    <img src={src} srcset={`${sm} 1200w, ${src} 2400w`} sizes="100vw" width="2400" height="1350" fetchpriority="high" decoding="async" alt={alt} />
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+</section>
+
+<style>
+  .r9-hero .pic img { object-position: var(--fx) 50%; transform-origin: 68% 55%; animation: settle 9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  @keyframes settle { from { transform: scale(1.07); } }
+  @media (prefers-reduced-motion: reduce) { .r9-hero .pic img { animation: none; } }
+  @media (max-width: 900px) { .r9-hero .pic img { object-position: var(--pfx) 50%; } }
+</style>

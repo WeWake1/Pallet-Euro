@@ -56,13 +56,18 @@ PRESETS = {
     "anatomy-ids":   ("layers.py", "tools/render/out/anatomy-ids", "1600x1000", 1, 86, ["--job", "orbit-ids"], None),
     "r8-container":  ("container.py", "public/dev/r8/scenes", "2400x1350", 48, 84, ["--still"], "stills"),
     "r8-glide":      ("jaali.py", "public/dev/r8/glide", "1920x1080", 64, 82, ["--glide"], "frames"),
+    # round 9: four stills (r9.py --scene)
+    "r9-indigo":     ("r9.py", "public/dev/r9", "2400x1350", 128, 86, ["--scene", "indigo"], "stills"),
+    "r9-plan":       ("r9.py", "public/dev/r9", "2400x1350", 128, 86, ["--scene", "plan"], "stills"),
+    "r9-upright":    ("r9.py", "public/dev/r9", "2400x1350", 128, 86, ["--scene", "upright"], "stills"),
+    "r9-macro":      ("r9.py", "public/dev/r9", "2400x1350", 128, 86, ["--scene", "macro"], "stills"),
 }
 GROUPS = {"xray": ["xray-photo", "xray-xray", "xray-ids"], "worlds": ["europe", "india"],
           "r6": ["daybreak", "neem", "bullettime"], "r7": ["blueprint", "frieze", "carved"],
           "inner": ["inner-photo", "inner-generic", "inner-ids"],
           "r8-layers": ["r8-explode", "r8-asm-epal1", "r8-asm-epal2", "r8-asm-epal3", "r8-asm-cp1"],
           "anatomy": ["anatomy-film", "anatomy-orbit", "anatomy-ids"], "r8-more": ["r8-container", "r8-glide"],
-          "all": list(PRESETS)}
+          "r9": ["r9-indigo", "r9-plan", "r9-upright", "r9-macro"], "all": list(PRESETS)}
 
 
 def find_blender(given):

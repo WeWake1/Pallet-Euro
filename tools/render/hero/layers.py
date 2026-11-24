@@ -5,8 +5,8 @@
   assemble   product framing, any recipe: the parts drop in from above, layer by layer, and settle; played
              backwards they fly out (C "Tap to transform": public/dev/r8/assemble/<recipe>/)
   film       anatomy framing: assembled -> exploded while the camera rises a little (the guide's playable animation)
-  orbit      anatomy framing: the exploded pallet from 36 angles around it (drag to turn)
-  orbit-ids  the same 36 angles, one flat colour per part, twice the size, lossless PNG (traced into clean outlines
+  orbit      anatomy framing: the exploded pallet from 72 angles around it, every 5° (drag to turn)
+  orbit-ids  every second of those angles (36, every 10°), one flat colour per part, twice the size, lossless PNG (traced into clean outlines
              by tools/render/trace_ids.py; not published)
 
 Layers, bottom to top: bottom deck boards, blocks (with their marks), stringer boards, top deck boards, nails (the
@@ -30,7 +30,7 @@ from bpy_extras.object_utils import world_to_camera_view  # noqa: E402
 from mathutils import Vector  # noqa: E402
 
 JOB = sys.argv[sys.argv.index("--job") + 1] if "--job" in sys.argv else "explode"
-COUNT = {"explode": 60, "assemble": 36, "film": 48, "orbit": 36, "orbit-ids": 36}[JOB]
+COUNT = {"explode": 60, "assemble": 36, "film": 48, "orbit": 72, "orbit-ids": 36}[JOB]   # orbit: every 5°; its even frames match the 36 ID maps
 IDS = JOB == "orbit-ids"
 pk = C.pk
 scene = C.scene

@@ -54,7 +54,8 @@ def run(kind, name):
     elif kind == "stills":
         for folder, files, q in (("worlds", ("europe", "india"), 78), ("xray", ("photo", "xray"), 80),
                                  (os.path.join(DEV, "inner"), ("photo", "generic"), 80),
-                                 (os.path.join(DEV, "r8", "scenes"), ("still",), 78)):
+                                 (os.path.join(DEV, "r8", "scenes"), ("still",), 78),
+                                 (os.path.join(DEV, "r9"), ("indigo", "plan", "upright", "macro"), 80)):
             for n in files:
                 src = os.path.join(R5, folder, f"{n}.webp")     # an absolute folder ignores R5
                 if os.path.exists(src):

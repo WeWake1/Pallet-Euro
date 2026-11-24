@@ -9,12 +9,12 @@ Read this first in every Claude Code session, on either machine. It carries ever
 ## 1. Status (last updated 2026-11-23)
 
 - **Stage:** two tracks.
-  - **Hero:** rounds 5 to 7 turned down (round 7: "good", but every hero moving with the cursor "is getting boring", decision #58); the two scroll stories are approved (the Mark has 335 frames). **Round 8** (2026-11-23: Built in layers, The journey, The family, Living photograph; one kind of motion each, none of them the cursor, decision #59) waits for the owner's verdict. Live at `/prototype/` (`?variant=A|B|C|D` or the arrow keys). The owner likes the **simplicity** of round 2's A and round 4's A.
-  - **Inner pages:** before/after approved for About (#61). The part inspector moves to one guide page and was rebuilt as "Anatomy" (exploded view to play and turn, layer by layer, vector highlight, #60): `/prototype/inner/?variant=A`, waiting for the owner's verdict.
+  - **Hero:** rounds 5 to 7 turned down (round 7: "good", but every hero moving with the cursor "is getting boring", decision #58); the two scroll stories are approved (the Mark has 335 frames). Round 8 (four kinds of motion, none of them the cursor) turned down too: "something more unique, cool yet simple" (#65). **Round 9** (2026-11-23: four bold stills, Indigo, Plan, Upright, Close-up; the chosen picture gets its motion next) waits for the owner's verdict. Live at `/prototype/` (`?variant=A|B|C|D` or the arrow keys). The owner likes the **simplicity** of round 2's A and round 4's A.
+  - **Inner pages:** before/after approved for About (#61). The part inspector moved to one guide page as "Anatomy" (exploded view to play and turn, layer by layer, vector highlight): **approved** (#66) after two fixes, done (nothing picked by itself; smooth turning on 72 angles). `/prototype/inner/?variant=A`.
   - **Product cards** on `/` and the prototype now use this repo's catalogue renders (dev marks); nothing live shows Ambica's `IN-083` any more (only the frozen round-2 archive).
   - **Production home page:** started on 2026-11-23 with the parts that do not depend on the hero (decision #33). `/` now runs on the production layout with the kept sections, SEO head, schema, the launch gate, `robots.txt`, sitemap and 404 (section 7). Mobile Lighthouse: 100 / 100 / 100 for performance, accessibility and best practices; SEO 69 only because of the `noindex` gate.
-- **Waiting on the owner:** round-8 questions (`docs/decisions.md`, open questions after #62), plus the company facts from round 2 (domain confirmed: palleteuro.com).
-- **Fallback hero** if nothing in round 8 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
+- **Waiting on the owner:** round-9 question #67 (`docs/decisions.md`), plus the company facts from round 2 (domain confirmed: palleteuro.com).
+- **Fallback hero** if nothing in round 9 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
 - **Catalogue rendered on the PC (2026-11-23, decision #53):** 28 pallets × 5 studio views in `src/assets/products/<slug>/`, 28 GLB models in `public/models/` (dev marks; about 74 s per pallet with its GLB). Not used by any page yet.
 - **Why the second machine:** the owner wants to do heavier Blender work on their Windows PC (AMD Radeon RX 9060 XT, 32 GB RAM). Section 3 explains the setup.
 - **Windows PC: set up and verified (2026-11-23).** Every round-5 scene renders on the RX 9060 XT and matches the Mac's frames; the site builds; the review scripts run. Two Windows-only render bugs were fixed in `tools/render/hero/common.py` (section 3, step 7). cwebp is installed.
@@ -28,7 +28,7 @@ npm ci                  # once per machine (Node 24, see .nvmrc)
 npm run proto           # dev server on http://127.0.0.1:4322
 ```
 
-Open `http://127.0.0.1:4322/prototype/` (round 8), `/prototype/inner/` (anatomy, before/after), `/prototype/round-7/` … `/round-2/`. `/` is the production home page in progress.
+Open `http://127.0.0.1:4322/prototype/` (round 9), `/prototype/inner/` (anatomy, before/after), `/prototype/round-8/` … `/round-2/`. `/` is the production home page in progress.
 Astro 7 may start the dev server in the background and return at once: `npx astro dev status`, `npx astro dev logs`, `npx astro dev stop`. On the Mac, port 4321 belongs to another project; that is why this one uses 4322.
 Astro 7 allows one dev server per project: if `npm run proto` says "Another astro dev server is already running", stop the old one (`npx astro dev stop`, or close its terminal) and start again.
 `npm run check` type-checks (0 errors expected; one deprecation hint in the round-2 archive is known).
@@ -81,7 +81,8 @@ All steps were done on the PC on 2026-11-23. The notes in italics are what that 
 | 5 | 8 Nov | Two worlds, In its place, Look inside + Mark and container scroll stories | Heroes turned down (B disliked); both scroll stories loved |
 | 6 | 23 Nov | Daybreak, Neem shade, Bullet time (two simple, one crazy) | "Good, but not up to what we want" |
 | 7 | 23 Nov | From the drawing, Eye level, Carved (moving the drawing, the viewpoint, the wood; not the light) | "Good", not final; cursor motion "getting boring" |
-| 8 | 23 Nov | Built in layers (scroll), The journey (scenes), The family (tap), Living photograph (plays by itself) | **Awaiting verdict** |
+| 8 | 23 Nov | Built in layers (scroll), The journey (scenes), The family (tap), Living photograph (plays by itself) | "Good", not cutting it: "more unique, cool yet simple" |
+| 9 | 23 Nov | Four bold stills (Indigo, Plan, Upright, Close-up); motion after the pick | **Awaiting verdict** |
 
 Round 5 in one line each:
 - **A Two worlds** (`r5/HeroWorlds.astro`): the same EPAL 1 from the same camera in a European warehouse (cool light through a steel window) and the Indian jaali room. The cursor moves the seam; on phones it sweeps by itself.
@@ -104,7 +105,7 @@ Round 5 in one line each:
 - `src/pages/prototype/index.astro`: round 5 (live). `round-2/3/4.astro`: frozen archives.
 - `src/layouts/Proto.astro`: prototype layout (noindex, fonts, `?variant=` before first paint, `[data-reveal]` observer).
 - `src/components/proto/home/`: the live home sections shared by the current round (Header, HeroCopy, Range, CertifiedSteps, ContainerBand, Footer, `home.css` scoped under `.pe`, `when-shown.ts` to start a hero only when its variant is visible).
-- `src/components/proto/r8/`: the four round-8 heroes, one file each (`HeroScroll`, `HeroScenes`, `HeroTransform`, `HeroLoop`). `src/pages/prototype/round-7.astro`: round 7 archive.
+- `src/components/proto/r9/HeroStill.astro`: the round-9 heroes (one still each, a slow settle). `src/components/proto/r8/`: the round-8 heroes (`HeroScroll`, `HeroScenes`, `HeroTransform`, `HeroLoop`), shown by `src/pages/prototype/round-8.astro`. `round-7.astro`: round 7 archive.
 - `src/components/proto/r7/HeroFrames.astro`: the three round-7 heroes (frames scrubbed by the cursor; with `dims`, the dimension lines from the scene's `dims.json`, kept in register with the canvas crop). `src/pages/prototype/round-6.astro` (uses `r6/HeroFrames.astro`) and `round-5.astro`: archives (round 5's components stay in `r5/`, which the live page still uses for the films).
 - `src/pages/prototype/inner.astro` + `src/components/proto/inner/`: `Anatomy.astro` (the guide page's exploded view, layer by layer; vector outlines from `outlines.json`) and `BeforeAfter.astro`. Parts data by layer: `src/data/epal1-parts.ts`.
 - `src/components/proto/r5/`: round-5 heroes, `Film.astro` + `film.ts` (scroll film: pinned and scrubbed on screens over 900 px, play-once on phones, lazy frame loading, rests on whole frames), `seq.ts` (frame player: coarse-to-fine loading, cross-fade, cover crop around a focus point).
@@ -139,9 +140,10 @@ Round 5 in one line each:
 | Round 7 B Eye level | `frieze.py` | `public/dev/r7/frieze/00-40.webp` | 1920×1080, 64 spp |
 | Round 7 C Carved | `carved.py` | `public/dev/r7/carved/00-47.webp` | 1920×1080, 64 spp |
 | Inner pages | `inspect.py --pass photo/generic/ids` (`run.py inner`) | `public/dev/inner/` | 1920×1200, 128 spp; ids.png: red = 10 × id |
-| Anatomy (guide) | `layers.py --job film/orbit/orbit-ids` (`run.py anatomy`), then `python tools/render/trace_ids.py tools/render/out/anatomy-ids public/dev/inner/anatomy/outlines.json` | `public/dev/inner/anatomy/film` (48), `orbit` (36), `outlines.json` | 1600×1000, 64 spp; IDs at 3200×2000, traced with OpenCV (`pip install opencv-python-headless`) |
+| Anatomy (guide) | `layers.py --job film/orbit/orbit-ids` (`run.py anatomy`), then `python tools/render/trace_ids.py tools/render/out/anatomy-ids public/dev/inner/anatomy/outlines.json` | `public/dev/inner/anatomy/film` (48), `orbit` (72, every 5°), `outlines.json` (36, every 10°) | 1600×1000, 64 spp; IDs at 3200×2000, traced with OpenCV (`pip install opencv-python-headless`) |
 | Round 8 A, C | `layers.py --job explode` / `--job assemble --recipe X` (`run.py r8-layers`) | `public/dev/r8/explode` (60 + `layers.json`), `public/dev/r8/assemble/<epal1|epal2|epal3|cp1>` (36 each) | 1920×1080, 64 / 48 spp |
 | Round 8 B, D | `container.py --still`, `jaali.py --glide` (`run.py r8-more`) | `public/dev/r8/scenes/still.webp`, `public/dev/r8/glide` (72) | 2400×1350 / 1920×1080 |
+| Round 9 | `r9.py --scene indigo/plan/upright/macro` (`run.py r9`) | `public/dev/r9/<scene>.webp` (+ `-sm`) | 2400×1350, 128 spp; about 25 s each |
 | Catalogue (28 pallets) | `render_pallet.py` via `render_all.py` | `src/assets/products/<slug>/1-5.webp`, `public/models/<slug>.glb` | 1600 px, 128 spp; about 74 s per pallet (5 views + GLB) on the PC, 35 min for all |
 | Container film | `container.py` | `public/dev/r5/container/000-149.webp` | 1600×900, 32 spp |
 | In its place (hero B) | `anamorph.py` | `public/dev/r5/anamorph/00-60.webp` (frame 30 = sweet spot) | 1920×1080, 40 spp |
@@ -182,7 +184,7 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 
 ## 9. Open questions waiting on the owner
 
-- Round 8 (asked 2026-11-23): #63 hero pick (A "Built in layers" recommended), #64 the anatomy viewer for the guide page. Full text: `docs/decisions.md`.
+- Round 9 (asked 2026-11-23): #67 which picture becomes the hero (D "Close-up" recommended). Full text: `docs/decisions.md`.
 - Round 2 (still open): domain, own factory address/phones/email, which EPAL products the licence covers, status of the other certificates (numbers, issuers, validity, scans), trademark ® or ™, what "SOP" and "IIP" mean, whether to mention 20+ years of experience, real figures (capacity, area, HT chamber, people), launch timing.
 
 ## 10. Not in this repo (on the Mac only)
@@ -196,7 +198,7 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 
 ## 11. Next steps (when the owner is ready)
 
-1. Get the round-8 verdict; build the next hero round if nothing wins (keep what landed in mind, section 5: simplicity, one pallet, calm space; rounds 4 and 6 moved the light every possible way, and the owner is tired of heroes that move with the cursor).
+1. Get the round-9 pick and design the motion for that picture; another round if nothing wins (keep what landed in mind, section 5: simplicity, one pallet, calm space; rounds 4 and 6 moved the light every possible way, and the owner is tired of heroes that move with the cursor).
 2. Build the production home page around the chosen hero:
    - deferred frame loading and lighter (AVIF) frames on phones;
    - Lighthouse mobile 99–100;
@@ -243,6 +245,7 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
   - Round 7 archived at `/prototype/round-7/`. Round 8 built: `layers.py` (explode, assemble, film, orbit, orbit-ids), `container.py --still`, `jaali.py --glide`; components in `r8/`.
   - Anatomy viewer replaces the inspector (`Anatomy.astro`, `trace_ids.py`, OpenCV installed). Product cards switched to the catalogue renders.
   - Lesson: a render started with a trailing `&` in the Bash tool keeps running; two queues then share the GPU at half speed. Start long renders only with the tool's background option.
+- **2026-11-23 (round-8 verdict, PC):** #65–#66. Round 8 archived at `/prototype/round-8/`; round 9 = four bold stills (`r9.py`, `r9/HeroStill.astro`), motion to follow the pick. Anatomy fixed: nothing selected by itself, selections clear (same item again, empty space, Esc), smooth eased turning on 72 angles. Waiting: #67.
 
 ## 13. Updating this file
 

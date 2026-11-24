@@ -1,12 +1,12 @@
 ---
-// PROTOTYPE (throwaway) · round 8 (23 Nov 2026): no more moving the cursor (decision #58). One hero per kind of motion
-// the owner picked (decision #59):
-//   A "Built in layers"   a scroll story: scrolling takes the pallet apart (phones: plays once by itself)
-//   B "The journey"       scenes that advance by themselves: India, the container, Europe
-//   C "The family"        tap to transform: tap EPAL 1, EPAL 2, EPAL 3 or CP1 and the pallet rebuilds itself
-//   D "Living photograph" plays by itself: round 4's Indian light as a slow, seamless camera glide
+// PROTOTYPE (throwaway) · round 9 (23 Nov 2026): four bold, simple pictures, no gimmicks (decision #65: "something more
+// unique, cool yet simple"). Stills first: the owner picks the picture, then its motion is designed for it.
+//   A "Indigo"    an EPAL 1 carrying a load wrapped in indigo-dyed cotton: India's own blue, the brand's colour
+//   B "Plan"      the EPAL 1 straight from above in low sun: a graphic poster of boards and long shadows
+//   C "Upright"   the EPAL 1 standing on its end against a lime-washed wall, like a piece of design
+//   D "Close-up"  one corner, close and cinematic: deck board ends, the chamfer, the block
 // Then the approved scroll stories: the Mark and the container. Switch with ?variant=A|B|C|D or the arrow keys.
-// Earlier rounds: /prototype/round-2/ .. /round-7/.
+// Earlier rounds: /prototype/round-2/ .. /round-8/.
 import Proto from '../../layouts/Proto.astro';
 import Switcher from '../../components/proto/Switcher.astro';
 import '../../components/proto/home/home.css';
@@ -14,21 +14,22 @@ import Header from '../../components/proto/home/Header.astro';
 import Range from '../../components/proto/home/Range.astro';
 import CertifiedSteps from '../../components/proto/home/CertifiedSteps.astro';
 import Footer from '../../components/proto/home/Footer.astro';
-import HeroScroll from '../../components/proto/r8/HeroScroll.astro';
-import HeroScenes from '../../components/proto/r8/HeroScenes.astro';
-import HeroTransform from '../../components/proto/r8/HeroTransform.astro';
-import HeroLoop from '../../components/proto/r8/HeroLoop.astro';
+import HeroStill from '../../components/proto/r9/HeroStill.astro';
 import MarkFilm from '../../components/proto/r5/MarkFilm.astro';
 import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
 ---
-<Proto title="Round 8 · hero concepts · Pallet Euro (prototype)">
+<Proto title="Round 9 · hero pictures · Pallet Euro (prototype)">
   <div class="pe">
     <Header />
     <main>
-      <div class="variant" data-variant="A"><HeroScroll /></div>
-      <div class="variant" data-variant="B"><HeroScenes /></div>
-      <div class="variant" data-variant="C"><HeroTransform /></div>
-      <div class="variant" data-variant="D"><HeroLoop /></div>
+      <div class="variant" data-variant="A"><HeroStill variant="A" name="indigo" fx={0.6} pfx={0.72} bg="#F4F4F3"
+        alt="An EPAL 1 Euro pallet carrying a load wrapped in indigo-dyed cotton, in a white studio" /></div>
+      <div class="variant" data-variant="B"><HeroStill variant="B" name="plan" fx={0.62} pfx={0.68} bg="#F2F0EB"
+        alt="An EPAL 1 Euro pallet seen straight from above in low sun, its boards casting long shadows" /></div>
+      <div class="variant" data-variant="C"><HeroStill variant="C" name="upright" fx={0.62} pfx={0.74} bg="#EFEAE2"
+        alt="An EPAL 1 Euro pallet standing on its end against a lime-washed wall in morning light" /></div>
+      <div class="variant" data-variant="D"><HeroStill variant="D" name="macro" fx={0.6} pfx={0.74} bg="#EFEDE8"
+        alt="A close view of the corner of an EPAL 1 Euro pallet: deck board ends, the chamfer and the branded block" /></div>
       <MarkFilm />
       <Range />
       <CertifiedSteps />
@@ -36,7 +37,7 @@ import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
     </main>
     <Footer />
   </div>
-  <Switcher round="Round 8" variants={[{ key: 'A', name: 'Built in layers' }, { key: 'B', name: 'The journey' }, { key: 'C', name: 'The family' }, { key: 'D', name: 'Living photograph' }]} />
+  <Switcher round="Round 9" variants={[{ key: 'A', name: 'Indigo' }, { key: 'B', name: 'Plan' }, { key: 'C', name: 'Upright' }, { key: 'D', name: 'Close-up' }]} />
 </Proto>
 
 <style is:global>

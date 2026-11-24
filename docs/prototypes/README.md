@@ -118,9 +118,9 @@ Live at `/prototype/inner/` (`?variant=A|B`). The owner's refinements of round 5
 
 Verdict (decisions #60–#61): Before and after **approved** for the About page. Inspect: not needed on every product page; it moves to **one guide page** and needs a polished highlight, more than one view, layer by layer, and an exploded view to play or turn. Rebuilt as "Anatomy" (below).
 
-## Round 8 · four kinds of motion, none of them the cursor (23 Nov 2026, awaiting the owner’s verdict)
+## Round 8 · four kinds of motion, none of them the cursor (23 Nov 2026)
 
-Live at `/prototype/` (`?variant=A|B|C|D`), followed by the Mark and container stories. The owner picked all four kinds of motion offered (decision #59). Scenes: `tools/render/hero/layers.py` (one pallet in its layers: explode, assemble, film, orbit, orbit-ids), `container.py --still`, `jaali.py --glide`; frames in `public/dev/r8/`.
+Archived at `/prototype/round-8/` (`?variant=A|B|C|D`), followed by the Mark and container stories. The owner picked all four kinds of motion offered (decision #59). Scenes: `tools/render/hero/layers.py` (one pallet in its layers: explode, assemble, film, orbit, orbit-ids), `container.py --still`, `jaali.py --glide`; frames in `public/dev/r8/`.
 
 | | Hero | Motion |
 |---|---|---|
@@ -132,3 +132,16 @@ Live at `/prototype/` (`?variant=A|B|C|D`), followed by the Mark and container s
 ## Inner pages · Anatomy (replaces Inspect) and Before/after (23 Nov 2026)
 
 `/prototype/inner/?variant=A`: the guide page's anatomy viewer. "Take it apart" plays the exploded view (48 frames); taken apart, drag or the arrow buttons turn it all the way round (36 angles); "Layer by layer" steps through top deck boards, stringer boards, blocks, bottom deck boards and nails; any part can be picked on the pallet or in the list. The highlight is vector: outlines traced from a double-size ID map (`tools/render/trace_ids.py`), a white-and-blue line around the part, the rest softly veiled.
+
+Round 8 verdict (decisions #65–#66): **"good, but they still ain't cutting it. Something more unique, cool yet simple."** Anatomy approved for the guide page after two fixes (no layer picked by itself; smoother turning), both done the same night (72 angles, eased turning).
+
+## Round 9 · four bold pictures, motion later (23 Nov 2026, awaiting the owner’s verdict)
+
+Live at `/prototype/` (`?variant=A|B|C|D`). After eight rounds built around motion, this round finds the picture first: four bold, simple stills (only a slow settle as the page opens); the chosen one gets its motion next. Scene: `tools/render/hero/r9.py --scene indigo|plan|upright|macro` (`python tools/render/run.py r9`), pictures in `public/dev/r9/` (2400×1350 with `-sm`).
+
+| | Picture | Idea |
+|---|---|---|
+| A | Indigo | An EPAL 1 carrying rolls of indigo-dyed cloth on a white studio: India's own blue, close to the brand's deep blue, the one strong colour |
+| B | Plan | Straight from above on warm stone in late sun: the boards and their long shadows as a graphic poster |
+| C | Upright | The EPAL 1 standing on its end against a lime-washed wall, low sun from the front right, like a piece of design |
+| D | Close-up | One corner, close and cinematic: deck board ends, the chamfer, the branded block, shallow focus |

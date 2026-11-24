@@ -127,10 +127,10 @@ const DIR = '/dev/inner/anatomy';
   .lbtn .nm { font-size: 17px; font-weight: 650; }
   .lbtn .c { font-size: 15px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
   .layer.on .lbtn .n, .layer.on .lbtn .nm { color: var(--blue); }
-  .more { display: grid; grid-template-rows: 0fr; overflow: hidden; transition: grid-template-rows 0.45s var(--ease); }
-  .more > * { min-height: 0; overflow: hidden; padding-left: 34px; }
+  .more { display: grid; grid-template-rows: 0fr; grid-template-columns: minmax(0, 1fr); overflow: hidden; transition: grid-template-rows 0.45s var(--ease); }
+  .more > * { min-height: 0; min-width: 0; overflow: hidden; padding-left: 34px; }
   .layer.on .more { grid-template-rows: 1fr; }
-  .more p { margin: 0; padding: 0 4px 10px 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+  .more p { white-space: normal; text-wrap: pretty; margin: 0; padding: 0 4px 10px 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
   .more table { width: 100%; margin: 0 0 14px; border-collapse: collapse; font-size: 14px; }
   .more th, .more td { padding: 8px 6px 8px 0; text-align: left; border-top: 1px solid var(--line); font-weight: 600; }
   .more td { font-weight: 450; color: var(--ink-2); font-variant-numeric: tabular-nums; }
@@ -163,7 +163,7 @@ const DIR = '/dev/inner/anatomy';
     const layerEls = [...root.querySelectorAll<HTMLElement>('.layer')];
     const rows = [...root.querySelectorAll<HTMLTableRowElement>('.more tr')];
     const small = innerWidth <= 900;
-    const FILM = 48, ORBIT = 36;
+    const FILM = 48, ORBIT = 72;                    // orbit: every 5°; the outlines exist for every 10° (even frames)
 
     // ---- frames
     const load = (dir: string, n: number) => Array.from({ length: n }, (_, i) => {
@@ -188,14 +188,17 @@ const DIR = '/dev/inner/anatomy';
       const n = set.length;
       const i0 = Math.floor(f), t = f - i0, i1 = loop ? (i0 + 1) % n : Math.min(i0 + 1, n - 1);
       blit(set[((i0 % n) + n) % n], 1);
-      if (t > 0.001) blit(set[i1], t);
+      if (t > 0.001) blit(set[((i1 % n) + n) % n], t);
       ctx.globalAlpha = 1;
     };
     new ResizeObserver(draw).observe(canvas);
+    const wrap = (f: number) => ((f % ORBIT) + ORBIT) % ORBIT;
 
     // ---- state
-    let apart = false, busy = false, turn = 0;     // turn: fractional orbit frame
-    let pinned: { ids: number[]; name: string; size: string; el: HTMLElement } | null = null;
+    let apart = false, busy = false;
+    let shown = 0, target = 0, spinning = false;     // orbit frames (fractional), eased toward the target
+    let armed = false;                               // pointing at a part only counts after the pointer really moves
+    let pinned: { ids: number[]; el: HTMLElement } | null = null;
 
     const animate = (from: number, to: number, ms: number, set: HTMLImageElement[], loop = false) => new Promise<void>((done) => {
       const t0 = performance.now();
@@ -209,16 +212,20 @@ const DIR = '/dev/inner/anatomy';
       requestAnimationFrame(step);
     });
 
-    // ---- highlight (vector, from the traced outlines of the orbit frame in view)
+    // ---- highlight (vector, from the traced outlines of the angle in view; only at rest, on whole 10° steps)
     const clear = (...ks: string[]) => ks.forEach((k) => g(k).replaceChildren());
     const path = (d: string) => { const p = document.createElementNS(SVGNS, 'path'); p.setAttribute('d', d); return p; };
-    const frameNow = () => (((Math.round(turn) % ORBIT) + ORBIT) % ORBIT);
+    const outlineNow = () => {
+      if (!outlines || spinning) return null;
+      const f = Math.round(wrap(shown));
+      return f % 2 ? null : outlines.frames[f / 2];
+    };
     const paint = (ids: number[] | null) => {
       clear('cut', 'halo', 'line');
-      svg.classList.toggle('on', !!ids && apart);
-      if (!ids || !apart || !outlines) return;
-      const fr = outlines.frames[frameNow()];
-      for (const id of ids) {
+      const fr = apart && ids ? outlineNow() : null;
+      svg.classList.toggle('on', !!fr);
+      if (!fr) return;
+      for (const id of ids!) {
         const d = fr[String(id)];
         if (!d) continue;
         g('cut').append(path(d));
@@ -228,18 +235,20 @@ const DIR = '/dev/inner/anatomy';
     };
     const hits = () => {
       clear('hit');
-      if (!apart || !outlines) return;
-      const fr = outlines.frames[frameNow()];
+      armed = false;
+      const fr = apart ? outlineNow() : null;
+      if (!fr) return;
       for (const [id, d] of Object.entries(fr)) {
         const p = path(d);
         p.dataset.id = id;
         g('hit').append(p);
       }
     };
-    const select = (ids: number[] | null, name = '', size = '', el: HTMLElement | null = null) => {
+    const select = (ids: number[] | null, el: HTMLElement | null = null) => {
       layerEls.forEach((l) => l.classList.toggle('on', !!el && (l === el || l.contains(el))));
       rows.forEach((r) => r.classList.toggle('on', r === el));
-      pinned = ids ? { ids, name, size, el: el! } : null;
+      pinned = ids && el ? { ids, el } : null;
+      tag.classList.remove('on');
       paint(ids);
     };
     const placeTag = (x: number, y: number) => {       // beside the pointer, always inside the picture
@@ -255,19 +264,76 @@ const DIR = '/dev/inner/anatomy';
       tag.classList.add('on');
     };
 
-    // ---- take apart / put together
+    // ---- turning: the picture glides after its target (drag, buttons), then rests on a whole 10° step
+    let dragging = false, last = 0;
+    const spin = () => {
+      if (spinning) return;
+      spinning = true;
+      paint(null); clear('hit'); tag.classList.remove('on');
+      last = performance.now();
+      const step = (now: number) => {
+        const dt = Math.min(now - last, 50);
+        last = now;
+        shown += (target - shown) * (1 - Math.exp(-dt / 75));
+        if (!dragging && Math.abs(target - shown) < 0.004) shown = target;
+        view = { set: orbit, f: wrap(shown), loop: true };
+        draw();
+        if (dragging || shown !== target) { requestAnimationFrame(step); return; }
+        spinning = false;
+        hits();
+        if (pinned) paint(pinned.ids);
+      };
+      requestAnimationFrame(step);
+    };
+    const restOn = (f: number) => Math.round(f / 2) * 2;
+    root.querySelectorAll<HTMLButtonElement>('[data-turn]').forEach((b) => b.addEventListener('click', () => {
+      if (!apart || busy) return;
+      root.classList.add('turned');
+      target = restOn(target) + Number(b.dataset.turn) * 6;   // 30° a click
+      spin();
+    }));
+    let drag: { x: number; t: number; id: number; v: number; lx: number; lt: number } | null = null;
+    stage.addEventListener('pointerdown', (e) => {
+      if (!apart || busy) return;
+      drag = { x: e.clientX, t: target, id: e.pointerId, v: 0, lx: e.clientX, lt: performance.now() };
+    });
+    addEventListener('pointermove', (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x;
+      if (!dragging && Math.abs(dx) < 6) return;
+      if (!dragging) { dragging = true; root.classList.add('dragging', 'turned'); spin(); }
+      const perPx = (ORBIT * 0.9) / stage.clientWidth;     // a full stage width turns it about 320°
+      const now = performance.now();
+      drag.v = 0.7 * drag.v + 0.3 * ((-(e.clientX - drag.lx) * perPx) / Math.max(now - drag.lt, 1));
+      drag.lx = e.clientX; drag.lt = now;
+      target = drag.t - dx * perPx;
+    });
+    const endDrag = () => {
+      if (!drag) return;
+      const v = drag.v;
+      drag = null;
+      if (!dragging) return;
+      dragging = false;
+      setTimeout(() => root.classList.remove('dragging'));   // after this pointer's click, so the click does not clear
+      target = restOn(target + Math.max(Math.min(v * 220, 8), -8));   // a flick carries on a little
+      spin();
+    };
+    addEventListener('pointerup', endDrag);
+    addEventListener('pointercancel', endDrag);
+
+    // ---- take apart / put together (never picks anything by itself)
     const setApart = async (on: boolean) => {
       if (busy || on === apart) return;
       busy = true;
       paint(null); clear('hit'); tag.classList.remove('on');
       if (on) {
         await animate(0, FILM - 1, 1900, film);
-        apart = true; turn = 0;
+        apart = true; shown = target = 0;
         view = { set: orbit, f: 0, loop: true }; draw();
       } else {
-        const m = ((Math.round(turn) % ORBIT) + ORBIT) % ORBIT;   // turn back to the start the short way, then close up
+        const m = Math.round(wrap(shown));                // turn back to the start the short way, then close up
         if (m) await animate(m, m > ORBIT / 2 ? ORBIT : 0, 700, orbit, true);
-        apart = false; turn = 0;
+        apart = false; shown = target = 0;
         await animate(FILM - 1, 0, 1500, film);
       }
       root.classList.toggle('apart', apart);
@@ -275,59 +341,18 @@ const DIR = '/dev/inner/anatomy';
       hits();
       if (pinned) paint(pinned.ids);
     };
-    root.querySelector('[data-toggle]')!.addEventListener('click', () => setApart(!apart));
+    root.querySelector('[data-toggle]')!.addEventListener('click', () => { select(null); setApart(!apart); });
 
-    // ---- turning: drag or buttons
-    const settle = async (to: number) => {
-      busy = true;
-      await animate(turn, to, 380, orbit, true);
-      turn = to;
-      busy = false;
-      hits();
-      if (pinned) paint(pinned.ids);
-    };
-    root.querySelectorAll<HTMLButtonElement>('[data-turn]').forEach((b) => b.addEventListener('click', () => {
-      if (!apart || busy) return;
-      root.classList.add('turned');
-      settle(Math.round(turn) + Number(b.dataset.turn) * 3);   // 30° a click
-    }));
-    let drag: { x: number; t: number; id: number } | null = null;
-    stage.addEventListener('pointerdown', (e) => {
-      if (!apart || busy) return;
-      drag = { x: e.clientX, t: turn, id: e.pointerId };
-    });
-    addEventListener('pointermove', (e) => {
-      if (!drag || e.pointerId !== drag.id) return;
-      const dx = e.clientX - drag.x;
-      if (!root.classList.contains('dragging') && Math.abs(dx) < 6) return;
-      if (!root.classList.contains('dragging')) {
-        root.classList.add('dragging', 'turned');
-        paint(null); clear('hit'); tag.classList.remove('on');
-      }
-      turn = drag.t - (dx / stage.clientWidth) * ORBIT * 0.9;
-      view = { set: orbit, f: ((turn % ORBIT) + ORBIT) % ORBIT, loop: true };
-      draw();
-    });
-    const endDrag = () => {
-      if (!drag) return;
-      const was = root.classList.contains('dragging');
-      drag = null;
-      root.classList.remove('dragging');
-      if (was) settle(Math.round(turn));
-    };
-    addEventListener('pointerup', endDrag);
-    addEventListener('pointercancel', endDrag);
-
-    // ---- pointing at a part on the pallet (a tap off the pallet clears it on touch screens)
+    // ---- pointing at a part on the pallet; tapping empty space (or Esc) clears every highlight
+    stage.addEventListener('pointermove', (e) => { if (e.movementX || e.movementY) armed = true; });
     stage.addEventListener('click', (e) => {
-      if ((e.target as Element).closest('.hit')) return;
-      tag.classList.remove('on');
-      rows.forEach((r) => r.classList.toggle('on', r === pinned?.el));
-      paint(pinned ? pinned.ids : null);
+      if (root.classList.contains('dragging') || (e.target as Element).closest('.hit')) return;
+      select(null);
     });
+    root.addEventListener('keydown', (e) => { if (e.key === 'Escape') select(null); });
     svg.addEventListener('pointerover', (e) => {
       const id = Number((e.target as SVGElement).dataset?.id);
-      if (!id || root.classList.contains('dragging')) return;
+      if (!id || dragging || spinning || (e.pointerType === 'mouse' && !armed)) return;
       const hit = partOf(id);
       if (!hit) return;
       paint([id]);
@@ -351,26 +376,23 @@ const DIR = '/dev/inner/anatomy';
     svg.style.pointerEvents = 'none';
     g('hit').style.pointerEvents = 'auto';
 
-    // ---- layers and parts in the list
-    const pick = async (ids: number[], name: string, size: string, el: HTMLElement) => {
-      select(ids, name, size, el);
+    // ---- layers and parts in the list: picking one takes the pallet apart; picking it again lets it go
+    const pick = async (ids: number[], el: HTMLElement) => {
+      if (pinned?.el === el) { select(null); return; }
+      select(ids, el);
       if (!apart) await setApart(true);
     };
-    layerEls.forEach((l) => l.querySelector('.lbtn')!.addEventListener('click', () => {
-      const b = l.querySelector<HTMLElement>('.lbtn')!;
-      pick(l.dataset.ids!.split(',').map(Number), b.dataset.name!, b.dataset.size!, l);
-    }));
+    layerEls.forEach((l) => l.querySelector('.lbtn')!.addEventListener('click', () => pick(l.dataset.ids!.split(',').map(Number), l)));
     rows.forEach((r) => {
-      const go = () => pick(r.dataset.ids!.split(',').map(Number), r.dataset.name!, r.dataset.size!, r);
+      const go = () => pick(r.dataset.ids!.split(',').map(Number), r);
       r.addEventListener('click', go);
       r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
     });
     root.querySelectorAll<HTMLButtonElement>('[data-step]').forEach((b) => b.addEventListener('click', () => {
       const cur = layerEls.findIndex((l) => l.classList.contains('on'));
-      const next = Math.min(Math.max(cur + Number(b.dataset.step), 0), layerEls.length - 1);
-      const l = layerEls[cur < 0 ? 0 : next];
-      const lb = l.querySelector<HTMLElement>('.lbtn')!;
-      pick(l.dataset.ids!.split(',').map(Number), lb.dataset.name!, lb.dataset.size!, l);
+      const l = layerEls[cur < 0 ? 0 : Math.min(Math.max(cur + Number(b.dataset.step), 0), layerEls.length - 1)];
+      if (pinned?.el === l) return;
+      pick(l.dataset.ids!.split(',').map(Number), l);
     }));
 
     // ---- start loading when the viewer comes near

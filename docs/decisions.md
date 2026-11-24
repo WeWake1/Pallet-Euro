@@ -2,6 +2,21 @@
 
 Owner answers, newest first. Never re-ask anything answered here.
 
+## 2026-11-23 (round-8 verdict)
+
+| # | Question | Answer |
+|---|---|---|
+| 65 | (#63) Round 8 hero: A "Built in layers"? | **No: "good, but they still ain't cutting it. Something more unique, cool yet simple. Another round!"** |
+| 66 | (#64) The anatomy viewer as built, for the guide page? | **Yes, after two changes:** (1) the exploded view must be viewable with **no layer selected or highlighted** (it should never pick one by itself); (2) turning it is **choppy: make the rotation smoother.** |
+
+Claude's calls (round 9 and the anatomy fixes):
+- Process change after eight rounds built around motion: round 9 shows **four bold still pictures** (only a slow settle as the page opens), so the owner can pick the picture first; its motion is then designed for that picture. A "Indigo" (an EPAL 1 carrying rolls of indigo-dyed cloth: India's own blue, close to the brand's deep blue, the one strong colour on a white studio), B "Plan" (straight from above on warm stone in late sun: boards and long shadows as a graphic poster), C "Upright" (standing on its end against a lime-washed wall, low sun from the front right), D "Close-up" (one corner, close and cinematic: deck board ends, the chamfer, the branded block, shallow focus).
+- Anatomy: taking the pallet apart never selects anything; a layer or part is highlighted only when picked, and picking it again, tapping empty space or Esc clears it; a part is highlighted on hover only after the pointer really moves. Turning: 72 angles (every 5°, was 36), the picture eases after the pointer with a little momentum after a flick, and rests on whole 10° steps (where the outlines are).
+
+### Open questions (round 9, asked 2026-11-23)
+
+67. Which round-9 picture becomes the hero (its motion designed next)? D "Close-up" recommended. (Or A "Indigo", B "Plan", C "Upright", or another round.)
+
 ## 2026-11-23 (late night: round-7 verdict)
 
 | # | Question | Answer |
@@ -17,7 +32,7 @@ Claude's calls (round 8 and the anatomy viewer):
 - Anatomy viewer (guide page): photoreal frames only, no live 3D (the owner found live 3D fake in round 3): a 48-frame exploded-view film, 36 angles of the exploded pallet to drag or turn, "Layer by layer" with each layer's parts, sizes and a one-line note; the highlight is a vector outline (white edge, blue line) traced from an ID map, with the rest of the pallet softly veiled.
 - B's scene captions say only "Made in India", "Loaded for export" and "To Europe's standard": no claim of customers or exports yet.
 
-### Open questions (round 8, asked 2026-11-23)
+### Open questions (round 8, asked 2026-11-23; answered: #65–#66 above)
 
 63. Round 8 hero: A "Built in layers"? (Alternatives: B "The journey", C "The family", D "Living photograph", or a mix, e.g. one as the hero and another further down the page.)
 64. The anatomy viewer (`/prototype/inner/?variant=A`) as built, for the guide page "What makes an EPAL pallet"?
