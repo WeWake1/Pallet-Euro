@@ -1,0 +1,101 @@
+---
+// PROTOTYPE round 10 · A "The industries" (the owner's idea, decisions #69-#74): one EPAL 1 in the white studio while
+// the camera circles slowly; every few seconds its load lifts up and away and the next industry's load comes down and
+// settles. Plays by itself (no cursor, decision #58); the industry on screen is named beside the pallet and marked in
+// the list under the hero. Frames: tools/render/hero/r10.py --job industries (each segment: 18 frames of swap played
+// fast, 16 frames of hold played slowly; industries.json). Pauses off screen; reduced motion: one still.
+import fs from 'node:fs';
+import path from 'node:path';
+import HeroCopy from '../home/HeroCopy.astro';
+import Industries from './Industries.astro';
+import { INDUSTRIES } from './industries';
+
+const DIR = '/dev/r10/industries';
+const meta = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public', DIR, 'industries.json'), 'utf8'));
+const START = meta.swap + 6;            // the first load already settled
+const name = (i: number) => String(i).padStart(3, '0');
+const loads = Object.fromEntries(INDUSTRIES.map((i) => [i.key, i.load]));
+const segs = (meta.segments as { key: string; name: string }[]).map((s) => ({ ...s, load: loads[s.key] }));
+---
+<section class="photo-hero r10-ind" data-key="A" data-dir={DIR} data-meta={JSON.stringify({ ...meta, segments: segs })}
+  aria-label="Pallet Euro Packaging" style="--pic-bg:#F3F3F2">
+  <div class="pic" data-pic>
+    <img src={`${DIR}/${name(START)}.webp`} srcset={`${DIR}-sm/${name(START)}.webp 960w, ${DIR}/${name(START)}.webp 1920w`} sizes="100vw"
+      width="1920" height="1080" fetchpriority="high" decoding="async" alt="An EPAL 1 Euro pallet carrying a load of bottled drinks, in a white studio" />
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <p class="now" aria-live="polite"><b>{segs[0].name}</b><span>{segs[0].load}</span></p>
+  <Industries />
+</section>
+
+<style>
+  .r10-ind .pic img { object-position: 62% 50%; }
+  .now.out { opacity: 0; transform: translateY(6px); }
+  /* the load on screen, named under the headline block, just above the list of industries */
+  .now { position: absolute; left: var(--pad); bottom: 74px; z-index: 3; display: flex; align-items: baseline; gap: 10px; margin: 0;
+    transition: opacity 0.45s, transform 0.45s var(--ease); }
+  .now b { font-size: 17px; font-weight: 700; color: var(--blue); }
+  .now span { font-size: 15px; color: var(--ink-2); }
+  .now span::before { content: '·'; margin-right: 10px; color: var(--ink-3); }
+  @media (max-width: 900px) {
+    .r10-ind .pic img { object-position: 72% 50%; }
+    .now { position: relative; left: auto; bottom: auto; margin-top: 22px; }
+  }
+</style>
+
+<script>
+  import { createSeq, frames } from '../r5/seq';
+  import { whenShown } from '../home/when-shown';
+
+  for (const root of document.querySelectorAll<HTMLElement>('.r10-ind')) {
+    const pic = root.querySelector<HTMLElement>('[data-pic]')!;
+    whenShown(root.dataset.key!, pic, () => {
+      const m = JSON.parse(root.dataset.meta!);
+      const SEG = m.swap + m.hold, N = m.frames;
+      const PACE = 0.72;                                   // a little slower than rendered: more time with each load
+      const swapS = m.swap / m.fpsSwap / PACE, segS = swapS + m.hold / m.fpsHold / PACE;
+      const small = innerWidth <= 900;
+      const start = m.swap + 6;
+      const seq = createSeq(pic.querySelector('canvas')!, frames(small ? `${root.dataset.dir}-sm` : root.dataset.dir!, N),
+        { x: small ? 0.72 : 0.62, y: 0.5 }, start, true);
+      const now = root.querySelector<HTMLElement>('.now')!;
+      const items = [...root.querySelectorAll<HTMLElement>('.ind li')];
+      let shown = -1;
+      const label = (k: number) => {
+        if (k === shown) return;
+        shown = k;
+        const s = m.segments[k];
+        items.forEach((li) => li.classList.toggle('on', li.dataset.key === s.key));
+        now.classList.add('out');
+        setTimeout(() => {
+          now.querySelector('b')!.textContent = s.name;
+          now.querySelector('span')!.textContent = s.load;
+          now.classList.remove('out');
+        }, 380);
+      };
+      label(0);
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return {};
+      // time -> frame: each segment plays its swap quickly and its hold slowly, as rendered (the orbit stays even)
+      const frameAt = (t: number) => {
+        const k = Math.floor(t / segS) % m.segments.length, ts = t % segS;
+        const i = ts < swapS ? (ts / swapS) * m.swap : m.swap + ((ts - swapS) / (segS - swapS)) * m.hold;
+        return { f: k * SEG + i, k, i };
+      };
+      let t = swapS + (6 / m.hold) * (segS - swapS), last = performance.now(), visible = true;
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+      const tick = (nowT: number) => {
+        requestAnimationFrame(tick);
+        const dt = Math.min(nowT - last, 64);
+        last = nowT;
+        if (!visible || document.hidden || pic.offsetParent === null) return;
+        t += dt / 1000;
+        const { f, k, i } = frameAt(t);
+        seq.show(f);
+        if (i > 9) label(k);                               // name the new load as it comes into view
+      };
+      seq.done.then(() => { last = performance.now(); requestAnimationFrame(tick); });
+      return {};
+    });
+  }
+</script>

@@ -1,0 +1,72 @@
+{
+ "size": [
+  1920,
+  1080
+ ],
+ "perMetre": [
+  237.03,
+  -18.33
+ ],
+ "phases": 4,
+ "wheelR": 0.33,
+ "phaseDeg": 15,
+ "order": [
+  "fmcg",
+  "automotive",
+  "pharma",
+  "chemicals",
+  "engineering",
+  "food",
+  "manufacturing",
+  "logistics",
+  "textiles",
+  "exports",
+  "building"
+ ],
+ "segments": [
+  {
+   "key": "fmcg",
+   "name": "FMCG"
+  },
+  {
+   "key": "pharma",
+   "name": "Pharmaceuticals"
+  },
+  {
+   "key": "chemicals",
+   "name": "Chemicals & Polymers"
+  },
+  {
+   "key": "automotive",
+   "name": "Automotive"
+  },
+  {
+   "key": "engineering",
+   "name": "Engineering & Heavy Industries"
+  },
+  {
+   "key": "manufacturing",
+   "name": "Manufacturing"
+  },
+  {
+   "key": "logistics",
+   "name": "Logistics & Warehousing"
+  },
+  {
+   "key": "exports",
+   "name": "Exporters & Importers"
+  },
+  {
+   "key": "food",
+   "name": "Food & Agriculture"
+  },
+  {
+   "key": "textiles",
+   "name": "Textiles & Apparel"
+  },
+  {
+   "key": "building",
+   "name": "Building Materials"
+  }
+ ]
+}

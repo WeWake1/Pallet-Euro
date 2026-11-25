@@ -1,0 +1,117 @@
+---
+// PROTOTYPE round 10 · C "The delivery" (decision #75: the forklift combined with the industries): a forklift drives in
+// from the right carrying one industry's load on an EPAL 1, stops beside the headline while the industry is named,
+// backs out, and the next one drives in. Plays by itself. Smooth at any frame rate: the forklift is a photoreal
+// sprite rendered by an orthographic camera (tools/render/hero/r10.py --job delivery: every load x 4 wheel-turn
+// phases, transparent, with its own shadow), so sliding it across the page keeps the exact perspective; the wheels
+// turn with the distance travelled. Reduced motion: it stands still with the first load.
+import fs from 'node:fs';
+import path from 'node:path';
+import HeroCopy from '../home/HeroCopy.astro';
+import Industries from './Industries.astro';
+import { INDUSTRIES } from './industries';
+
+const DIR = '/dev/r10/delivery';
+const file = path.join(process.cwd(), 'public', DIR, 'delivery.json');
+const meta = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : { size: [1920, 1080], perMetre: [249, -11], order: [] };
+const order = (meta.order as string[]).map((k) => INDUSTRIES.find((i) => i.key === k)!).filter(Boolean);
+---
+<section class="photo-hero r10-del" data-key="C" data-dir={DIR} data-meta={JSON.stringify({ ...meta, order })}
+  aria-label="Pallet Euro Packaging" style="--pic-bg:#F4F3F0">
+  <div class="pic" data-pic>
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+  <p class="now" aria-live="polite"><b>{order[0]?.name}</b><span>{order[0]?.load}</span></p>
+  <Industries />
+</section>
+
+<style>
+  .r10-del .pic { background: linear-gradient(180deg, #F6F5F3 0%, #F4F3F0 55%, #EEECE8 100%); }
+  .r10-del .pic canvas { opacity: 1; }
+  .now:not(.on) { opacity: 0; transform: translateY(6px); }
+  /* the load on screen, named under the headline block, just above the list of industries */
+  .now { position: absolute; left: var(--pad); bottom: 74px; z-index: 3; display: flex; align-items: baseline; gap: 10px; margin: 0;
+    transition: opacity 0.45s, transform 0.45s var(--ease); }
+  .now b { font-size: 17px; font-weight: 700; color: var(--blue); }
+  .now span { font-size: 15px; color: var(--ink-2); }
+  .now span::before { content: '·'; margin-right: 10px; color: var(--ink-3); }
+  @media (max-width: 900px) {
+    .now { position: relative; left: auto; bottom: auto; margin-top: 22px; }
+  }
+</style>
+
+<script>
+  import { whenShown } from '../home/when-shown';
+
+  for (const root of document.querySelectorAll<HTMLElement>('.r10-del')) {
+    const pic = root.querySelector<HTMLElement>('[data-pic]')!;
+    const canvas = pic.querySelector('canvas')!;
+    whenShown(root.dataset.key!, pic, () => {
+      const m = JSON.parse(root.dataset.meta!);
+      const order: { key: string; name: string; load: string }[] = m.order;
+      const small = innerWidth <= 900;
+      const half = small ? 0.5 : 1;                        // phones get the half-size sprites (delivery-sm)
+      const [IW, IH] = (m.size as number[]).map((v) => v * half);
+      const [PX, PY] = (m.perMetre as number[]).map((v) => v * half);
+      const sprites = new Map<string, HTMLImageElement[]>();
+      const load = (key: string) => {
+        if (!sprites.has(key)) {
+          sprites.set(key, [0, 1, 2, 3].map((p) => { const im = new Image(); im.src = `${root.dataset.dir}${small ? '-sm' : ''}/${key}-${p}.webp`; return im; }));
+        }
+        return sprites.get(key)!;
+      };
+      order.forEach((o) => load(o.key));
+      const ctx = canvas.getContext('2d')!;
+      const now = root.querySelector<HTMLElement>('.now')!;
+      const items = [...root.querySelectorAll<HTMLElement>('.ind li')];
+      const PHASE_M = 0.33 * (15 * Math.PI / 180);       // the front wheel turns 15° per phase; its nuts repeat every 60°
+      // the sprite is drawn K times its cover size, its centre at (AX, AY) of the canvas when parked (pos 0)
+      const K = small ? 0.92 : 0.74, AX = small ? 0.5 : 0.66, AY = small ? 0.6 : 0.6;
+      const REST = 0, OFF = small ? 5.5 : 7.5;            // metres right of the parked spot
+      const draw = (key: string, pos: number) => {
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+        ctx.clearRect(0, 0, w, h);
+        const s = Math.max(w / IW, h / IH) * K;
+        const ph = (((-Math.floor(pos / PHASE_M)) % 4) + 4) % 4;   // forward (leftwards) turns the wheels forward
+        const im = load(key)[ph];
+        if (!im.complete || !im.naturalWidth) return;
+        ctx.drawImage(im, w * AX + (-IW / 2 + pos * PX) * s, h * AY + (-IH / 2 + pos * PY) * s, IW * s, IH * s);
+      };
+      const label = (i: number, on: boolean) => {
+        const o = order[i];
+        items.forEach((li) => li.classList.toggle('on', li.dataset.key === o.key));
+        if (on) { now.querySelector('b')!.textContent = o.name; now.querySelector('span')!.textContent = o.load; }
+        now.classList.toggle('on', on);
+      };
+      let cur = 0, pos = REST;
+      new ResizeObserver(() => draw(order[cur].key, pos)).observe(canvas);
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        Promise.all(load(order[0].key).map((im) => im.decode().catch(() => {}))).then(() => { draw(order[0].key, REST); label(0, true); });
+        return {};
+      }
+      // one delivery: drive in (decelerating), stand, back out (accelerating); then the next load
+      const IN = 2400, STAY = 3000, OUT = 1700;
+      const outQ = (x: number) => 1 - (1 - x) ** 3, inQ = (x: number) => x * x * x;
+      let t = 0, last = performance.now(), visible = true;
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+      const tick = (nowT: number) => {
+        requestAnimationFrame(tick);
+        const dt = Math.min(nowT - last, 64);
+        last = nowT;
+        if (!visible || document.hidden || pic.offsetParent === null) return;
+        t += dt;
+        if (t < IN) pos = OFF + (REST - OFF) * outQ(t / IN);
+        else if (t < IN + STAY) pos = REST;
+        else if (t < IN + STAY + OUT) pos = REST + (OFF - REST) * inQ((t - IN - STAY) / OUT);
+        else { t = 0; cur = (cur + 1) % order.length; pos = OFF; }
+        label(cur, t > IN - 500 && t < IN + STAY + 200);
+        draw(order[cur].key, pos);
+      };
+      Promise.all(load(order[0].key).map((im) => im.decode().catch(() => {}))).then(() => { last = performance.now(); requestAnimationFrame(tick); });
+      return {};
+    });
+  }
+</script>

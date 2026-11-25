@@ -1,0 +1,53 @@
+{
+ "frames": 374,
+ "swap": 18,
+ "hold": 16,
+ "fpsSwap": 24,
+ "fpsHold": 8,
+ "segments": [
+  {
+   "key": "fmcg",
+   "name": "FMCG"
+  },
+  {
+   "key": "automotive",
+   "name": "Automotive"
+  },
+  {
+   "key": "pharma",
+   "name": "Pharmaceuticals"
+  },
+  {
+   "key": "chemicals",
+   "name": "Chemicals & Polymers"
+  },
+  {
+   "key": "engineering",
+   "name": "Engineering & Heavy Industries"
+  },
+  {
+   "key": "food",
+   "name": "Food & Agriculture"
+  },
+  {
+   "key": "manufacturing",
+   "name": "Manufacturing"
+  },
+  {
+   "key": "logistics",
+   "name": "Logistics & Warehousing"
+  },
+  {
+   "key": "textiles",
+   "name": "Textiles & Apparel"
+  },
+  {
+   "key": "exports",
+   "name": "Exporters & Importers"
+  },
+  {
+   "key": "building",
+   "name": "Building Materials"
+  }
+ ]
+}

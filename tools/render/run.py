@@ -61,6 +61,10 @@ PRESETS = {
     "r9-plan":       ("r9.py", "public/dev/r9", "2400x1350", 128, 86, ["--scene", "plan"], "stills"),
     "r9-upright":    ("r9.py", "public/dev/r9", "2400x1350", 128, 86, ["--scene", "upright"], "stills"),
     "r9-macro":      ("r9.py", "public/dev/r9", "2400x1350", 128, 86, ["--scene", "macro"], "stills"),
+    # round 10 (r10.py; the eleven loads in loads.py)
+    "r10-industries": ("r10.py", "public/dev/r10/industries", "1920x1080", 48, 80, ["--job", "industries"], "frames"),
+    "r10-lift":       ("r10.py", "public/dev/r10/lift", "1920x1080", 32, 80, ["--job", "lift"], "frames"),
+    "r10-delivery":   ("r10.py", "public/dev/r10/delivery", "1920x1080", 48, 84, ["--job", "delivery"], None),
 }
 GROUPS = {"xray": ["xray-photo", "xray-xray", "xray-ids"], "worlds": ["europe", "india"],
           "r6": ["daybreak", "neem", "bullettime"], "r7": ["blueprint", "frieze", "carved"],

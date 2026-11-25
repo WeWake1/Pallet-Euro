@@ -135,9 +135,9 @@ Archived at `/prototype/round-8/` (`?variant=A|B|C|D`), followed by the Mark and
 
 Round 8 verdict (decisions #65–#66): **"good, but they still ain't cutting it. Something more unique, cool yet simple."** Anatomy approved for the guide page after two fixes (no layer picked by itself; smoother turning), both done the same night (72 angles, eased turning).
 
-## Round 9 · four bold pictures, motion later (23 Nov 2026, awaiting the owner’s verdict)
+## Round 9 · four bold pictures, motion later (23 Nov 2026)
 
-Live at `/prototype/` (`?variant=A|B|C|D`). After eight rounds built around motion, this round finds the picture first: four bold, simple stills (only a slow settle as the page opens); the chosen one gets its motion next. Scene: `tools/render/hero/r9.py --scene indigo|plan|upright|macro` (`python tools/render/run.py r9`), pictures in `public/dev/r9/` (2400×1350 with `-sm`).
+Archived at `/prototype/round-9/` (`?variant=A|B|C|D`). After eight rounds built around motion, this round finds the picture first: four bold, simple stills (only a slow settle as the page opens); the chosen one gets its motion next. Scene: `tools/render/hero/r9.py --scene indigo|plan|upright|macro` (`python tools/render/run.py r9`), pictures in `public/dev/r9/` (2400×1350 with `-sm`).
 
 | | Picture | Idea |
 |---|---|---|
@@ -145,3 +145,15 @@ Live at `/prototype/` (`?variant=A|B|C|D`). After eight rounds built around moti
 | B | Plan | Straight from above on warm stone in late sun: the boards and their long shadows as a graphic poster |
 | C | Upright | The EPAL 1 standing on its end against a lime-washed wall, low sun from the front right, like a piece of design |
 | D | Close-up | One corner, close and cinematic: deck board ends, the chamfer, the branded block, shallow focus |
+
+Verdict (decision #68): **"very, very simple"**: simple meant unique, cool and simple, not plain.
+
+## Round 10 · the owner's idea: one pallet, every industry (24–25 Nov 2026, awaiting the owner’s verdict)
+
+Live at `/prototype/` (`?variant=A|B|C`), followed by the Mark and container stories. Built from the owner's own idea (decision #69): an EPAL pallet carrying a different industry's load, one detailed, unbranded product per industry. All three play by themselves (no cursor). The eleven loads (`tools/render/hero/loads.py`): FMCG (bottled drinks on slip sheets, stretch-wrapped), Automotive (tyres), Pharmaceuticals (cartons under a quilted thermal cover with a logger), Chemicals & Polymers (two 200-litre drums), Engineering & Heavy Industries (an electric motor on skids), Food & Agriculture (crates of mangoes), Manufacturing (copper wire on reels), Logistics & Warehousing (mixed cartons with tape and labels, wrapped), Textiles & Apparel (rolls of indigo cloth), Exporters & Importers (jute sacks), Building Materials (clay bricks, strapped). Forklift and racking: `tools/render/hero/warehouse.py`. Scenes: `tools/render/hero/r10.py --job industries|lift|delivery|still`.
+
+| | Hero | Motion |
+|---|---|---|
+| A | The industries | The owner's idea: the camera circles one EPAL 1 in the white studio; every few seconds the load lifts away and the next industry's load comes down and settles (374 frames, a 38-second loop); the industry is named under the headline and marked in the list of industries under the hero (plain text, for search) |
+| B | Lift | A forklift raises an EPAL 1 of bottled drinks to the second beam level of a racking stocked with every other industry's load, drives it in, sets it down and backs out; the camera rises with the load (132 frames, 5.5 s, plays once, then "Play again") |
+| C | The delivery | The forklift combined with the industries: a forklift drives in carrying one industry's load, stops beside the headline while the industry is named, backs out, and the next one drives in. Photoreal sprites from an orthographic camera (every load × 4 wheel phases, transparent, with its own shadow), slid across the page, so it is smooth at any frame rate |

@@ -2,6 +2,30 @@
 
 Owner answers, newest first. Never re-ask anything answered here.
 
+## 2026-11-24 (round-9 verdict)
+
+| # | Question | Answer |
+|---|---|---|
+| 68 | (#67) Which round-9 picture becomes the hero? | **None: "I don't like this round at all. They are very, very simple."** "Simple" meant **unique, cool and simple**, not plain. Another round. |
+| 69 | (owner's own idea for round 10) | **One hero: a very smooth animation of an EPAL pallet with rich, highly detailed products on top that keep switching, one product from each industry that uses EPAL pallets.** The owner's list: Manufacturing; Logistics & Warehousing; FMCG; Pharmaceuticals; Chemicals & Polymers; Engineering & Heavy Industries; Automotive; Exporters & Importers. Add any missing ones. The owner asked to be asked which industries and which product for each (open questions below). |
+| 70–74 | (round-10 questions below) | **Yes to all:** the eleven industries and their loads as proposed, the motion (the camera circles slowly; the load lifts away, the next lowers in and settles; the industry's name changes beside the headline), always the same EPAL 1, no brands or logos, the industries as plain text under the hero. |
+| 75 | Two more ideas: Stepwell and Lift? | **No to Stepwell. "I really like the forklift idea":** build Lift, plus something similar or **a combination of the forklift and the industries-and-loads idea.** |
+
+Claude's calls: round 10 = A "The industries" (the owner's idea), B "Lift" (forklift forks slide into a loaded EPAL 1 and lift it into a tall racking bay), C "The rack fills" (the combination: the forklift places one loaded EPAL 1 after another into a racking, each industry's load in its own bay, named as it goes in). All three share one library of eleven detailed, unbranded loads (`tools/render/hero/loads.py`).
+
+### Open questions (round 10 heroes, asked 2026-11-25)
+
+76. Round 10 hero: A "The industries" (the owner's idea)? Alternatives: B "Lift", C "The delivery", or a mix (e.g. A as the hero and B's racking further down the page).
+
+### Open questions (round 10, asked 2026-11-24; answered the same day: #70–#75 above)
+
+70. The industries and the load for each, all unbranded: FMCG (shrink-wrapped trays of bottled drinks), Pharmaceuticals (white medicine cartons under a silver thermal cover), Chemicals & Polymers (two blue 200-litre drums), Automotive (stacks of new tyres), Engineering & Heavy Industries (an industrial gearbox strapped down), Manufacturing (coils of copper wire), Logistics & Warehousing (mixed cartons, stretch-wrapped, with shipping labels), Exporters & Importers (jute sacks of spices and coffee); added: Food & Agriculture (wooden crates of mangoes), Textiles & Apparel (rolls of indigo-dyed cloth), Building Materials (stacked bricks).
+71. The motion: the camera circles slowly the whole time; every few seconds the load lifts up and away and the next one lowers onto the deck and settles; the industry's name changes beside the headline.
+72. Always the same EPAL 1 under every load (only the load changes; two drums instead of four)?
+73. No brand names or logos on any product?
+74. The industries also as plain text under the hero, for search?
+75. The rest of round 10: two more ideas beside the owner's, B "Stepwell" (an EPAL 1 at the bottom of a deep Indian stepwell, the camera slowly descending its zigzag steps) and C "Lift" (forklift forks lift the loaded pallet into a tall racking bay, the camera rising with it)?
+
 ## 2026-11-23 (round-8 verdict)
 
 | # | Question | Answer |

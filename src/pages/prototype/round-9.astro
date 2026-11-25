@@ -1,0 +1,42 @@
+---
+// PROTOTYPE ARCHIVE · round 9 (23 Nov 2026): four bold stills (Indigo, Plan, Upright, Close-up), kept for reference.
+// Owner's verdict (decision #68): "very, very simple"; simple meant unique, cool and simple.
+import Proto from '../../layouts/Proto.astro';
+import Switcher from '../../components/proto/Switcher.astro';
+import '../../components/proto/home/home.css';
+import Header from '../../components/proto/home/Header.astro';
+import Range from '../../components/proto/home/Range.astro';
+import CertifiedSteps from '../../components/proto/home/CertifiedSteps.astro';
+import Footer from '../../components/proto/home/Footer.astro';
+import HeroStill from '../../components/proto/r9/HeroStill.astro';
+import MarkFilm from '../../components/proto/r5/MarkFilm.astro';
+import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
+---
+<Proto title="Round 9 (archive) · hero pictures · Pallet Euro (prototype)">
+  <div class="pe">
+    <Header />
+    <main>
+      <div class="variant" data-variant="A"><HeroStill variant="A" name="indigo" fx={0.6} pfx={0.72} bg="#F4F4F3"
+        alt="An EPAL 1 Euro pallet carrying a load wrapped in indigo-dyed cotton, in a white studio" /></div>
+      <div class="variant" data-variant="B"><HeroStill variant="B" name="plan" fx={0.62} pfx={0.68} bg="#F2F0EB"
+        alt="An EPAL 1 Euro pallet seen straight from above in low sun, its boards casting long shadows" /></div>
+      <div class="variant" data-variant="C"><HeroStill variant="C" name="upright" fx={0.62} pfx={0.74} bg="#EFEAE2"
+        alt="An EPAL 1 Euro pallet standing on its end against a lime-washed wall in morning light" /></div>
+      <div class="variant" data-variant="D"><HeroStill variant="D" name="macro" fx={0.6} pfx={0.74} bg="#EFEDE8"
+        alt="A close view of the corner of an EPAL 1 Euro pallet: deck board ends, the chamfer and the branded block" /></div>
+      <MarkFilm />
+      <Range />
+      <CertifiedSteps />
+      <ContainerFilm />
+    </main>
+    <Footer />
+  </div>
+  <Switcher round="Round 9 (archive)" variants={[{ key: 'A', name: 'Indigo' }, { key: 'B', name: 'Plan' }, { key: 'C', name: 'Upright' }, { key: 'D', name: 'Close-up' }]} />
+</Proto>
+
+<style is:global>
+  /* Photo heroes: on computers the header floats transparent over the picture until the page scrolls. */
+  @media (min-width: 901px) {
+    html:not(.scrolled) .pe .head { background: transparent; backdrop-filter: none; }
+  }
+</style>
