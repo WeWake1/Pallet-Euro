@@ -2,6 +2,36 @@
 
 Owner answers, newest first. Never re-ask anything answered here.
 
+## 2026-11-25 (round-10 verdict)
+
+| # | Question | Answer |
+|---|---|---|
+| 76 | Round 10 hero: A "The industries"? | **None: "this round 10 of heros ain't fitting in the hero page at all."** But **A "The industries" can be used in the About section, or wherever the site shows the industries it serves.** Another round (11): **"come up with something crazy"**, different from all ten rounds yet something the owner would like, offered as a checklist of ideas to tick. |
+| 77 | Round 11, one pallet (tick any): Sliced, Exact fit, 78 nails, Infinity room? | **Sliced, Exact fit, Infinity room.** Not 78 nails. |
+| 78 | Round 11, big and wild (tick any): The flock, Through the opening, Blue silk, Dominoes? | **Through the opening, Blue silk, Dominoes.** Not the flock. |
+| 79 | Round 10's A "The industries": home page section after the product cards? | **No: on the About page.** |
+| 80 | How the round-11 heroes move? | **Yes: each loops by itself, seamlessly, on computers and phones** (nothing to do, no cursor, no scroll; lighter frames on phones). |
+
+Round 11 therefore has six heroes: A Sliced, B Exact fit, C Infinity room, D Through the opening, E Blue silk, F Dominoes.
+
+What ten rounds taught (Claude's reading, used for the round-11 checklist): what landed was photoreal renders, one EPAL 1 in a calm light space, and real physical moments (the hot branding iron, the container doors). What failed was the cursor, plain stills, moving the light, crowded scenes (loads, forklift, racking), live 3D, landscapes and type tricks. So round 11 keeps the pallet the star and lets something physically impossible happen to it or around it, playing by itself.
+
+Claude's calls while building round 11 (tried and changed before showing):
+- A Sliced: a full turn of every slice round the long axis looked like a pile of sticks (the slices between the blocks fall apart into top and bottom pieces). Now the slices draw apart along the length round the middle (the end profile repeats in perspective) with a soft sideways ripple, then close up; whole pallet at both ends of the 5 s loop.
+- B Exact fit: seen from the exit side, so each pallet comes out of the wall like a profile from a die; a thin (7 cm) plaster wall, a raking sun along it and a dim tunnel behind it, so the empty hole reads as a crisp EPAL silhouette. The wall stays in the fork openings and slides through them like forks. A flush belt carries the pallets.
+- C Infinity room: far reflections fade into a soft white haze instead of going dark (the owner rejected dark), mirrors perfectly white, a thin luminous ceiling grid.
+- D Through the opening: the white studio was too empty at floor level, so the loop is factory (rows of fresh EPAL stacks) → Indian courtyard (jaali light) → port (deep-blue containers) → European warehouse (white brick) → factory. The camera flies in through the long side, past the branded blocks; the next place shows through the opening before the camera reaches it.
+- E Blue silk: wind could not lift a sheet lying flat; the unveil is a second cloth simulation, one edge drawn away by an invisible hand. The silk drapes over the real boards.
+- F Dominoes: 13 pallets on end winding toward the camera, in slow motion (0.72), raking sun; the page plays it forward, rests, plays it back faster (they rise again).
+- Infinity room and the flight get a light wash behind the headline on computers (busy pictures).
+- D, after the first full render: at every hand-off the camera's heading jumped 2–6° and the far pallet's opening flipped from plain wall to the next place. Both fixed (the camera looks ahead along the next place's path; a third pass fills the far opening).
+- Phones: the crop on Sliced and Dominoes moved right so their widest moment (slices fully apart, the far end of the line) stays whole.
+
+### Open questions (round 11, asked 2026-11-25)
+
+81. Round 11 hero: which one? (A Sliced, B Exact fit, C Infinity room, D Through the opening, E Blue silk, F Dominoes, a mix, or another round.)
+82. If the hero is not D: keep D "Through the opening" (factory → India → port → Europe) for a section further down, where the site says how the pallets reach Europe? (Claude's recommendation: yes.)
+
 ## 2026-11-24 (round-9 verdict)
 
 | # | Question | Answer |

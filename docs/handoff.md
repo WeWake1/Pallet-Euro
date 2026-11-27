@@ -6,15 +6,15 @@ Read this first in every Claude Code session, on either machine. It carries ever
 
 ---
 
-## 1. Status (last updated 2026-11-23)
+## 1. Status (last updated 2026-11-25)
 
 - **Stage:** two tracks.
-  - **Hero:** rounds 5 to 7 turned down (round 7: "good", but every hero moving with the cursor "is getting boring", decision #58); the two scroll stories are approved (the Mark has 335 frames). Round 8 (four kinds of motion, none of them the cursor) turned down too: "something more unique, cool yet simple" (#65). Round 9 (four bold stills) turned down: "very, very simple"; simple meant unique, cool and simple (#68). **Round 10** (2026-11-24/25, from the owner's own idea, #69–#75): A "The industries" (one EPAL 1, its load changing industry by industry), B "Lift" (a forklift lifts a loaded EPAL 1 into a stocked racking), C "The delivery" (the forklift and the industries combined). Live at `/prototype/` (`?variant=A|B|C`), waiting for the owner's verdict. Live at `/prototype/` (`?variant=A|B|C|D` or the arrow keys). The owner likes the **simplicity** of round 2's A and round 4's A.
-  - **Inner pages:** before/after approved for About (#61). The part inspector moved to one guide page as "Anatomy" (exploded view to play and turn, layer by layer, vector highlight): **approved** (#66) after two fixes, done (nothing picked by itself; smooth turning on 72 angles). `/prototype/inner/?variant=A`.
+  - **Hero:** rounds 5 to 10 turned down (round 7: every hero moving with the cursor "is getting boring", #58; round 8: "something more unique, cool yet simple", #65; round 9: "very, very simple", #68; round 10, the owner's own industries idea: "not fitting in the hero page at all", #76, but its A "The industries" goes to the **About page**, #79). **Round 11** (2026-11-25, "something crazy", picked by the owner from a checklist of eight ideas, #77–#80): A "Sliced", B "Exact fit", C "Infinity room", D "Through the opening", E "Blue silk", F "Dominoes", all photoreal loops that play by themselves on computers and phones. Live at `/prototype/` (`?variant=A..F` or the arrow keys), waiting for the owner's verdict (#81). The owner likes the **simplicity** of round 2's A and round 4's A.
+- **Inner pages:** before/after approved for About (#61). The part inspector moved to one guide page as "Anatomy" (exploded view to play and turn, layer by layer, vector highlight): **approved** (#66) after two fixes, done (nothing picked by itself; smooth turning on 72 angles). `/prototype/inner/?variant=A`.
   - **Product cards** on `/` and the prototype now use this repo's catalogue renders (dev marks); nothing live shows Ambica's `IN-083` any more (only the frozen round-2 archive).
   - **Production home page:** started on 2026-11-23 with the parts that do not depend on the hero (decision #33). `/` now runs on the production layout with the kept sections, SEO head, schema, the launch gate, `robots.txt`, sitemap and 404 (section 7). Mobile Lighthouse: 100 / 100 / 100 for performance, accessibility and best practices; SEO 69 only because of the `noindex` gate.
-- **Waiting on the owner:** round-10 verdict (#76 in `docs/decisions.md`), plus the company facts from round 2 (domain confirmed: palleteuro.com).
-- **Fallback hero** if nothing in round 10 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
+- **Waiting on the owner:** round-11 verdict (#81 and #82 in `docs/decisions.md`), plus the company facts from round 2 (domain confirmed: palleteuro.com).
+- **Fallback hero** if nothing in round 11 wins: round 4's A "Indian light" (`/prototype/round-4/?variant=A`).
 - **Catalogue rendered on the PC (2026-11-23, decision #53):** 28 pallets × 5 studio views in `src/assets/products/<slug>/`, 28 GLB models in `public/models/` (dev marks; about 74 s per pallet with its GLB). Not used by any page yet.
 - **Why the second machine:** the owner wants to do heavier Blender work on their Windows PC (AMD Radeon RX 9060 XT, 32 GB RAM). Section 3 explains the setup.
 - **Windows PC: set up and verified (2026-11-23).** Every round-5 scene renders on the RX 9060 XT and matches the Mac's frames; the site builds; the review scripts run. Two Windows-only render bugs were fixed in `tools/render/hero/common.py` (section 3, step 7). cwebp is installed.
@@ -28,7 +28,7 @@ npm ci                  # once per machine (Node 24, see .nvmrc)
 npm run proto           # dev server on http://127.0.0.1:4322
 ```
 
-Open `http://127.0.0.1:4322/prototype/` (round 10), `/prototype/inner/` (anatomy, before/after), `/prototype/round-9/` … `/round-2/`. `/` is the production home page in progress.
+Open `http://127.0.0.1:4322/prototype/` (round 11), `/prototype/inner/` (anatomy, before/after), `/prototype/round-10/` … `/round-2/`. `/` is the production home page in progress.
 Astro 7 may start the dev server in the background and return at once: `npx astro dev status`, `npx astro dev logs`, `npx astro dev stop`. On the Mac, port 4321 belongs to another project; that is why this one uses 4322.
 Astro 7 allows one dev server per project: if `npm run proto` says "Another astro dev server is already running", stop the old one (`npx astro dev stop`, or close its terminal) and start again.
 `npm run check` type-checks (0 errors expected; one deprecation hint in the round-2 archive is known).
@@ -83,7 +83,8 @@ All steps were done on the PC on 2026-11-23. The notes in italics are what that 
 | 7 | 23 Nov | From the drawing, Eye level, Carved (moving the drawing, the viewpoint, the wood; not the light) | "Good", not final; cursor motion "getting boring" |
 | 8 | 23 Nov | Built in layers (scroll), The journey (scenes), The family (tap), Living photograph (plays by itself) | "Good", not cutting it: "more unique, cool yet simple" |
 | 9 | 23 Nov | Four bold stills (Indigo, Plan, Upright, Close-up); motion after the pick | "Very, very simple" |
-| 10 | 24–25 Nov | The owner's idea: The industries (loads change), Lift (forklift into racking), The delivery (forklift + industries) | **Awaiting verdict** |
+| 10 | 24–25 Nov | The owner's idea: The industries (loads change), Lift (forklift into racking), The delivery (forklift + industries) | "Not fitting in the hero"; The industries → About page |
+| 11 | 25 Nov | "Something crazy", ticked from a checklist: Sliced, Exact fit, Infinity room, Through the opening, Blue silk, Dominoes | **Awaiting verdict** |
 
 Round 5 in one line each:
 - **A Two worlds** (`r5/HeroWorlds.astro`): the same EPAL 1 from the same camera in a European warehouse (cool light through a steel window) and the Indian jaali room. The cursor moves the seam; on phones it sweeps by itself.
@@ -103,10 +104,11 @@ Round 5 in one line each:
 - Product links use `/products/<slug>/` with the slugs in `src/data/range28.ts` (open question #36). Those pages do not exist yet.
 
 **Prototype (deleted before launch):**
-- `src/pages/prototype/index.astro`: round 5 (live). `round-2/3/4.astro`: frozen archives.
+- `src/pages/prototype/index.astro`: round 11 (live). `round-2/3/4.astro`: frozen archives.
 - `src/layouts/Proto.astro`: prototype layout (noindex, fonts, `?variant=` before first paint, `[data-reveal]` observer).
 - `src/components/proto/home/`: the live home sections shared by the current round (Header, HeroCopy, Range, CertifiedSteps, ContainerBand, Footer, `home.css` scoped under `.pe`, `when-shown.ts` to start a hero only when its variant is visible).
-- `src/components/proto/r10/`: the round-10 heroes (`HeroIndustries`, `HeroLift`, `HeroDelivery`), the list of industries (`Industries.astro`, `industries.ts`). `src/pages/prototype/round-9.astro`: round 9 archive.
+- `src/components/proto/r11/HeroLoop.astro`: the one player for all six round-11 heroes (mode `loop`, or `bounce` for Dominoes; frame count read from `public/dev/r11/<name>/` at build time; a light wash behind the headline with `scrim`). `src/pages/prototype/round-10.astro`: round 10 archive.
+- `src/components/proto/r10/`: the round-10 heroes (`HeroIndustries`, `HeroLift`, `HeroDelivery`), the list of industries (`Industries.astro`, `industries.ts`); "The industries" is meant for the About page (#79). `src/pages/prototype/round-9.astro`: round 9 archive.
 - `src/components/proto/r9/HeroStill.astro`: the round-9 heroes (one still each, a slow settle). `src/components/proto/r8/`: the round-8 heroes (`HeroScroll`, `HeroScenes`, `HeroTransform`, `HeroLoop`), shown by `src/pages/prototype/round-8.astro`. `round-7.astro`: round 7 archive.
 - `src/components/proto/r7/HeroFrames.astro`: the three round-7 heroes (frames scrubbed by the cursor; with `dims`, the dimension lines from the scene's `dims.json`, kept in register with the canvas crop). `src/pages/prototype/round-6.astro` (uses `r6/HeroFrames.astro`) and `round-5.astro`: archives (round 5's components stay in `r5/`, which the live page still uses for the films).
 - `src/pages/prototype/inner.astro` + `src/components/proto/inner/`: `Anatomy.astro` (the guide page's exploded view, layer by layer; vector outlines from `outlines.json`) and `BeforeAfter.astro`. Parts data by layer: `src/data/epal1-parts.ts`.
@@ -150,6 +152,8 @@ Round 5 in one line each:
 | Round 10 B | `r10.py --job lift` (`run.py r10-lift`) | `public/dev/r10/lift/000-131.webp` | 1920×1080, 32 spp; about 25 s a frame (a stocked racking) |
 | Round 10 C | `r10.py --job delivery` (`run.py r10-delivery`) | `public/dev/r10/delivery/<load>-<0..3>.webp` (transparent) + `delivery.json`; phone sprites `delivery-sm/` (960 px, made with `cwebp -q 80 -alpha_q 90 -resize 960 540`; run.py does not make them) | 1920×1080, 48 spp; 13 min |
 | Checking a load | `r10.py --job still --load KEY` | `<KEY>.webp` | one load on the EPAL 1 |
+| Round 11 A, B, C, E, F | `r11.py --job sliced/fit/infinity/silk/dominoes` (`run.py r11`) | `public/dev/r11/<job>/000-NNN.webp` | 1920×1080, 48 spp (infinity 64); sliced 120, fit 120, infinity 144, silk 180, dominoes 144 frames; on the PC sliced 21 min, fit 17, infinity 29, silk 21, dominoes 17 (1 h 45 in all, about 7–12 s a frame) |
+| Round 11 D | `opening.py --place factory/india/port/europe --pass seg/portal/portal2` (`run.py r11-opening`: all twelve runs in that order, then `opening_comp.py`) | intermediates in `tools/render/out/opening/`, final `public/dev/r11/opening/000-335.webp` | 1920×1080, 40 spp, motion blur; on the PC seg 43 min, portal 32 min, portal2 a few seconds a frame (it renders only a border round the far opening) |
 | Catalogue (28 pallets) | `render_pallet.py` via `render_all.py` | `src/assets/products/<slug>/1-5.webp`, `public/models/<slug>.glb` | 1600 px, 128 spp; about 74 s per pallet (5 views + GLB) on the PC, 35 min for all |
 | Container film | `container.py` | `public/dev/r5/container/000-149.webp` | 1600×900, 32 spp |
 | In its place (hero B) | `anamorph.py` | `public/dev/r5/anamorph/00-60.webp` (frame 30 = sweet spot) | 1920×1080, 40 spp |
@@ -177,6 +181,12 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 - Freestyle (ink lines) draws nothing over holdout surfaces: for a lines-only pass give every surface a fully transparent material instead (`blueprint.py`). AgX shifts any line colour, so render the lines white on transparent and colour them afterwards (`compose_lines.py`).
 - Exact booleans fail silently (the object renders empty) on a cutter with duplicate points or flipped faces: build cutters with bmesh and run `recalc_face_normals` (`frieze.py`, `carved.py`, `inspect.py`).
 - The seamless studio's backdrop must be as bright as the lit floor, or a grey band shows where the floor fades out: about `bg_strength=3` for a white studio under AgX.
+- Cutting a part into pieces: Object Info > Random differs per object, so every piece of one board gets a different tone. `r11.py` (`own_random`) makes the wood read a per-object property `pe_rand` instead and gives all pieces of a part the same value. Apply the bevel before slicing (`new_from_object`), or each cut gets a bevelled groove.
+- `bpy.ops.object.transform_apply(scale=True)` also applies location and rotation (their defaults are True): pass `location=False, rotation=False` when only the scale should go.
+- Mirror rooms: a tinted mirror loses light on every bounce and the far reflections go dark; use a perfectly white mirror and fade it into an emission haze by Light Path > Glossy Depth (`r11.py --job infinity`).
+- Cloth: wind barely moves a sheet lying flat on something. To take a draped cloth off, start a second simulation from the settled shape (`new_from_object` with only the cloth modifier on) and pin one edge to an animated hook (`r11.py --job silk`).
+- Rigid bodies and cloth simulate only when frames are stepped in order (`scene.frame_set`): simulate every frame first and record the result, then render the frames wanted (`--job dominoes`).
+- A portal (another place seen through an opening): a holdout card over the far opening, visible to the camera only, gives alpha 0 there even with an opaque film; render the other place from the same relative camera and lay the first render over it (`opening.py`, `opening_comp.py`). Keep the space behind the arrival pallet empty, since the portal camera looks through it from there. The camera's clip start must be a few millimetres inside a 100 mm opening. Two seam rules learnt the hard way: (1) the camera's look-ahead past the end of one stretch must follow the next stretch's path (`Flight.at` goes on along it), or the heading jumps 2–6° at every hand-off; (2) once the camera is inside the opening, the far pallet of the next place is big enough to see, so its own opening needs the place after next (`portal2`), or it flips from wall to that place at the seam. A fast camera loop needs whole frames on the page (`HeroLoop` `hold`): the player's usual cross-fade between neighbouring frames shows a double picture when the camera moves fast.
 
 **Render rules from the owner (do not break; copied from the earlier catalogue handoff on the Mac):**
 - Chamfers only where the official drawing has them; no generic bevels. Corner chamfer through every layer at that corner: EPAL 1 = 17 mm, EPAL 2/3 = 24 mm, CP = 20 mm, all at 45°.
@@ -190,7 +200,7 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 
 ## 9. Open questions waiting on the owner
 
-- Round 10 (asked 2026-11-25): #76 which hero. Full text: `docs/decisions.md`.
+- Round 11 (asked 2026-11-25): #81 which hero; #82 keep the flight for a section further down. Full text: `docs/decisions.md`.
 - Round 2 (still open): domain, own factory address/phones/email, which EPAL products the licence covers, status of the other certificates (numbers, issuers, validity, scans), trademark ® or ™, what "SOP" and "IIP" mean, whether to mention 20+ years of experience, real figures (capacity, area, HT chamber, people), launch timing.
 
 ## 10. Not in this repo (on the Mac only)
@@ -204,7 +214,7 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 
 ## 11. Next steps (when the owner is ready)
 
-1. Get the round-10 verdict (#76); refine the chosen one (the loads in `loads.py` can be detailed further, e.g. bottle labels, carton print) (keep what landed in mind, section 5: simplicity, one pallet, calm space; rounds 4 and 6 moved the light every possible way, and the owner is tired of heroes that move with the cursor).
+1. Get the round-11 verdict (#81); refine the chosen one (the loads in `loads.py` can be detailed further, e.g. bottle labels, carton print) (keep what landed in mind, section 5: simplicity, one pallet, calm space; rounds 4 and 6 moved the light every possible way, and the owner is tired of heroes that move with the cursor).
 2. Build the production home page around the chosen hero:
    - deferred frame loading and lighter (AVIF) frames on phones;
    - Lighthouse mobile 99–100;
@@ -254,6 +264,8 @@ Phone versions (`make_small.py`): films every second frame at 800×450 (`mark-sm
 - **2026-11-23 (round-8 verdict, PC):** #65–#66. Round 8 archived at `/prototype/round-8/`; round 9 = four bold stills (`r9.py`, `r9/HeroStill.astro`), motion to follow the pick. Anatomy fixed: nothing selected by itself, selections clear (same item again, empty space, Esc), smooth eased turning on 72 angles. Waiting: #67.
 - **2026-11-24:** Round 9 turned down (#68). The owner's idea for round 10 logged (#69); questions #70–#75 asked before building.
 - **2026-11-24/25:** #70–#75 answered (all yes; Stepwell dropped, forklift wanted). Round 9 archived. Round 10 built: eleven loads (`loads.py`), forklift with telescoping mast and racking (`warehouse.py`), `r10.py` jobs, components in `r10/`. Lessons: building dozens of loaded pallets object by object slows Blender to a crawl (each `bpy.ops` call updates the whole scene): build each kind once into its own collection and place collection instances; Blender keeps running after its shell is stopped, so check for a leftover `blender.exe` before starting another render.
+
+- **2026-11-25 (PC):** Round 10 turned down (#76); "The industries" goes to the About page (#79). Round 11 from a checklist the owner ticked (#77–#80): six loops (`r11.py`, `opening.py`, `opening_comp.py`, `r11/HeroLoop.astro`). Round 10 archived at `/prototype/round-10/`. After the first full render of D, the hand-offs between places were fixed (look-ahead along the next stretch; a `portal2` pass for the far opening; frames 60–83 of each stretch re-rendered in about 20 min), the flight plays whole frames, and the phone crops of Sliced and Dominoes moved right so their widest moment stays whole. Lessons in section 8. Waiting: #81, #82.
 
 ## 13. Updating this file
 

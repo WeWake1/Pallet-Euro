@@ -65,13 +65,25 @@ PRESETS = {
     "r10-industries": ("r10.py", "public/dev/r10/industries", "1920x1080", 48, 80, ["--job", "industries"], "frames"),
     "r10-lift":       ("r10.py", "public/dev/r10/lift", "1920x1080", 32, 80, ["--job", "lift"], "frames"),
     "r10-delivery":   ("r10.py", "public/dev/r10/delivery", "1920x1080", 48, 84, ["--job", "delivery"], None),
+    # round 11: six seamless loops (r11.py --job; opening.py)
+    "r11-sliced":     ("r11.py", "public/dev/r11/sliced", "1920x1080", 48, 80, ["--job", "sliced"], "frames"),
+    "r11-fit":        ("r11.py", "public/dev/r11/fit", "1920x1080", 48, 80, ["--job", "fit"], "frames"),
+    "r11-infinity":   ("r11.py", "public/dev/r11/infinity", "1920x1080", 64, 80, ["--job", "infinity"], "frames"),
+    "r11-silk":       ("r11.py", "public/dev/r11/silk", "1920x1080", 48, 80, ["--job", "silk"], "frames"),
+    "r11-dominoes":   ("r11.py", "public/dev/r11/dominoes", "1920x1080", 48, 80, ["--job", "dominoes"], "frames"),
+    # D "Through the opening": one run per place and pass into tools/render/out/opening, then opening_comp.py
+    **{f"r11-open-{pl}-{ps}": ("opening.py", "tools/render/out/opening", "1920x1080", 40, 90, ["--place", pl, "--pass", ps], None)
+       for ps in ("seg", "portal", "portal2") for pl in ("factory", "india", "port", "europe")},
 }
 GROUPS = {"xray": ["xray-photo", "xray-xray", "xray-ids"], "worlds": ["europe", "india"],
           "r6": ["daybreak", "neem", "bullettime"], "r7": ["blueprint", "frieze", "carved"],
           "inner": ["inner-photo", "inner-generic", "inner-ids"],
           "r8-layers": ["r8-explode", "r8-asm-epal1", "r8-asm-epal2", "r8-asm-epal3", "r8-asm-cp1"],
           "anatomy": ["anatomy-film", "anatomy-orbit", "anatomy-ids"], "r8-more": ["r8-container", "r8-glide"],
-          "r9": ["r9-indigo", "r9-plan", "r9-upright", "r9-macro"], "all": list(PRESETS)}
+          "r9": ["r9-indigo", "r9-plan", "r9-upright", "r9-macro"],
+          "r11": ["r11-sliced", "r11-fit", "r11-infinity", "r11-silk", "r11-dominoes"],
+          "r11-opening": [f"r11-open-{pl}-{ps}" for ps in ("seg", "portal", "portal2") for pl in ("factory", "india", "port", "europe")],
+          "all": list(PRESETS)}
 
 
 def find_blender(given):
@@ -152,6 +164,12 @@ def main():
         print(f"   {n} done in {time.time() - t0:.0f} s", flush=True)
         if small and not a.test and not a.no_small and not a.frames:
             smalls.add((small, os.path.basename(out) if "/r5/" in out else out.split("public/dev/")[1]))
+    if any(n.startswith("r11-open-") for n in names):   # lay the seg frames over their portals
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "hero"))
+        import opening_comp
+        opening_comp.run(test=a.test)
+        if not a.test and not a.no_small and not a.frames:
+            smalls.add(("frames", "r11/opening"))
     if smalls:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import make_small

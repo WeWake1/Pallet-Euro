@@ -1,0 +1,117 @@
+---
+// PROTOTYPE round 11 (decisions #77-#80): one player for the six heroes. Every hero is a run of pre-rendered Blender
+// frames that plays by itself, on computers and phones, with no cursor and no scroll:
+//   mode "loop"    frame N would equal frame 0, so it plays round and round (the last frame cross-fades into the first)
+//   mode "bounce"  plays forward, rests, plays back faster, rests (Dominoes: the pallets fall, then rise again)
+// Pauses off screen and in a hidden tab; reduced motion: the poster frame only. Frames: tools/render/hero/r11.py and
+// opening.py, in public/dev/r11/<name>/ (phones: <name>-sm/). The frame count is read from the folder at build time.
+import fs from 'node:fs';
+import path from 'node:path';
+import HeroCopy from '../home/HeroCopy.astro';
+
+interface Props {
+  variant: string;
+  name: string;
+  alt: string;
+  mode?: 'loop' | 'bounce';
+  fps?: number;
+  back?: number;            // bounce: frames per second when it plays back
+  rest?: [number, number];  // bounce: ms resting on the first and on the last frame
+  poster?: number;          // the frame shown first (and the still for reduced motion)
+  fx?: number;              // focus of the picture's crop on computers (0..1 across) ...
+  pfx?: number;             // ... and on phones
+  bg?: string;
+  scrim?: boolean;          // a soft light wash behind the headline, for busy pictures
+  seam?: number;            // loop: ms to cross-fade from the last frame into the first (default: one frame)
+  hold?: boolean;           // whole frames only, no cross-fade between neighbours (fast motion would show double)
+}
+const { variant, name, alt, mode = 'loop', fps = 24, back = 40, rest = [900, 1400], poster = 0, fx = 0.6, pfx = 0.7,
+  bg = '#F3F3F2', scrim = false, seam = 0, hold = false } = Astro.props;
+const DIR = `/dev/r11/${name}`;
+const folder = path.join(process.cwd(), 'public', 'dev', 'r11', name);
+const count = fs.existsSync(folder) ? fs.readdirSync(folder).filter((f) => /^\d+\.webp$/.test(f)).length : 0;
+const pad = (i: number) => String(i).padStart(count > 100 ? 3 : 2, '0');
+const first = Math.min(poster, Math.max(count - 1, 0));
+---
+<section class:list={['photo-hero', 'r11-loop', { scrim }]} data-key={variant} data-dir={DIR} data-count={count}
+  data-mode={mode} data-fps={fps} data-back={back} data-rest={rest.join(',')} data-poster={first} data-fx={fx} data-pfx={pfx} data-seam={seam} data-hold={hold ? '1' : undefined}
+  aria-label="Pallet Euro Packaging" style={`--pic-bg:${bg};--fx:${fx * 100}%;--pfx:${pfx * 100}%`}>
+  <div class="pic" data-pic>
+    {count > 0 ? (
+      <img src={`${DIR}/${pad(first)}.webp`} srcset={`${DIR}-sm/${pad(first)}.webp 960w, ${DIR}/${pad(first)}.webp 1920w`} sizes="100vw"
+        width="1920" height="1080" fetchpriority="high" decoding="async" alt={alt} />
+    ) : (
+      <p class="rendering">Rendering… ({name})</p>
+    )}
+    <canvas aria-hidden="true"></canvas>
+  </div>
+  <div class="copy-wrap"><HeroCopy /></div>
+</section>
+
+<style>
+  .r11-loop .pic img { object-position: var(--fx) 50%; }
+  .rendering { position: absolute; right: var(--pad); bottom: 40px; margin: 0; font-size: 14px; color: var(--ink-3); }
+  /* busy pictures (the infinity room, the flight): a light wash behind the headline on computers */
+  @media (min-width: 901px) {
+    .r11-loop.scrim .pic::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background: linear-gradient(90deg, rgba(250, 250, 248, 0.88) 0%, rgba(250, 250, 248, 0.62) 34%, rgba(250, 250, 248, 0) 58%); }
+  }
+  @media (max-width: 900px) {
+    .r11-loop .pic img { object-position: var(--pfx) 50%; }
+  }
+</style>
+
+<script>
+  import { createSeq, frames } from '../r5/seq';
+  import { whenShown } from '../home/when-shown';
+
+  for (const root of document.querySelectorAll<HTMLElement>('.r11-loop')) {
+    const pic = root.querySelector<HTMLElement>('[data-pic]')!;
+    const d = root.dataset;
+    const count = Number(d.count);
+    if (!count) continue;
+    whenShown(d.key!, pic, () => {
+      const small = innerWidth <= 900;
+      const poster = Number(d.poster);
+      const loop = d.mode === 'loop';
+      const seq = createSeq(pic.querySelector('canvas')!, frames(small ? `${d.dir}-sm` : d.dir!, count),
+        { x: Number(small ? d.pfx : d.fx), y: 0.5 }, poster, loop);
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return {};
+      const fps = Number(d.fps), backFps = Number(d.back);
+      const [rest0, rest1] = d.rest!.split(',').map(Number);
+      const fwd = ((count - 1) / fps) * 1000, rev = ((count - 1) / backFps) * 1000;
+      const cycle = rest0 + fwd + rest1 + rev;
+      const seam = Number(d.seam) || 1000 / fps;        // loop: the last frame into the first
+      const run = fwd + seam;
+      const at = (t: number) => {                      // the frame to show t ms after the start
+        if (loop) {
+          const c = (t + (poster / fps) * 1000) % run;
+          return c < fwd ? (c / 1000) * fps : count - 1 + (c - fwd) / seam;
+        }
+        const c = t % cycle;
+        if (c < rest0) return 0;
+        if (c < rest0 + fwd) return ((c - rest0) / fwd) * (count - 1);
+        if (c < rest0 + fwd + rest1) return count - 1;
+        return (1 - (c - rest0 - fwd - rest1) / rev) * (count - 1);
+      };
+      const hold = d.hold === '1';
+      let visible = true, t = 0, last = performance.now();
+      new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }).observe(root);
+      // start when every frame is in, or after 2.5 s (the player shows the nearest loaded frame meanwhile)
+      Promise.race([seq.done, new Promise((r) => setTimeout(r, 2500))]).then(() => {
+        last = performance.now();
+        const tick = (now: number) => {
+          requestAnimationFrame(tick);
+          const dt = Math.min(now - last, 64);
+          last = now;
+          if (!visible || document.hidden || pic.offsetParent === null) return;
+          t += dt;
+          const f = at(t);
+          seq.show(hold ? Math.floor(f) : f);
+        };
+        requestAnimationFrame(tick);
+      });
+      return { replay: () => { t = 0; } };
+    });
+  }
+</script>

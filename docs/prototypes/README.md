@@ -148,12 +148,30 @@ Archived at `/prototype/round-9/` (`?variant=A|B|C|D`). After eight rounds built
 
 Verdict (decision #68): **"very, very simple"**: simple meant unique, cool and simple, not plain.
 
-## Round 10 · the owner's idea: one pallet, every industry (24–25 Nov 2026, awaiting the owner’s verdict)
+## Round 10 · the owner's idea: one pallet, every industry (24–25 Nov 2026)
 
-Live at `/prototype/` (`?variant=A|B|C`), followed by the Mark and container stories. Built from the owner's own idea (decision #69): an EPAL pallet carrying a different industry's load, one detailed, unbranded product per industry. All three play by themselves (no cursor). The eleven loads (`tools/render/hero/loads.py`): FMCG (bottled drinks on slip sheets, stretch-wrapped), Automotive (tyres), Pharmaceuticals (cartons under a quilted thermal cover with a logger), Chemicals & Polymers (two 200-litre drums), Engineering & Heavy Industries (an electric motor on skids), Food & Agriculture (crates of mangoes), Manufacturing (copper wire on reels), Logistics & Warehousing (mixed cartons with tape and labels, wrapped), Textiles & Apparel (rolls of indigo cloth), Exporters & Importers (jute sacks), Building Materials (clay bricks, strapped). Forklift and racking: `tools/render/hero/warehouse.py`. Scenes: `tools/render/hero/r10.py --job industries|lift|delivery|still`.
+Archived at `/prototype/round-10/` (`?variant=A|B|C`), followed by the Mark and container stories. Built from the owner's own idea (decision #69): an EPAL pallet carrying a different industry's load, one detailed, unbranded product per industry. All three play by themselves (no cursor). The eleven loads (`tools/render/hero/loads.py`): FMCG (bottled drinks on slip sheets, stretch-wrapped), Automotive (tyres), Pharmaceuticals (cartons under a quilted thermal cover with a logger), Chemicals & Polymers (two 200-litre drums), Engineering & Heavy Industries (an electric motor on skids), Food & Agriculture (crates of mangoes), Manufacturing (copper wire on reels), Logistics & Warehousing (mixed cartons with tape and labels, wrapped), Textiles & Apparel (rolls of indigo cloth), Exporters & Importers (jute sacks), Building Materials (clay bricks, strapped). Forklift and racking: `tools/render/hero/warehouse.py`. Scenes: `tools/render/hero/r10.py --job industries|lift|delivery|still`.
 
 | | Hero | Motion |
 |---|---|---|
 | A | The industries | The owner's idea: the camera circles one EPAL 1 in the white studio; every few seconds the load lifts away and the next industry's load comes down and settles (374 frames, a 38-second loop); the industry is named under the headline and marked in the list of industries under the hero (plain text, for search) |
 | B | Lift | A forklift raises an EPAL 1 of bottled drinks to the second beam level of a racking stocked with every other industry's load, drives it in, sets it down and backs out; the camera rises with the load (132 frames, 5.5 s, plays once, then "Play again") |
 | C | The delivery | The forklift combined with the industries: a forklift drives in carrying one industry's load, stops beside the headline while the industry is named, backs out, and the next one drives in. Photoreal sprites from an orthographic camera (every load × 4 wheel phases, transparent, with its own shadow), slid across the page, so it is smooth at any frame rate |
+
+Verdict (decisions #76, #79): **"not fitting in the hero page at all."** A "The industries" moves to the About page, where the site shows the industries it serves.
+
+## Round 11 · "something crazy", picked from a checklist (25 Nov 2026, awaiting the owner’s verdict)
+
+Live at `/prototype/` (`?variant=A..F`), followed by the Mark and container stories. Claude offered eight ideas as a checklist; the owner ticked six (decisions #77–#80). All six are photoreal loops that play by themselves on computers and phones, no cursor, no scroll. One player for all: `src/components/proto/r11/HeroLoop.astro` (seamless loop, or forward-rest-back for Dominoes; it reads the frame count from the folder). Scenes: `tools/render/hero/r11.py --job sliced|fit|infinity|silk|dominoes` and `opening.py` + `opening_comp.py` (`python tools/render/run.py r11 r11-opening`), frames in `public/dev/r11/<name>/` with `-sm` phone versions.
+
+| | Hero | Idea |
+|---|---|---|
+| A | Sliced | The EPAL 1 cut into 40 slices; they draw apart round the middle in a soft sideways ripple, so its end profile repeats in perspective, then close into the whole pallet (120 frames, 5 s) |
+| B | Exact fit | Pallet after pallet comes out of a plaster wall on a flush belt, through a hole cut to the exact end shape of an EPAL 1 (the wall stays in the fork openings like forks); a dim tunnel behind makes the empty hole a crisp silhouette (120 frames, constant speed) |
+| C | Infinity room | One EPAL 1 in a white room with mirror walls and a luminous ceiling: the same pallet repeated endlessly, fading into white haze; the camera drifts on a closed path (144 frames) |
+| D | Through the opening | An endless low flight through fork openings: factory (rows of fresh stacks) → Indian courtyard (jaali light) → port (deep-blue containers) → European warehouse → factory. In through the long side past the branded blocks; the next place shows through the opening before the camera reaches it (a holdout in the first render, filled by a second render of the next place; the boards round the camera cross-fade to the new light). 336 frames, 14 s |
+| E | Blue silk | A sheet of deep-blue silk floats down over the EPAL 1, settles over its boards, and is drawn away up and to the right like a launch; bare pallet at both ends (two cloth simulations) |
+| F | Dominoes | 13 EPAL 1 pallets on end, winding toward the camera, topple one after another in slow motion under a raking sun; the page plays it back faster and they rise again (rigid-body simulation, 144 frames) |
+
+Not built (unticked): "78 nails" and "The flock".
+

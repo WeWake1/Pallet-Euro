@@ -1,11 +1,14 @@
 ---
-// PROTOTYPE (throwaway) · round 10 (24-25 Nov 2026): built from the owner's own idea (decisions #69-#75): an EPAL pallet
-// carrying a different industry's load, one detailed, unbranded product per industry (tools/render/hero/loads.py).
-//   A "The industries"  the owner's idea: the camera circles one EPAL 1 while its load changes, industry by industry
-//   B "Lift"            a forklift raises a loaded EPAL 1 into a racking stocked with every industry's load
-//   C "The delivery"    the forklift and the industries combined: one delivery after another drives up to the headline
-// All three play by themselves (no cursor). Then the approved scroll stories: the Mark and the container.
-// Switch with ?variant=A|B|C or the arrow keys. Earlier rounds: /prototype/round-2/ .. /round-9/.
+// PROTOTYPE (throwaway) · round 11 (25 Nov 2026): "something crazy", the owner's picks from a checklist (decisions
+// #77-#80). Six photoreal loops that play by themselves on computers and phones (no cursor, no scroll):
+//   A "Sliced"              the EPAL 1 cut into 40 slices that draw apart and ripple, then close into the whole pallet
+//   B "Exact fit"           pallet after pallet comes out of a plaster wall through a hole cut to the EPAL 1's end shape
+//   C "Infinity room"       one EPAL 1 in a white room with mirror walls: the same pallet, endlessly
+//   D "Through the opening" an endless flight through fork openings: factory, Indian light, the port, Europe
+//   E "Blue silk"           deep-blue silk floats down over the EPAL 1, settles, and is drawn away like a launch
+//   F "Dominoes"            EPAL 1 pallets standing on end topple one after another, then rise again
+// Then the approved scroll stories: the Mark and the container. Switch with ?variant=A..F or the arrow keys.
+// Earlier rounds: /prototype/round-2/ .. /round-10/.
 import Proto from '../../layouts/Proto.astro';
 import Switcher from '../../components/proto/Switcher.astro';
 import '../../components/proto/home/home.css';
@@ -13,19 +16,27 @@ import Header from '../../components/proto/home/Header.astro';
 import Range from '../../components/proto/home/Range.astro';
 import CertifiedSteps from '../../components/proto/home/CertifiedSteps.astro';
 import Footer from '../../components/proto/home/Footer.astro';
-import HeroIndustries from '../../components/proto/r10/HeroIndustries.astro';
-import HeroLift from '../../components/proto/r10/HeroLift.astro';
-import HeroDelivery from '../../components/proto/r10/HeroDelivery.astro';
+import HeroLoop from '../../components/proto/r11/HeroLoop.astro';
 import MarkFilm from '../../components/proto/r5/MarkFilm.astro';
 import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
 ---
-<Proto title="Round 10 · hero concepts · Pallet Euro (prototype)">
+<Proto title="Round 11 · hero concepts · Pallet Euro (prototype)">
   <div class="pe">
     <Header />
     <main>
-      <div class="variant" data-variant="A"><HeroIndustries /></div>
-      <div class="variant" data-variant="B"><HeroLift /></div>
-      <div class="variant" data-variant="C"><HeroDelivery /></div>
+      <div class="variant" data-variant="A"><HeroLoop variant="A" name="sliced" bg="#F2F2F1" fx={0.5} pfx={0.95}
+        alt="An EPAL 1 Euro pallet cut into thin slices that draw apart in a gentle wave, in a white studio" /></div>
+      <div class="variant" data-variant="B"><HeroLoop variant="B" name="fit" bg="#ECE8E1" fx={0.62} pfx={0.72}
+        alt="EPAL 1 Euro pallets coming one after another out of a plaster wall, through a hole cut to the pallet's exact end shape" /></div>
+      <div class="variant" data-variant="C"><HeroLoop variant="C" name="infinity" bg="#F1F1EF" fx={0.6} pfx={0.66} scrim
+        alt="One EPAL 1 Euro pallet in a white room with mirror walls, repeated endlessly in every direction" /></div>
+      <div class="variant" data-variant="D"><HeroLoop variant="D" name="opening" bg="#EEEDEA" fx={0.5} pfx={0.5} scrim hold
+        alt="A low flight through the fork openings of EPAL 1 Euro pallets, from a pallet factory to an Indian courtyard, a port and a European warehouse" /></div>
+      <div class="variant" data-variant="E"><HeroLoop variant="E" name="silk" bg="#F2F2F1" fx={0.6} pfx={0.7} seam={1100}
+        alt="A sheet of deep-blue silk floating down over an EPAL 1 Euro pallet and drawn away again, in a white studio" /></div>
+      <div class="variant" data-variant="F"><HeroLoop variant="F" name="dominoes" mode="bounce" back={44} rest={[900, 1600]}
+        bg="#F1F1F0" fx={0.62} pfx={0.88}
+        alt="A winding line of EPAL 1 Euro pallets standing on end, toppling one after another like dominoes" /></div>
       <MarkFilm />
       <Range />
       <CertifiedSteps />
@@ -33,7 +44,8 @@ import ContainerFilm from '../../components/proto/r5/ContainerFilm.astro';
     </main>
     <Footer />
   </div>
-  <Switcher round="Round 10" variants={[{ key: 'A', name: 'The industries' }, { key: 'B', name: 'Lift' }, { key: 'C', name: 'The delivery' }]} />
+  <Switcher round="Round 11" variants={[{ key: 'A', name: 'Sliced' }, { key: 'B', name: 'Exact fit' }, { key: 'C', name: 'Infinity room' },
+    { key: 'D', name: 'Through the opening' }, { key: 'E', name: 'Blue silk' }, { key: 'F', name: 'Dominoes' }]} />
 </Proto>
 
 <style is:global>
